@@ -63,12 +63,12 @@ export const hoverGrow = {
 
 export const navbarVariant = {
   transparent: { 
-    backgroundColor: "rgba(0, 0, 0, 0)",
+    backgroundColor: "rgba(255, 255, 255, 0)",
     backdropFilter: "blur(0px)",
     transition: { duration: 0.3 }
   },
   solid: { 
-    backgroundColor: "rgba(18, 18, 18, 0.95)",
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
     backdropFilter: "blur(10px)",
     transition: { duration: 0.3 }
   }

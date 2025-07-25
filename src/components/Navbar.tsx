@@ -39,37 +39,46 @@ const Navbar = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <img
-            src="/lovable-uploads/2597bf43-3192-45f3-bdf1-f242324ff2f5.png"
-            alt="Maashura IT Consultancy & Hardwares Logo"
-            className="h-10 w-auto"
-          />
-          <span className="text-lg font-bold text-foreground hidden sm:block">
-            Maashura IT
-          </span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img
+              src="/lovable-uploads/2597bf43-3192-45f3-bdf1-f242324ff2f5.png"
+              alt="Maashura IT Consultancy & Hardwares Logo"
+              className="h-10 w-auto"
+            />
+            <span className="text-lg font-bold text-foreground hidden sm:block">
+              Maashura IT
+            </span>
+          </Link>
         </motion.div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link, index) => (
-            <motion.button
-              key={link.id}
-              onClick={() => scrollToSection(link.id)}
-              className="text-foreground hover:text-primary transition-colors relative"
+            <motion.div
+              key={link.path}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
             >
-              <span className="relative">
-                {link.name}
-                <motion.div
-                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary"
-                  whileHover={{ width: '100%' }}
-                  transition={{ duration: 0.3 }}
-                />
-              </span>
-            </motion.button>
+              <Link
+                to={link.path}
+                className={`text-foreground hover:text-primary transition-colors relative ${
+                  location.pathname === link.path ? 'text-primary font-semibold' : ''
+                }`}
+              >
+                <motion.span
+                  className="relative"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {link.name}
+                  <motion.div
+                    className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary"
+                    whileHover={{ width: '100%' }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.span>
+              </Link>
+            </motion.div>
           ))}
         </div>
 
@@ -97,16 +106,22 @@ const Navbar = () => {
       >
         <div className="bg-card/95 backdrop-blur-lg rounded-lg p-4 space-y-4">
           {navLinks.map((link, index) => (
-            <motion.button
-              key={link.id}
-              onClick={() => scrollToSection(link.id)}
-              className="block w-full text-left text-foreground hover:text-primary transition-colors py-2"
+            <motion.div
+              key={link.path}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              {link.name}
-            </motion.button>
+              <Link
+                to={link.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left text-foreground hover:text-primary transition-colors py-2 ${
+                  location.pathname === link.path ? 'text-primary font-semibold' : ''
+                }`}
+              >
+                {link.name}
+              </Link>
+            </motion.div>
           ))}
         </div>
       </motion.div>

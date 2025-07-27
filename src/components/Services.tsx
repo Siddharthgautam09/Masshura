@@ -1,130 +1,272 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { 
   Code2, 
-  Cloud, 
-  Smartphone, 
+  Users, 
+  ShoppingCart, 
   Database, 
-  Shield, 
-  Cog,
-  Globe,
-  Zap
+  Cloud, 
+  Link,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Boxes } from '@/components/ui/background-boxes';
+import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 
 const Services = () => {
+  const [expandedService, setExpandedService] = useState(null);
+  const [showAllServices, setShowAllServices] = useState(false); // New state for showing all services
+
   const services = [
     {
+      id: 1,
       icon: Code2,
       title: "Custom Software Development",
-      description: "Tailored software solutions built to meet your specific business requirements and scale with your growth.",
-      features: ["Web Applications", "Desktop Software", "API Development"]
+      subtitle: "Easy, Fast, Functional",
+      shortDescription: "From idea to execution, we deliver custom-built software solutions.",
+      fullDescription: "From idea to execution, we deliver custom-built software that's fast, functional, and future-ready. Our expert developers work closely with your team to build intuitive systems that grow with your business.",
+      image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      alt: "Custom software development team building ERP system in Dubai"
     },
     {
-      icon: Cloud,
-      title: "SaaS Solutions",
-      description: "Cloud-based software-as-a-service platforms that provide scalable and accessible business solutions.",
-      features: ["Cloud Hosting", "Multi-tenant Architecture", "Subscription Management"]
+      id: 2,
+      icon: Users,
+      title: "IT Consulting & Digital Transformation",
+      subtitle: "Strategic Technology Guidance",
+      shortDescription: "Expert IT consulting services built around what actually works.",
+      fullDescription: "Tired of generic advice? Our IT consulting services in Dubai and across GCC are built around what actually works for your industry. We help you digitize operations, improve performance, and stay ahead of competitors.",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      alt: "Maashura experts delivering digital transformation through custom IT software"
     },
     {
-      icon: Smartphone,
-      title: "Mobile App Development",
-      description: "Native and cross-platform mobile applications for iOS and Android that engage your customers.",
-      features: ["iOS Development", "Android Development", "Cross-platform Solutions"]
+      id: 3,
+      icon: ShoppingCart,
+      title: "E-commerce Development",
+      subtitle: "Mobile & Web Optimized",
+      shortDescription: "Scalable e-commerce platforms tailored to your brand.",
+      fullDescription: "We create scalable e-commerce platforms tailored to your brand — built to perform across mobile and web. Whether you're in retail, B2B, or subscriptions, we deliver performance-focused solutions.",
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      alt: "E-commerce development for businesses in UAE and GCC"
     },
     {
+      id: 4,
       icon: Database,
-      title: "Database Solutions",
-      description: "Robust database design, optimization, and management services for efficient data handling.",
-      features: ["Database Design", "Performance Optimization", "Data Migration"]
+      title: "ERP & CRM Development",
+      subtitle: "Streamline Without the Complexity",
+      shortDescription: "Affordable ERP and CRM systems for small to mid-scale businesses.",
+      fullDescription: "Boost productivity with our affordable ERP and CRM systems made for small to mid-scale businesses in the UAE. Automate workflows, track leads, and generate reports — all without the overhead of bulky legacy systems.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      alt: "ERP and SaaS consulting for small businesses in UAE"
     },
     {
-      icon: Shield,
-      title: "Cybersecurity",
-      description: "Comprehensive security solutions to protect your digital assets and ensure compliance.",
-      features: ["Security Audits", "Penetration Testing", "Compliance Management"]
+      id: 5,
+      icon: Cloud,
+      title: "SaaS Platform Development",
+      subtitle: "Launch Your Own Cloud Product",
+      shortDescription: "Build your own SaaS product with cloud-native architectures.",
+      fullDescription: "Want to build your own SaaS product? We help bring your idea to life with cloud-native architectures designed for industries like finance, retail, healthcare, education, and niche services.",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      alt: "SaaS platform development for cloud-based business solutions"
     },
     {
-      icon: Cog,
-      title: "IT Consulting",
-      description: "Strategic IT consulting to help you make informed technology decisions and optimize operations.",
-      features: ["Technology Strategy", "Digital Transformation", "Process Optimization"]
-    },
-    {
-      icon: Globe,
-      title: "Web Development",
-      description: "Modern, responsive websites and web applications that deliver exceptional user experiences.",
-      features: ["Responsive Design", "E-commerce Solutions", "CMS Development"]
-    },
-    {
-      icon: Zap,
-      title: "System Integration",
-      description: "Seamless integration of various systems and applications to streamline your business processes.",
-      features: ["API Integration", "Legacy System Modernization", "Workflow Automation"]
+      id: 6,
+      icon: Link,
+      title: "API Integration & System Syncing",
+      subtitle: "No More Silos",
+      shortDescription: "Seamless API integration to connect your digital tools.",
+      fullDescription: "Tired of disconnected systems? We offer API integration and custom data migrations to ensure your tools work together seamlessly. From payment gateways to CRMs, we make your digital tools talk to each other.",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      alt: "API integration services connecting business systems in UAE"
     }
   ];
 
+  const toggleExpand = (serviceId) => {
+    setExpandedService(expandedService === serviceId ? null : serviceId);
+  };
+
+  const toggleShowAllServices = () => {
+    setShowAllServices(!showAllServices);
+  };
+
+  // Show only first 3 services initially, all services when showAllServices is true
+  const displayedServices = showAllServices ? services : services.slice(0, 3);
+
   return (
-    <section id="services" className="py-20 bg-secondary/50">
-      <div className="container mx-auto px-4">
+    <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
+      {/* Background Layer */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        <Boxes />
+        <div className="absolute inset-0 bg-slate-900/70 z-10" />
+      </div>
+
+      {/* Content Layer */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+        {/* Section Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Our <span className="bg-gradient-primary bg-clip-text text-transparent">Services</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 text-[#f8fafc] leading-tight">
+            Our Services
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            We provide comprehensive IT solutions that drive digital transformation 
-            and accelerate business growth through innovative technology.
+          <p className="text-base sm:text-lg md:text-xl text-[#f8fafc] max-w-4xl mx-auto leading-relaxed">
+            At Maashura, we specialize in Custom Software Development for businesses across the UAE and GCC. 
+            Whether you're launching a new venture or scaling an existing one, our solutions are simple, 
+            affordable, and fully customized to your goals.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
-              whileHover={{ y: -10 }}
-              viewport={{ once: true }}
-            >
-              <Card className="h-full hover:shadow-elegant transition-all duration-300 border-0 bg-card/80 backdrop-blur-sm">
-                <CardHeader className="text-center">
-                  <motion.div
-                    className="mx-auto mb-4 p-3 bg-gradient-primary rounded-full w-fit"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <service.icon className="text-primary-foreground" size={32} />
-                  </motion.div>
-                  <CardTitle className="text-xl font-bold text-foreground">
-                    {service.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-muted-foreground mb-4 text-center">
-                    {service.description}
-                  </CardDescription>
-                  <ul className="space-y-2">
-                    {service.features.map((feature, featureIndex) => (
-                      <li
-                        key={featureIndex}
-                        className="text-sm text-muted-foreground flex items-center"
-                      >
-                        <div className="w-2 h-2 bg-primary rounded-full mr-3 flex-shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+        {/* Services Grid - Dynamic based on showAllServices */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 justify-items-center">
+          <AnimatePresence>
+            {displayedServices.map((service, index) => (
+              <motion.div
+                key={service.id}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -50 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="w-full max-w-sm"
+              >
+                <CardContainer className="inter-var" containerClassName="py-0">
+                  <CardBody className="bg-slate-800/90 relative group/card hover:shadow-2xl hover:shadow-[#6AAEFF]/[0.1] border-slate-700/50 w-80 h-[450px] rounded-xl border backdrop-blur-sm overflow-hidden flex flex-col">
+                    
+                    {/* Image Section */}
+                    <CardItem translateZ="100" className="w-full flex-shrink-0">
+                      <div className="relative h-36 w-full overflow-hidden rounded-t-xl">
+                        <img
+                          src={service.image}
+                          alt={service.alt}
+                          className="h-full w-full object-cover group-hover/card:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+                        
+                        {/* Floating Icon */}
+                        <CardItem
+                          translateZ="120"
+                          className="absolute top-3 left-3 p-1.5 bg-gradient-to-r from-[#6AAEFF] to-[#6ECCAF] rounded-full shadow-lg"
+                        >
+                          <service.icon className="text-white" size={18} />
+                        </CardItem>
+                      </div>
+                    </CardItem>
+
+                    {/* Content Section */}
+                    <div className="p-4 flex flex-col flex-grow">
+                      {/* Service Title & Subtitle */}
+                      <div className="mb-3 flex-shrink-0">
+                        <CardItem
+                          translateZ="50"
+                          className="text-base font-bold text-[#f8fafc] mb-1 block leading-tight"
+                        >
+                          {service.title}
+                        </CardItem>
+                        <CardItem
+                          as="p"
+                          translateZ="40"
+                          className="text-xs text-[#6AAEFF] font-medium"
+                        >
+                          {service.subtitle}
+                        </CardItem>
+                      </div>
+
+                      {/* Service Description */}
+                      <CardItem translateZ="60" className="w-full mb-4 flex-grow">
+                        <div className="h-full flex flex-col justify-start">
+                          <AnimatePresence mode="wait">
+                            {expandedService === service.id ? (
+                              <motion.p
+                                key="full"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="text-sm text-[#f8fafc] leading-relaxed overflow-y-auto"
+                              >
+                                {service.fullDescription}
+                              </motion.p>
+                            ) : (
+                              <motion.p
+                                key="short"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, delay: 0.4 }}
+                                className="text-sm text-[#f8fafc] leading-relaxed"
+                              >
+                                {service.fullDescription}
+                              </motion.p>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </CardItem>
+
+                      {/* Action Buttons */}
+                      <div className="flex justify-between items-center mt-auto flex-shrink-0">
+                        <CardItem
+                          translateZ="20"
+                          as="button"
+                          onClick={() => toggleExpand(service.id)}
+                          className="flex items-center text-[#6AAEFF] hover:text-[#6ECCAF] transition-colors duration-300 font-medium text-xs"
+                        >
+                          {expandedService === service.id ? (
+                            <>
+                              Show Less <ChevronUp className="ml-1" size={12} />
+                            </>
+                          ) : (
+                            <>
+                              Learn More <ChevronDown className="ml-1" size={12} />
+                            </>
+                          )}
+                        </CardItem>
+                        
+                        <CardItem
+                          translateZ="20"
+                          as="button"
+                          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#6AAEFF] to-[#6ECCAF] text-white text-xs font-bold hover:shadow-lg hover:shadow-[#6AAEFF]/25 transition-all duration-300 hover:scale-105"
+                        >
+                          Get Started
+                        </CardItem>
+                      </div>
+                    </div>
+
+                    {/* 3D Accent Elements */}
+                    <CardItem
+                      translateZ={80}
+                      className="absolute top-3 right-3 w-1.5 h-1.5 bg-[#6AAEFF] rounded-full opacity-60 pointer-events-none"
+                    />
+                    <CardItem
+                      translateZ={85}
+                      className="absolute bottom-3 right-3 w-1 h-1 bg-[#6ECCAF] rounded-full opacity-40 pointer-events-none"
+                    />
+
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/5 via-transparent to-[#6ECCAF]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                  </CardBody>
+                </CardContainer>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
+
+        {/* View All Services / Show Less Button */}
+        <motion.div
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <button 
+            onClick={toggleShowAllServices}
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#6AAEFF] to-[#6ECCAF] text-white font-bold hover:shadow-lg hover:shadow-[#6AAEFF]/25 transition-all duration-300 hover:scale-105"
+          >
+            {showAllServices ? 'Show Less Services' : 'View All Services'}
+          </button>
+        </motion.div>
       </div>
     </section>
   );

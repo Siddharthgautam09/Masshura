@@ -138,13 +138,14 @@ const HeroSection = () => {
               cutting-edge hardware, and expert IT consultancy services.
             </motion.p>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Updated with new color scheme */}
             <motion.div
               className="flex flex-col sm:flex-row gap-6 justify-center items-center relative z-30"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
+              {/* Primary CTA Button - Light Blue (#6AAEFF) */}
               <motion.div 
                 whileHover={{ scale: 1.05, y: -2 }} 
                 whileTap={{ scale: 0.95 }}
@@ -152,16 +153,18 @@ const HeroSection = () => {
               >
                 <Button
                   onClick={scrollToContact}
-                  className="relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 text-lg rounded-full shadow-2xl shadow-blue-500/25 transition-all duration-300"
+                  className="relative bg-[#6AAEFF] hover:bg-[#5A9EEF] text-white px-10 py-4 text-lg rounded-full shadow-2xl shadow-[#6AAEFF]/25 transition-all duration-300 border-0"
                 >
-                  <span className="relative z-10 flex items-center">
+                  <span className="relative z-10 flex items-center font-semibold">
                     Get Started Today
                     <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
                   </span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                  {/* Gradient accent overlay on hover */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#6AAEFF] to-[#6ECCAF] opacity-0 group-hover:opacity-10 transition-opacity"></div>
                 </Button>
               </motion.div>
 
+              {/* Secondary CTA Button - Light Blue outline */}
               <motion.div 
                 whileHover={{ scale: 1.05, y: -2 }} 
                 whileTap={{ scale: 0.95 }}
@@ -169,7 +172,7 @@ const HeroSection = () => {
                 <Button
                   variant="outline"
                   onClick={scrollToServices}
-                  className="border-2 border-blue-500/50 bg-transparent text-blue-300 hover:bg-blue-500/10 hover:border-blue-400 px-10 py-4 text-lg rounded-full transition-all duration-300"
+                  className="border-2 border-[#6AAEFF]/50 bg-transparent text-[#6AAEFF] hover:bg-[#6AAEFF]/10 hover:border-[#6AAEFF] px-10 py-4 text-lg rounded-full transition-all duration-300 font-medium"
                 >
                   Explore Services
                 </Button>
@@ -201,7 +204,7 @@ const HeroSection = () => {
             }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden shadow-2xl shadow-blue-500/10 bg-slate-800">
+            <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden shadow-2xl shadow-[#6AAEFF]/10 bg-slate-800">
               {heroImages.map((image, index) => (
                 <motion.div
                   key={index}
@@ -227,8 +230,8 @@ const HeroSection = () => {
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
                       <div className="text-center p-8">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-blue-500/20 rounded-full flex items-center justify-center">
-                          <Code className="w-8 h-8 text-blue-400" />
+                        <div className="w-16 h-16 mx-auto mb-4 bg-[#6AAEFF]/20 rounded-full flex items-center justify-center">
+                          <Code className="w-8 h-8 text-[#6AAEFF]" />
                         </div>
                         <p className="text-gray-300 text-sm max-w-xs">
                           {image.alt}
@@ -240,7 +243,7 @@ const HeroSection = () => {
               ))}
             </div>
 
-            {/* Slide indicators */}
+            {/* Slide indicators - Updated with new accent color */}
             <div className="flex justify-center mt-6 space-x-3">
               {heroImages.map((_, index) => (
                 <button
@@ -249,7 +252,7 @@ const HeroSection = () => {
                   className={cn(
                     "w-3 h-3 rounded-full transition-all duration-300",
                     index === currentSlide 
-                      ? "bg-blue-500 scale-125" 
+                      ? "bg-[#6AAEFF] scale-125" 
                       : "bg-gray-500 hover:bg-gray-400"
                   )}
                   aria-label={`Go to slide ${index + 1}`}

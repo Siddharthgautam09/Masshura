@@ -1,101 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
 
-@layer base {
-  :root {
-    /* Maashura Brand Colors */
-    --brand-primary: 212 100% 71%;        /* #6AAEFF */
-    --brand-accent: 151 65% 71%;          /* #6ECCAF */
-    --brand-dark: 0 0% 7%;                /* #121212 */
-    --brand-text-light: 0 0% 88%;         /* #E0E0E0 */
-    --brand-text-muted: 0 0% 63%;         /* #A0A0A0 */
-    
-    /* Design System Colors */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
-
-    --primary: 212 100% 71%;               /* Brand Primary */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 0 0% 7%;
-
-    --muted: 210 20% 96%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 151 65% 71%;                 /* Brand Accent */
-    --accent-foreground: 0 0% 7%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 212 100% 71%;
-
-    --radius: 0.75rem;
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(212 100% 71%), hsl(151 65% 71%));
-    --gradient-hero: linear-gradient(135deg, hsl(212 100% 71% / 0.1), hsl(151 65% 71% / 0.1));
-    --gradient-dark: linear-gradient(135deg, hsl(0 0% 7%), hsl(0 0% 10%));
-    
-    /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(212 100% 71% / 0.3);
-    --shadow-glow: 0 0 40px hsl(212 100% 71% / 0.4);
-    
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .dark {
-    --background: 0 0% 7%;                 /* Brand Dark */
-    --foreground: 0 0% 88%;                /* Brand Text Light */
-
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 88%;
-
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 88%;
-
-    --primary: 212 100% 71%;               /* Brand Primary */
-    --primary-foreground: 0 0% 7%;
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 88%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 63%;          /* Brand Text Muted */
-
-    --accent: 151 65% 71%;                 /* Brand Accent */
-    --accent-foreground: 0 0% 7%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 212 100% 71%;
-  }
+:root {
+  --page-gradient: linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
+  --dot-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
+body {
+  background: var(--page-gradient);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--dot-pattern);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
+}
+

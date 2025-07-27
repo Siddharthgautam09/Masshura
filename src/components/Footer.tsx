@@ -37,7 +37,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-background border-t border-border">
+    <footer className=" bg-[#f6f8fa] border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Company Info */}
@@ -54,9 +54,6 @@ const Footer = () => {
                 alt="Maashura IT Logo"
                 className="h-10 w-auto"
               />
-              <span className="text-xl font-bold text-foreground">
-                Maashura IT
-              </span>
             </div>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               Transforming businesses through innovative software solutions, 

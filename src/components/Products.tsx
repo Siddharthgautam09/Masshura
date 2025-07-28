@@ -8,54 +8,60 @@ const Products = () => {
   // Transform products data to match HoverEffect component format
   const products = [
     {
+      id: "joonms-cafm",
       title: "JoonMS CaFM",
       description: "Smart Facilities Management Software designed specifically for FM contractors in Dubai and UAE. Features include Maintenance Scheduling, Work Order Management, Asset Tracking, and Compliance Reporting.",
-      link: "https://www.Joonms.com/",
+      link: "https://www.Joonms.com/cafm",
       icon: Building2,
       price: "Free test drive available",
       popular: true,
       features: ["Maintenance Scheduling", "Work Order Management", "Asset Tracking", "Compliance Reporting"]
     },
     {
+      id: "erp-systems",
       title: "ERP Systems for Real Estate, MEP & Trading",
       description: "Ready to deploy, customizable, and region-friendly ERP solutions built for UAE businesses. Includes Real Estate Management, MEP Project Control, Trading Operations, and UAE Compliance.",
-      link: "https://www.Joonms.com/",
+      link: "https://www.Joonms.com/erp",
       icon: Settings,
       price: "Customizable pricing",
       popular: false,
       features: ["Real Estate Management", "MEP Project Control", "Trading Operations", "UAE Compliance"]
     },
     {
+      id: "inventory-accounting",
       title: "Inventory, Accounting & HRMS Platforms",
       description: "Designed for UAE compliance and simplicity with integrated business management tools. Features Inventory Control, UAE VAT Compliance, HR Management, and Payroll Processing.",
-      link: "https://www.Joonms.com/",
+      link: "https://www.Joonms.com/inventory",
       icon: Users,
       price: "Starting from AED 500/month",
       popular: false,
       features: ["Inventory Control", "UAE VAT Compliance", "HR Management", "Payroll Processing"]
     },
     {
+      id: "payment-trackers",
       title: "Cheque & Payment Trackers",
       description: "Stay on top of receivables and financial reporting with automated tracking systems. Includes Cheque Tracking, Payment Reminders, Financial Reports, and Cash Flow Management.",
-      link: "https://www.Joonms.com/",
+      link: "https://www.Joonms.com/payments",
       icon: CreditCard,
       price: "Starting from AED 300/month",
       popular: false,
       features: ["Cheque Tracking", "Payment Reminders", "Financial Reports", "Cash Flow Management"]
     },
     {
+      id: "fleet-management",
       title: "Fleet Management",
       description: "Comprehensive fleet management solution for businesses operating vehicle fleets in the GCC. Features Vehicle Tracking, Maintenance Alerts, Driver Management, and Fuel Monitoring.",
-      link: "https://www.Joonms.com/",
+      link: "https://www.Joonms.com/fleet",
       icon: Car,
       price: "Starting from AED 400/month",
       popular: false,
       features: ["Vehicle Tracking", "Maintenance Alerts", "Driver Management", "Fuel Monitoring"]
     },
     {
+      id: "attendance-calendar",
       title: "Attendance & Calendar Modules",
       description: "Everything you need to automate workforce management and scheduling operations. Includes Biometric Integration, Shift Scheduling, Leave Management, and Overtime Tracking.",
-      link: "https://www.Joonms.com/",
+      link: "https://www.Joonms.com/attendance",
       icon: Calendar,
       price: "Starting from AED 200/month",
       popular: false,

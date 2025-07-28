@@ -71,7 +71,22 @@ const Navbar = () => {
                   src="/lovable-uploads/2597bf43-3192-45f3-bdf1-f242324ff2f5.png"
                   alt="Maashura IT Consultancy Logo"
                   className="h-8 w-auto rounded-md"
+                  width="120"
+                  height="32"
+                  loading="eager"
+                  onError={(e) => {
+                    // Fallback to text logo if image fails
+                    e.currentTarget.style.display = 'none';
+                    const textLogo = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (textLogo) textLogo.style.display = 'block';
+                  }}
                 />
+                <div 
+                  className="text-xl font-bold text-white hidden"
+                  style={{ height: '32px', lineHeight: '32px' }}
+                >
+                  Maashura
+                </div>
               </motion.div>
             </Link>
           </motion.div>

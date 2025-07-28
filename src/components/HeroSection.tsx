@@ -19,14 +19,20 @@ const HeroSection = () => {
   const scrollToContact = () => {
     const element = document.getElementById('contact');
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      // Use setTimeout to prevent blocking
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
     }
   };
 
   const scrollToServices = () => {
     const element = document.getElementById('services');
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      // Use setTimeout to prevent blocking
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
     }
   };
 

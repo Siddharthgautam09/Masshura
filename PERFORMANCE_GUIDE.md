@@ -9,6 +9,9 @@
 - Missing image dimensions causing layout shifts
 - CSS `@import` causing delayed stylesheet loading
 - No loading states during component lazy loading
+- **Image loading errors** causing layout shifts
+- **getBoundingClientRect calls** forcing layout recalculation
+- **scrollIntoView calls** blocking the main thread
 
 **Solutions implemented:**
 - ✅ **Code splitting**: Bundle size reduced from 594KB to multiple smaller chunks (largest now 141KB)
@@ -17,21 +20,29 @@
 - ✅ **Loading states**: Added Suspense with loading fallbacks
 - ✅ **Critical CSS**: Inlined critical styles in HTML to prevent FOUC
 - ✅ **Lazy loading**: Implemented lazy loading for route components
+- ✅ **Fixed logo loading**: Added fallback for failed image loads
+- ✅ **Optimized animations**: Used requestAnimationFrame for smooth interactions
+- ✅ **Non-blocking scrolls**: Made scrollIntoView calls asynchronous
 
 ### 2. Mobile Deployment Issues ✅
 
 **Problems identified:**
-- Missing SPA routing configuration for Vercel
+- Missing SPA routing configuration for Vercel/Netlify
 - No proper cache headers for mobile devices
 - Large bundle affecting mobile performance
 - Missing mobile-specific viewport settings
+- **Image serving issues** on Netlify deployment
+- **Missing error boundaries** causing crashes on mobile
 
 **Solutions implemented:**
 - ✅ **Vercel configuration**: Added `vercel.json` with proper SPA routing
+- ✅ **Netlify configuration**: Added `netlify.toml` and `_redirects` for proper deployment
 - ✅ **Cache headers**: Optimized `_headers` file with proper cache control
 - ✅ **Mobile viewport**: Enhanced viewport meta tag with `viewport-fit=cover`
 - ✅ **Resource preloading**: Added preconnect and preload hints
 - ✅ **Bundle optimization**: Code splitting reduced mobile load times
+- ✅ **Error handling**: Added ErrorBoundary to prevent crashes
+- ✅ **Image fallbacks**: Added proper error handling for missing images
 
 ## Performance Improvements
 

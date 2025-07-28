@@ -14,6 +14,9 @@ import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import SupplierRegistration from "./pages/SupplierResgistration";
 import ItConsulting from "./pages/ItConsulting";
+import Services from "./components/Services";
+import WhyUs from "./components/WhyUs";
+import AreasWeServe from "./components/AreaWeServe";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -32,6 +35,9 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
           <Route path="/SupplierRegistration" element={<SupplierRegistration />} />
           <Route path="/ItConsulting" element={<ItConsulting />} />
+          <Route path="/Services" element={<Services />} />
+          <Route path="/WhyUs" element={<WhyUs />} />
+          <Route path="/AreaWeServe" element={<AreasWeServe />} />
         </Routes>
         <Footer />
         <ScrollToTopButton />

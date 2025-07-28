@@ -14,7 +14,6 @@ import ScrollToTopButton from '@/components/ScrollToTopButton';
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <HeroSection />
       <AboutUs />
       <Services />

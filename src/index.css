@@ -1,5 +1,6 @@
-@import "tailwindcss";
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --page-gradient: linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
@@ -11,6 +12,7 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  font-display: swap;
 }
 
 body::before {

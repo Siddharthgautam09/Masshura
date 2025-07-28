@@ -224,6 +224,9 @@ const HeroSection = () => {
                         className="w-full h-full object-cover"
                         loading={index === 0 ? "eager" : "lazy"}
                         onError={() => handleImageError(index)}
+                        width="800"
+                        height="600"
+                        style={{ aspectRatio: '4/3' }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-900/20" />
                     </>

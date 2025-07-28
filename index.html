@@ -2,10 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>maashura-motion-forge</title>
     <meta name="description" content="Lovable Generated Project" />
     <meta name="author" content="Lovable" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.css" as="style" />
+    <link rel="preconnect" href="https://media.istockphoto.com" />
+    <link rel="preconnect" href="https://www.shutterstock.com" />
+    
+    <!-- Critical CSS inline to prevent FOUC -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      /* Loading state */
+      .loading-skeleton {
+        background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+      }
+      @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
 
     <meta property="og:title" content="maashura-motion-forge" />
     <meta property="og:description" content="Lovable Generated Project" />

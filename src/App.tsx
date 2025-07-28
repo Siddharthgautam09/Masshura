@@ -13,7 +13,7 @@ import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import SupplierRegistration from "./pages/SupplierResgistration";
-
+import ItConsulting from "./pages/ItConsulting";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +31,7 @@ const App = () => (
           <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/SupplierRegistration" element={<SupplierRegistration />} />
+          <Route path="/ItConsulting" element={<ItConsulting />} />
         </Routes>
         <Footer />
         <ScrollToTopButton />

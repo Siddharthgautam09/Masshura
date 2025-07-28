@@ -10,7 +10,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { Boxes } from '@/components/ui/background-boxes';
+// import { Boxes } from '@/components/ui/background-boxes';
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 
 const Services = () => {
@@ -95,11 +95,11 @@ const Services = () => {
 
   return (
     <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
-      {/* Background Layer */}
+      {/* Background Layer 
       <div className="absolute inset-0 w-full h-full z-0">
         <Boxes />
         <div className="absolute inset-0 bg-slate-900/70 z-10" />
-      </div>
+      </div>*/}
 
       {/* Content Layer */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">

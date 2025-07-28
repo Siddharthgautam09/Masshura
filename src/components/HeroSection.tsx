@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowRight, Code, Cpu, Globe, CheckCircle, Users, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Boxes } from '@/components/ui/background-boxes';
+// import { Boxes } from '@/components/ui/background-boxes';
 import { cn } from "@/lib/utils";
 
 const HeroSection = () => {
@@ -76,7 +76,7 @@ const HeroSection = () => {
         {/* BackgroundBoxes Grid - Layer 1 */}
         <div className="absolute inset-0 w-full h-full bg-slate-900">
           <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
-          <Boxes />
+          {/* <Boxes /> */}
         </div>
 
         {/* Main Content - Layer 3 */}
@@ -194,7 +194,7 @@ const HeroSection = () => {
         {/* BackgroundBoxes Grid - Identical to landing page */}
         <div className="absolute inset-0 w-full h-full bg-slate-900">
           <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
-          <Boxes />
+          {/* <Boxes /> */}
         </div>
 
         <div className="container mx-auto px-6 lg:px-8 text-center relative z-30">

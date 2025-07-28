@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Building2, Users, Settings, FileText, CreditCard, Car, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Boxes } from '@/components/ui/background-boxes';
+// import { Boxes } from '@/components/ui/background-boxes';
 import { HoverEffect } from '@/components/ui/card-hover-effect';
 
 const Products = () => {
@@ -71,13 +71,13 @@ const Products = () => {
 
   return (
     <section id="products" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
-      {/* Background Layer with Boxes */}
+      {/* Background Layer with Boxes 
       <div className="absolute inset-0 w-full h-full z-0">
         <div className="absolute inset-0 w-full h-full">
           <Boxes />
         </div>
         <div className="absolute inset-0 bg-slate-900/70 z-10" />
-      </div>
+      </div>*/}
 
       {/* Meta tags for SEO */}
       <meta name="keywords" content="UAE ERP Software, Facilities Management Software Dubai, CRM UAE, Real Estate ERP, Custom Software UAE, Dubai IT Solutions, GCC Enterprise Tools, Maashura" />

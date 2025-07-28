@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { CheckCircle, DollarSign, Rocket, Globe, Users, Briefcase, RotateCcw, Smartphone, Settings, TrendingUp, Link } from 'lucide-react';
-import { Boxes } from '@/components/ui/background-boxes';
+// import { Boxes } from '@/components/ui/background-boxes';
 
 const WhyUs = () => {
   const reasons = [
@@ -66,13 +66,13 @@ const WhyUs = () => {
 
   return (
     <section id="why-us" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
-      {/* Properly Contained Background Layer */}
+      {/* Properly Contained Background Layer 
       <div className="absolute inset-0 w-full h-full z-0">
         <div className="absolute inset-0 w-full h-full">
           <Boxes />
         </div>
         <div className="absolute inset-0 bg-slate-900/70 z-10" />
-      </div>
+      </div>*/}
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <motion.div

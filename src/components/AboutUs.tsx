@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
-import { Boxes } from '@/components/ui/background-boxes';
+// import { Boxes } from '@/components/ui/background-boxes';
 
 const AboutUs = () => {
   return (
     <section id="about" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
-      {/* BackgroundBoxes Grid - Same as hero section */}
+      {/* BackgroundBoxes Grid - Same as hero section 
       <div className="absolute inset-0 w-full h-full bg-slate-900">
         <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
         <Boxes />
-      </div>
+      </div>*/}
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">

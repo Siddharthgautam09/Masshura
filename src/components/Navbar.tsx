@@ -70,9 +70,8 @@ const Navbar = () => {
                 <img
                   src="/lovable-uploads/2597bf43-3192-45f3-bdf1-f242324ff2f5.png"
                   alt="Maashura IT Consultancy Logo"
-                  className="h-8 w-auto rounded-md"
-                  width="120"
-                  height="32"
+                  className="h-8 w-auto rounded-md max-w-none"
+                  style={{ height: '32px', width: 'auto' }}
                   loading="eager"
                   onError={(e) => {
                     // Fallback to text logo if image fails

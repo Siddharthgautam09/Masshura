@@ -23,6 +23,7 @@
 - ✅ **Fixed logo loading**: Added fallback for failed image loads
 - ✅ **Optimized animations**: Used requestAnimationFrame for smooth interactions
 - ✅ **Non-blocking scrolls**: Made scrollIntoView calls asynchronous
+- ✅ **Disabled heavy animations**: Commented out Boxes background component for better mobile performance
 
 ### 2. Mobile Deployment Issues ✅
 

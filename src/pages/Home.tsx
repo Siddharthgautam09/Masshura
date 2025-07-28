@@ -5,6 +5,8 @@ import WhyUs from '@/components/WhyUs';
 import Products from '@/components/Products';
 import WhatweOffer from '@/components/WhatweOffer';
 import AreasWeServe from '@/components/AreaWeServe';
+import BecomeSupplier from '@/components/BecomeSupplier';
+import SupplierRegistration from './SupplierResgistration';
 
 const Home = () => {
   return (
@@ -16,6 +18,7 @@ const Home = () => {
       <Products/>
       <WhatweOffer />
       <AreasWeServe/>
+      <BecomeSupplier/>
     </div>
   );
 };

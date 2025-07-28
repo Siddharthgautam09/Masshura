@@ -12,6 +12,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
+import SupplierRegistration from "./pages/SupplierResgistration";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/hardware" element={<HardwarePage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/SupplierRegistration" element={<SupplierRegistration />} />
         </Routes>
         <Footer />
         <ScrollToTopButton />

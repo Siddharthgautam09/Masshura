@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 
 const AboutUs = () => {
   return (
-    <section id="about" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
+    <section id="about" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden navbar-content-spacing">
       {/* BackgroundBoxes Grid - Same as hero section 
       <div className="absolute inset-0 w-full h-full bg-slate-900">
         <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
         <Boxes />
       </div>*/}
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-30" style={{ paddingTop: '20px' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Left Content - Enhanced Animations */}
           <motion.div
@@ -22,7 +22,7 @@ const AboutUs = () => {
           >
             {/* Animated Heading */}
             <motion.h2 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 text-[#f8fafc] leading-tight px-50"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-[#f8fafc] leading-tight px-2 sm:px-0 text-center"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -30,7 +30,6 @@ const AboutUs = () => {
             >
               About Us
             </motion.h2>
-            
             {/* Animated First Paragraph */}
             <motion.p 
               className="text-base sm:text-lg md:text-xl text-[#f8fafc] mb-4 md:mb-6 leading-relaxed"

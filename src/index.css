@@ -23,3 +23,22 @@ body::before {
   z-index: -1;
 }
 
+/* Mobile navbar spacing */
+@media (max-width: 768px) {
+  /* Add top margin to content sections for mobile */
+  section:not(#home) {
+    margin-top: 20px;
+  }
+  
+  /* Ensure mobile menu has proper spacing */
+  .mobile-menu-spacing {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* Add spacing between navbar and first content */
+  .navbar-content-spacing {
+    padding-top: 20px;
+  }
+}
+

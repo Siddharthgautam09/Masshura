@@ -72,7 +72,7 @@ const HeroSection = () => {
   return (
     <>
       {/* Landing Page Section */}
-      <section id="home" className="relative h-screen bg-slate-900 overflow-hidden">
+      <section id="home" className="relative h-screen bg-slate-900 overflow-hidden pt-20 md:pt-0">
         {/* BackgroundBoxes Grid - Layer 1 */}
         <div className="absolute inset-0 w-full h-full bg-slate-900">
           <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
@@ -86,6 +86,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, staggerChildren: 0.3 }}
             className="max-w-6xl mx-auto"
+            style={{ marginTop: '20px' }}
           >
 
             {/* Main Heading */}

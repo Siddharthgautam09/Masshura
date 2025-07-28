@@ -31,7 +31,7 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
+      className={`fixed top-0  left-0 right-0 z-50 w-full transition-all duration-300 ${
         isScrolled 
           ? 'bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 backdrop-blur-lg shadow-lg' 
           : 'bg-transparent shadow-none'
@@ -146,8 +146,8 @@ const Navbar = () => {
         transition={{ duration: 0.3 }}
         style={{ overflow: 'hidden' }}
       >
-        <div className="w-full px-4 pb-4">
-          <div className="bg-slate-800/90 backdrop-blur-lg rounded-lg p-4 space-y-2 border border-slate-700/50 shadow-xl">
+        <div className="w-full px-4 pb-4 mobile-menu-spacing" style={{ marginTop: '20px' }}>
+          <div className="bg-slate-800/90 backdrop-blur-lg rounded-lg p-6 space-y-4 border border-slate-700/50 shadow-xl" style={{ marginBottom: '20px' }}>
             {navLinks.map((link, index) => (
               <motion.div
                 key={link.path}
@@ -158,9 +158,10 @@ const Navbar = () => {
                 <Link
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block w-full text-left text-gray-300 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-slate-700/50 ${
+                  className={`block w-full text-left text-gray-300 hover:text-white transition-colors py-4 px-4 rounded-lg hover:bg-slate-700/50 ${
                     location.pathname === link.path ? 'text-[#6AAEFF] font-semibold bg-slate-700/30' : ''
                   }`}
+                  style={{ marginBottom: '8px' }}
                 >
                   {link.name}
                 </Link>

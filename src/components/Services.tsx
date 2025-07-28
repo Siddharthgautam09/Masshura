@@ -94,7 +94,7 @@ const Services = () => {
   const additionalServices = services.slice(3);
 
   return (
-    <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
+    <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden navbar-content-spacing">
       {/* Background Layer 
       <div className="absolute inset-0 w-full h-full z-0">
         <Boxes />
@@ -102,7 +102,7 @@ const Services = () => {
       </div>*/}
 
       {/* Content Layer */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20" style={{ paddingTop: '20px' }}>
         {/* Section Header */}
         <motion.div
           className="text-center mb-12 md:mb-16"

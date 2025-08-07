@@ -20,7 +20,7 @@ const ItConsulting = lazy(() => import("./pages/ItConsulting"));
 const Services = lazy(() => import("./components/Services"));
 const WhyUs = lazy(() => import("./components/WhyUs"));
 const AreasWeServe = lazy(() => import("./components/AreaWeServe"));
-
+const ItHardware = lazy(() => import("./pages/ItHardware"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -80,6 +80,7 @@ const App = () => {
               <Route path="/Services" element={<Services />} />
               <Route path="/WhyUs" element={<WhyUs />} />
               <Route path="/AreaWeServe" element={<AreasWeServe />} />
+              <Route path="/ItHardware" element={<ItHardware />} />
             </Routes>
           </Suspense>
           <Footer />

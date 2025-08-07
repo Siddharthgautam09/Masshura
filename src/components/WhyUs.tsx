@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, DollarSign, Rocket, Globe, Users, Briefcase, RotateCcw, Smartphone, Settings, TrendingUp, Link } from 'lucide-react';
 // import { Boxes } from '@/components/ui/background-boxes';
 
 const WhyUs = () => {
+  const navigate = useNavigate();
   const reasons = [
     {
       icon: CheckCircle,
@@ -248,10 +250,7 @@ const WhyUs = () => {
                     className="w-full px-6 py-4 rounded-full bg-[#6AAEFF] text-white font-semibold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-xl hover:shadow-[#6AAEFF]/30 overflow-hidden group"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      const element = document.getElementById('contact');
-                      if (element) element.scrollIntoView({ behavior: 'smooth' });
-                    }}
+                    onClick={() => navigate('/contact')}
                     aria-label="Get Expert Advice for ERP & Software in the UAE"
                     title="Get Expert Advice for ERP & Software in the UAE"
                   >
@@ -262,31 +261,6 @@ const WhyUs = () => {
               </motion.div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Original Call to Action */}
-        <motion.div
-          className="text-center mt-12 md:mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          viewport={{ once: true }}
-        >
-          <p className="text-lg md:text-xl text-white mb-6">
-            Ready to transform your business with our expertise?
-          </p>
-          <motion.button
-            className="relative px-8 py-4 rounded-full bg-[#6AAEFF] text-white font-semibold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-xl hover:shadow-[#6AAEFF]/30 overflow-hidden group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              const element = document.getElementById('contact');
-              if (element) element.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10">Get Started Today</span>
-          </motion.button>
         </motion.div>
       </div>
     </section>

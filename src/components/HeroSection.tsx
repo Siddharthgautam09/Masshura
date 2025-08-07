@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight, Code, Cpu, Globe, CheckCircle, Users, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 // import { Boxes } from '@/components/ui/background-boxes';
@@ -9,6 +10,7 @@ import { cn } from "@/lib/utils";
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imageLoadErrors, setImageLoadErrors] = useState({});
+  const navigate = useNavigate();
   
   // Refs for scroll-triggered animations
   const slideshowRef = useRef(null);
@@ -24,6 +26,10 @@ const HeroSection = () => {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 0);
     }
+  };
+
+  const navigateToContact = () => {
+    navigate('/contact');
   };
 
   const scrollToServices = () => {
@@ -159,7 +165,7 @@ const HeroSection = () => {
                 className="group"
               >
                 <Button
-                  onClick={scrollToContact}
+                  onClick={navigateToContact}
                   className="relative bg-[#6AAEFF] hover:bg-[#5A9EEF] text-white px-10 py-4 text-lg rounded-full shadow-2xl shadow-[#6AAEFF]/25 transition-all duration-300 border-0"
                 >
                   <span className="relative z-10 flex items-center font-semibold">

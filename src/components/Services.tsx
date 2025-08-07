@@ -15,7 +15,6 @@ import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 
 const Services = () => {
   const [expandedService, setExpandedService] = useState(null);
-  const [showAllServices, setShowAllServices] = useState(false);
 
   const services = [
     {
@@ -84,15 +83,6 @@ const Services = () => {
     setExpandedService(expandedService === serviceId ? null : serviceId);
   };
 
-  // Updated function - NO SCROLLING, just state change
-  const toggleShowAllServices = () => {
-    setShowAllServices(!showAllServices);
-  };
-
-  // Split services for better animation control
-  const initialServices = services.slice(0, 3);
-  const additionalServices = services.slice(3);
-
   return (
     <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden navbar-content-spacing">
       {/* Background Layer 
@@ -122,10 +112,10 @@ const Services = () => {
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 justify-items-center items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 justify-items-center items-start">
           
-          {/* Always Visible Services (First 3) */}
-          {initialServices.map((service, index) => {
+          {/* All Services Visible */}
+          {services.map((service, index) => {
             const isExpanded = expandedService === service.id;
               
             return (
@@ -259,168 +249,7 @@ const Services = () => {
               </motion.div>
             );
           })}
-
-          {/* Additional Services (Dropdown Animation) */}
-          <AnimatePresence>
-            {showAllServices && additionalServices.map((service, index) => {
-              const isExpanded = expandedService === service.id;
-              
-              return (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -30, scale: 0.9 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1,
-                    ease: "easeOut"
-                  }}
-                  className="w-full max-w-sm"
-                  layout
-                >
-                  <CardContainer className="inter-var" containerClassName="py-0">
-                    <motion.div
-                      layout
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                    >
-                      <CardBody className="bg-slate-800/90 relative group/card hover:shadow-2xl hover:shadow-[#6AAEFF]/[0.1] border-slate-700/50 w-80 rounded-xl border backdrop-blur-sm overflow-visible flex flex-col">
-                        
-                        {/* Same structure as initial services */}
-                        <CardItem translateZ="100" className="w-full flex-shrink-0">
-                          <div className="relative h-36 w-full overflow-hidden rounded-t-xl">
-                            <img
-                              src={service.image}
-                              alt={service.alt}
-                              className="h-full w-full object-cover group-hover/card:scale-110 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
-                            
-                            <CardItem
-                              translateZ="120"
-                              className="absolute top-3 left-3 p-1.5 bg-[#6AAEFF] rounded-full shadow-lg border border-white/20"
-                            >
-                              <service.icon className="text-white" size={18} />
-                            </CardItem>
-                          </div>
-                        </CardItem>
-
-                        <div className="p-4 flex flex-col">
-                          <div className="mb-3 flex-shrink-0">
-                            <CardItem
-                              translateZ="50"
-                              className="text-lg font-bold text-white mb-1 block leading-tight"
-                            >
-                              {service.title}
-                            </CardItem>
-                            <CardItem
-                              as="p"
-                              translateZ="40"
-                              className="text-sm text-[#6AAEFF] font-medium"
-                            >
-                              {service.subtitle}
-                            </CardItem>
-                          </div>
-
-                          <CardItem translateZ="60" className="w-full mb-4">
-                            <AnimatePresence mode="wait">
-                              {isExpanded ? (
-                                <motion.div
-                                  key="full"
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.3 }}
-                                  layout
-                                >
-                                  <p className="text-base text-white leading-relaxed">
-                                    {service.fullDescription}
-                                  </p>
-                                </motion.div>
-                              ) : (
-                                <motion.div
-                                  key="short"
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.3 }}
-                                  layout
-                                >
-                                  <p className="text-base text-white leading-relaxed">
-                                    {service.shortDescription}
-                                  </p>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </CardItem>
-
-                          <div className="flex justify-between items-center flex-shrink-0">
-                            <CardItem
-                              translateZ="20"
-                              as="button"
-                              onClick={() => toggleExpand(service.id)}
-                              className="flex items-center text-[#6AAEFF] hover:text-white transition-colors duration-300 font-medium text-sm px-3 py-2 rounded-lg border border-[#6AAEFF]/30 hover:border-[#6AAEFF] hover:bg-[#6AAEFF]/10 backdrop-blur-sm"
-                            >
-                              {isExpanded ? (
-                                <>
-                                  Show Less <ChevronUp className="ml-1" size={14} />
-                                </>
-                              ) : (
-                                <>
-                                  Learn More <ChevronDown className="ml-1" size={14} />
-                                </>
-                              )}
-                            </CardItem>
-                            
-                            <CardItem
-                              translateZ="20"
-                              as="button"
-                              className="relative px-4 py-2 rounded-lg bg-[#6AAEFF] text-white text-sm font-bold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-lg hover:shadow-[#6AAEFF]/25 overflow-hidden group"
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                              <span className="relative z-10">Get Started</span>
-                            </CardItem>
-                          </div>
-                        </div>
-
-                        <CardItem
-                          translateZ={80}
-                          className="absolute top-3 right-3 w-1.5 h-1.5 bg-[#6AAEFF] rounded-full opacity-60 pointer-events-none"
-                        />
-                        <CardItem
-                          translateZ={85}
-                          className="absolute bottom-3 right-3 w-1 h-1 bg-white rounded-full opacity-40 pointer-events-none"
-                        />
-
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/5 via-transparent to-[#6ECCAF]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-                      </CardBody>
-                    </motion.div>
-                  </CardContainer>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
         </div>
-
-        {/* View All Services Button - NO SCROLL FUNCTIONALITY */}
-        <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <button 
-            onClick={toggleShowAllServices}
-            className="relative px-8 py-4 rounded-xl bg-[#6AAEFF] text-white font-bold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-xl hover:shadow-[#6AAEFF]/30 overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10">
-              {showAllServices ? 'Show Less Services' : 'View All Services'}
-            </span>
-          </button>
-        </motion.div>
       </div>
     </section>
   );

@@ -125,17 +125,10 @@ const Products = () => {
                 In addition to our consultancy services, <strong className="text-[#6AAEFF]">Maashura</strong> proudly develops and maintains its own suite of enterprise tools, built specifically for businesses in the UAE, Dubai, and the wider GCC. These are currently used by leading companies across Dubai and the UAE.
               </p>
               
-              <motion.div
-                className="bg-slate-700/40 rounded-xl p-6 border border-slate-600/30 hover:border-[#6AAEFF]/30 transition-all duration-300"
-                whileHover={{ scale: 1.02 }}
-              >
-                <p className="text-base md:text-lg text-[#f8fafc] leading-relaxed mb-4">
-                  🔗 <strong className="text-[#6AAEFF]">Click here to explore our JoonMS Product Portfolio</strong>
-                </p>
-                <p className="text-base text-slate-300">
-                  🔹 <strong>Our Key In-House Solutions Include:</strong>
-                </p>
-              </motion.div>
+              <p className="text-base md:text-lg text-[#f8fafc] leading-relaxed mb-4 text-center">
+                🔹 <a href="https://www.joonms.com/" target="_blank" rel="noopener noreferrer" className="text-[#6AAEFF] hover:text-white transition-colors duration-300 font-semibold">Click here to explore our JoonMS Product Portfolio</a>
+              </p>
+
             </motion.div>
           </div>
         </motion.div>

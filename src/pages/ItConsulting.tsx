@@ -7,8 +7,8 @@ const ItConsulting = () => {
     {
       icon: MapPin,
       title: "Visit Us",
-      primary: "Maashura Engineers & Software Consultants",
-      secondary: "Al Qusais, Dubai, UAE"
+      primary: "Maashura Digital Clarity & IT Consultancy",
+      secondary: "Off 43-44, Al Tawar Center, Al Qusais, Dubai, UAE"
     },
     {
       icon: Phone,
@@ -19,8 +19,8 @@ const ItConsulting = () => {
     {
       icon: Mail,
       title: "Email Us",
-      primary: "support@joonms.com",
-      secondary: "info@joonms.com"
+      primary: "hello@maashura.com",
+      secondary: "info@maashura.com"
     }
   ];
 

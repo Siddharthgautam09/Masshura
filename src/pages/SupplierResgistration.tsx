@@ -51,7 +51,7 @@ const SupplierRegistration = () => {
   if (submitted) {
     return (
       <section className="relative bg-slate-900 min-h-screen overflow-hidden">
-        <title>Supplier Registration – Partner with Maashura IT Consultancy in UAE & GCC</title>
+        <title>Supplier Registration – Partner with Maashura Digital Clarity & IT Consultancy in UAE & GCC</title>
         <meta name="description" content="Join Maashura as a supplier or development partner. Fill out the supplier registration form to work with clients across UAE, Saudi Arabia, and the GCC." />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
@@ -85,7 +85,7 @@ const SupplierRegistration = () => {
   return (
     <section className="relative bg-slate-900 min-h-screen overflow-hidden">
       {/* SEO Meta Tags */}
-      <title>Supplier Registration – Partner with Maashura IT Consultancy in UAE & GCC</title>
+      <title>Supplier Registration – Partner with Maashura Digital Clarity & IT Consultancy in UAE & GCC</title>
       <meta name="description" content="Join Maashura as a supplier or development partner. Fill out the supplier registration form to work with clients across UAE, Saudi Arabia, and the GCC." />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">

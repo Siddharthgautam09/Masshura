@@ -1,7 +1,12 @@
 import { motion } from 'framer-motion';
 import { Monitor, Printer, Wifi, HardDrive, Laptop, Cable, Server, Smartphone, ArrowRight, CheckCircle } from 'lucide-react';
 
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const ITHardwareSupply = () => {
+  const navigate = useNavigate();
+
   const hardwareCategories = [
     {
       icon: Monitor,
@@ -246,7 +251,7 @@ const ITHardwareSupply = () => {
                 className="px-6 py-3 bg-[#6AAEFF] text-white rounded-xl font-semibold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF]"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => window.open('/it-hardware-supply-uae', '_blank')}
+                onClick={() => navigate('/contact')}
               >
                 Get Free Quote
               </motion.button>

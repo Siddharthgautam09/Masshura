@@ -71,7 +71,7 @@ const Navbar = () => {
               >
                 <img
                   src="/lovable-uploads/2597bf43-3192-45f3-bdf1-f242324ff2f5.png"
-                  alt="Maashura IT Consultancy Logo"
+                  alt="Maashura Digital Clarity & IT Consultancy Logo"
                   className="h-10 sm:h-12 w-auto rounded-md max-w-none"
                   loading="eager"
                   onError={(e) => {

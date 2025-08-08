@@ -55,7 +55,7 @@ const BecomeSupplier = () => {
   return (
     <section className="relative bg-slate-900 min-h-screen overflow-hidden">
       {/* SEO Meta Tags */}
-      <title>Become a Supplier – Partner with Maashura IT Consultancy in UAE & GCC</title>
+      <title>Become a Supplier – Partner with Maashura Digital Clarity & IT Consultancy in UAE & GCC</title>
       <meta name="description" content="Are you a software developer, IT vendor, or B2B service provider looking for customers in the UAE, Saudi Arabia, or the GCC? Join Maashura as a supplier partner today." />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">

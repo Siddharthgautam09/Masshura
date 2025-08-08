@@ -96,7 +96,7 @@ const Footer = () => {
           >
             <div className="inline-flex items-center px-6 py-3 bg-[#6AAEFF]/15 rounded-full border border-[#6AAEFF]/30 mb-6">
               <Building className="w-5 h-5 text-[#6AAEFF] mr-3" />
-              <span className="text-[#6AAEFF] font-bold">Maashura IT Consultancy</span>
+              <span className="text-[#6AAEFF] font-bold">Maashura Digital Clarity & IT Consultancy</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Transforming <span className="text-[#6AAEFF]">Businesses</span> Across the GCC
@@ -352,8 +352,16 @@ const Footer = () => {
                       <div className="flex items-start space-x-3">
                         <MapPin className="w-5 h-5 text-[#6AAEFF] mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-white font-medium">Dubai, UAE</p>
-                          <p className="text-slate-300 text-sm">GCC Coverage</p>
+                          <p className="text-white font-medium">Off 43-44, Al Tawar Center</p>
+                          <p className="text-slate-300 text-sm">Al Qusais, Dubai, UAE</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-3">
+                        <MapPin className="w-5 h-5 text-[#6AAEFF] mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-white font-medium">Office 102A, Obaid bin Tawk Al Mari</p>
+                          <p className="text-slate-300 text-sm">Deira, Dubai, UAE</p>
                         </div>
                       </div>
                       
@@ -366,8 +374,8 @@ const Footer = () => {
                       
                       <div className="flex items-center space-x-3">
                         <Mail className="w-5 h-5 text-[#6AAEFF] flex-shrink-0" />
-                        <a href="mailto:support@joonms.com" className="text-slate-300 hover:text-white transition-colors">
-                          support@joonms.com
+                        <a href="mailto:hello@maashura.com" className="text-slate-300 hover:text-white transition-colors">
+                          hello@maashura.com
                         </a>
                       </div>
                     </div>
@@ -426,7 +434,7 @@ const Footer = () => {
                 <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
                   <div className="text-center lg:text-left">
                     <p className="text-slate-300 text-lg mb-1">
-                      © {currentYear} <strong className="text-[#6AAEFF]">Maashura IT Consultancy</strong>
+                      © {currentYear} <strong className="text-[#6AAEFF]">Maashura Digital Clarity & IT Consultancy</strong>
                     </p>
                     <p className="text-slate-400 text-sm">
                       Expert-Led IT Support & Infrastructure | All rights reserved

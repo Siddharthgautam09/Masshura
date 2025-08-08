@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { MapPin, Building2, Hospital, GraduationCap, ShoppingCart, Factory, Globe, ArrowRight, CheckCircle, Users, TrendingUp, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AreasWeServe = () => {
+  const navigate = useNavigate();
   const uaeLocations = [
     { name: "Dubai", icon: "🏙️", description: "Real Estate & Financial Hub", projects: "150+" },
     { name: "Abu Dhabi", icon: "🏛️", description: "Government & Healthcare", projects: "120+" },
@@ -432,6 +434,7 @@ const AreasWeServe = () => {
                 className="w-full px-6 py-3 bg-[#6AAEFF] text-white rounded-xl font-semibold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF]"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/contact')}
               >
                 Start Your Project
               </motion.button>
@@ -439,6 +442,7 @@ const AreasWeServe = () => {
                 className="w-full px-6 py-3 bg-slate-700/60 text-white hover:bg-[#6AAEFF] hover:text-white rounded-xl font-semibold transition-all duration-300 border border-slate-600/30 hover:border-[#6AAEFF]"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                
               >
                 View Portfolio
               </motion.button>

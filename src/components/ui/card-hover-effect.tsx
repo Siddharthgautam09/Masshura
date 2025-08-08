@@ -77,7 +77,7 @@ export const HoverEffect = ({
             <CardDescription>{item.description}</CardDescription>
             
             {item.features && (
-              <ul className="space-y-2 mb-4 mt-4">
+              <ul className="space-y-2 mb-4 mt-4 flex-grow">
                 {item.features.map((feature, featureIndex) => (
                   <li
                     key={featureIndex}
@@ -91,18 +91,10 @@ export const HoverEffect = ({
             )}
             
             {item.price && (
-              <div className="text-center mt-4">
-                <div className="text-lg font-bold text-[#6AAEFF] mb-4">
+              <div className="text-center mt-auto pt-4 border-t border-slate-700/50">
+                <div className="text-lg font-bold text-[#6AAEFF] py-2">
                   {item.price}
                 </div>
-                <motion.button
-                  className="w-full bg-slate-700/60 text-white hover:bg-[#6AAEFF] hover:text-white px-4 py-2 rounded-lg transition-all duration-300 border border-transparent hover:border-[#6AAEFF]"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => window.open(item.link, '_blank')}
-                >
-                  Try Free Demo
-                </motion.button>
               </div>
             )}
           </Card>
@@ -122,12 +114,12 @@ export const Card = ({
   return (
     <div
       className={cn(
-        "rounded-2xl h-full w-full p-6 overflow-hidden bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 hover:border-[#6AAEFF]/30 group-hover:border-[#6AAEFF]/50 relative z-20 transition-all duration-300",
+        "rounded-2xl h-full w-full p-6 overflow-hidden bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 hover:border-[#6AAEFF]/30 group-hover:border-[#6AAEFF]/50 relative z-20 transition-all duration-300 flex flex-col",
         className
       )}
     >
-      <div className="relative z-50">
-        <div className="p-4">{children}</div>
+      <div className="relative z-50 flex flex-col h-full">
+        <div className="p-4 flex flex-col h-full">{children}</div>
       </div>
     </div>
   );

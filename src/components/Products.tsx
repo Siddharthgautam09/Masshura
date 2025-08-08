@@ -13,7 +13,7 @@ const Products = () => {
       description: "Smart Facilities Management Software designed specifically for FM contractors in Dubai and UAE. Features include Maintenance Scheduling, Work Order Management, Asset Tracking, and Compliance Reporting.",
       link: "https://www.Joonms.com/cafm",
       icon: Building2,
-      price: "Free test drive available",
+      price: "Customizable Pricing",
       popular: true,
       features: ["Maintenance Scheduling", "Work Order Management", "Asset Tracking", "Compliance Reporting"]
     },
@@ -33,7 +33,7 @@ const Products = () => {
       description: "Designed for UAE compliance and simplicity with integrated business management tools. Features Inventory Control, UAE VAT Compliance, HR Management, and Payroll Processing.",
       link: "https://www.Joonms.com/inventory",
       icon: Users,
-      price: "Starting from AED 500/month",
+      price: "Customizable Pricing",
       popular: false,
       features: ["Inventory Control", "UAE VAT Compliance", "HR Management", "Payroll Processing"]
     },
@@ -43,7 +43,7 @@ const Products = () => {
       description: "Stay on top of receivables and financial reporting with automated tracking systems. Includes Cheque Tracking, Payment Reminders, Financial Reports, and Cash Flow Management.",
       link: "https://www.Joonms.com/payments",
       icon: CreditCard,
-      price: "Starting from AED 300/month",
+      price: "Customizable Pricing",
       popular: false,
       features: ["Cheque Tracking", "Payment Reminders", "Financial Reports", "Cash Flow Management"]
     },
@@ -53,7 +53,7 @@ const Products = () => {
       description: "Comprehensive fleet management solution for businesses operating vehicle fleets in the GCC. Features Vehicle Tracking, Maintenance Alerts, Driver Management, and Fuel Monitoring.",
       link: "https://www.Joonms.com/fleet",
       icon: Car,
-      price: "Starting from AED 400/month",
+      price: "Customizable Pricing",
       popular: false,
       features: ["Vehicle Tracking", "Maintenance Alerts", "Driver Management", "Fuel Monitoring"]
     },
@@ -63,7 +63,7 @@ const Products = () => {
       description: "Everything you need to automate workforce management and scheduling operations. Includes Biometric Integration, Shift Scheduling, Leave Management, and Overtime Tracking.",
       link: "https://www.Joonms.com/attendance",
       icon: Calendar,
-      price: "Starting from AED 200/month",
+      price: "Customizable Pricing",
       popular: false,
       features: ["Biometric Integration", "Shift Scheduling", "Leave Management", "Overtime Tracking"]
     }
@@ -151,7 +151,7 @@ const Products = () => {
           <HoverEffect items={products} className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3" />
         </motion.div>
 
-        {/* Free Test Drive Section */}
+        {/* Customizable Pricing Section */}
         <motion.div
           className="mt-16 md:mt-20 text-center bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-[#6AAEFF]/30"
           initial={{ opacity: 0, y: 30 }}
@@ -160,10 +160,10 @@ const Products = () => {
           viewport={{ once: true }}
         >
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
-            Free Test Drives Available — Try Before You Commit!
+            Customizable Pricing — Solutions That Fit Your Budget
           </h3>
           <p className="text-slate-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Experience our UAE-built software solutions with no commitment. All our products come with free trial periods so you can see exactly how they'll transform your business operations.
+            Every business is unique, and so are our pricing plans. We offer flexible, customizable pricing options tailored to your specific needs and budget requirements across all our software solutions.
           </p>
           <motion.button
             className="bg-[#6AAEFF] text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF] overflow-hidden group"
@@ -173,32 +173,12 @@ const Products = () => {
               const element = document.getElementById('contact');
               if (element) element.scrollIntoView({ behavior: 'smooth' });
             }}
-            aria-label="Boost Your Business with Simple Tech Solutions"
-            title="Boost Your Business with Simple Tech Solutions"
+            aria-label="Get Custom Pricing Quote"
+            title="Get Custom Pricing Quote"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10">Boost Your Business with Simple Tech Solutions</span>
+            <span className="relative z-10">Get Custom Pricing Quote</span>
           </motion.button>
-        </motion.div>
-
-        {/* Image placeholders with proper alt text */}
-        <motion.div
-          className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-8 text-center border border-slate-700/50">
-            <p className="text-slate-300 text-sm mb-2">Dashboard Screenshot</p>
-            <p className="text-xs text-slate-400">Alt: "JoonMS ERP and CaFM software dashboard used in Dubai and UAE"</p>
-            <p className="text-xs text-slate-400">Filename: JoonMS-erp-cafm-dashboard-dubai.jpg</p>
-          </div>
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-8 text-center border border-slate-700/50">
-            <p className="text-slate-300 text-sm mb-2">Product Icons</p>
-            <p className="text-xs text-slate-400">Alt: "In-house ERP, CRM, and FM software solutions developed by JoonMS"</p>
-            <p className="text-xs text-slate-400">Filename: JoonMS-inhouse-software-uae.jpg</p>
-          </div>
         </motion.div>
       </div>
     </section>

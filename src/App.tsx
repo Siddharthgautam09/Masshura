@@ -21,6 +21,12 @@ const Services = lazy(() => import("./components/Services"));
 const WhyUs = lazy(() => import("./components/WhyUs"));
 const AreasWeServe = lazy(() => import("./components/AreaWeServe"));
 const ItHardware = lazy(() => import("./pages/ItHardware"));
+
+// --- ADDED: Lazy load admin components ---
+const LoginPage = lazy(() => import("./pages/admin/LoginPage"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const ProtectedRoute = lazy(() => import("./components/auth/ProtectedRoute.tsx"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -70,6 +76,7 @@ const App = () => {
           <Navbar />
           <Suspense fallback={<RouteLoader />}>
             <Routes>
+              {/* Your existing public routes */}
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/hardware" element={<HardwarePage />} />
@@ -81,6 +88,20 @@ const App = () => {
               <Route path="/WhyUs" element={<WhyUs />} />
               <Route path="/AreaWeServe" element={<AreasWeServe />} />
               <Route path="/ItHardware" element={<ItHardware />} />
+              
+              {/* --- ADDED: Admin and Login Routes --- */}
+              {/* This is the public route for the admin login page */}
+              <Route path="/login" element={<LoginPage />} />
+
+              {/* This is the protected route for the admin dashboard */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </Suspense>
           <Footer />

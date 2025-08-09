@@ -26,6 +26,7 @@ const ItHardware = lazy(() => import("./pages/ItHardware"));
 const LoginPage = lazy(() => import("./pages/admin/LoginPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ProtectedRoute = lazy(() => import("./components/auth/ProtectedRoute.tsx"));
+const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,6 +100,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settings" // The new route
+                element={
+                  <ProtectedRoute>
+                    <AdminSettingsPage />
                   </ProtectedRoute>
                 }
               />

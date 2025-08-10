@@ -1,7 +1,7 @@
 // src/components/admin/CategoryManager.tsx
 
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase.ts';
+import { db } from '../firebase';
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -28,6 +28,11 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ProtectedRoute = lazy(() => import("./components/auth/ProtectedRoute.tsx"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
 const SupplierDetailPage = lazy(() => import("./pages/admin/SupplierDetailPage"));
+// supplier -----------------------
+const SetPasswordPage = lazy(() => import("./pages/supplier/SetPasswordPage"));
+const SupplierLoginPage = lazy(() => import("./pages/supplier/SupplierLoginPage"));
+const SupplierDashboard = lazy(() => import("./pages/supplier/SupplierDashboard"));
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +95,9 @@ const App = () => {
               <Route path="/WhyUs" element={<WhyUs />} />
               <Route path="/AreaWeServe" element={<AreasWeServe />} />
               <Route path="/ItHardware" element={<ItHardware />} />
+              <Route path="/set-password" element={<SetPasswordPage />} />
+              <Route path="/supplier-login" element={<SupplierLoginPage />} />
+              <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
               
               {/* --- ADDED: Admin and Login Routes --- */}
               {/* This is the public route for the admin login page */}

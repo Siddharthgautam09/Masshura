@@ -22,10 +22,11 @@ const SupplierDetailPage = () => {
         if (docSnap.exists()) {
           setSupplier({ id: docSnap.id, ...docSnap.data() });
         } else {
-          console.log("No such document!");
+          // Supplier document not found - will show loading state
         }
       } catch (error) {
-        console.error("Error fetching supplier details:", error);
+        // Error fetching supplier details - will show loading state
+        // Could add error toast here if needed
       } finally {
         setIsLoading(false);
       }

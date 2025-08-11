@@ -38,7 +38,7 @@ const SetPasswordPage = () => {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/supplier-dashboard');
     } catch (err: any) {
-      console.error(err);
+      // Handle account creation errors with user-friendly messages
       if (err.code === 'auth/email-already-in-use') {
         setError('Account already exists. Please log in.');
         navigate(`/supplier-login?email=${email}`);

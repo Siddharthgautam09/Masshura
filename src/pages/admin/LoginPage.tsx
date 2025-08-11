@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../../components/firebase'; // Your Firebase auth instance
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,34 +13,41 @@ import { Label } from '@/components/ui/label';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  // The email/password login handler remains the same
-  const handleLogin = async (e) => {
+  // Email/password authentication handler
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/admin');
     } catch (err) {
-      setError('Failed to log in. Please check your email and password.');
-      console.error(err);
+      // Show user-friendly error message via toast
+      toast({
+        title: "Login Failed",
+        description: "Invalid email or password.",
+        variant: "destructive",
+      });
     }
   };
 
-  // --- 2. CREATE a new handler for Google Sign-In ---
+  // Google authentication handler
   const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider(); // Create a Google Auth provider instance
-    setError('');
+    const provider = new GoogleAuthProvider();
+    
     try {
-      // Trigger the Google sign-in pop-up window
+      // Trigger Google sign-in popup
       await signInWithPopup(auth, provider);
-      // If successful, Firebase automatically handles the session, so we can navigate
       navigate('/admin');
     } catch (err) {
-      setError('Failed to log in with Google.');
-      console.error(err);
+      // Show user-friendly error message via toast
+      toast({
+        title: "Login Failed",
+        description: "Failed to log in with Google.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -70,7 +78,6 @@ const LoginPage = () => {
               required
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full">
             Log In with Email
           </Button>

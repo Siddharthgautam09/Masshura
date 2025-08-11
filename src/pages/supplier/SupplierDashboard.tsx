@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../../components/firebase'; // Adjust path if needed
+import { useToast } from "@/components/ui/use-toast"; // Import useToast
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ interface SupplierData {
 }
 
 const SupplierDashboard = () => {
+  const { toast } = useToast(); // Initialize the toast hook
   const [supplier, setSupplier] = useState<SupplierData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ const SupplierDashboard = () => {
             // Add other fields you want to be editable here
           });
         } else {
-          console.error("Supplier document not found.");
+          // Supplier document not found - redirect to login
           signOut(auth); // Log out if data is missing
         }
       } else {
@@ -63,21 +65,33 @@ const SupplierDashboard = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handler for saving profile changes
+  // Handler for saving profile changes to Firestore
   const handleSaveChanges = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supplier) return; // Guard clause to ensure supplier exists
+    
     try {
       const supplierDocRef = doc(db, 'suppliers', supplier.id);
       await updateDoc(supplierDocRef, formData);
 
-      // --- THIS IS THE UPDATED LINE ---
-      // Update local state to reflect changes instantly using the checked supplier object
+      // Update local state to reflect changes instantly
       setSupplier({ ...supplier, ...formData });
-
       setIsEditing(false); // Exit edit mode
+
+      // Show success notification to user
+      toast({
+        title: "Success!",
+        description: "Your profile has been updated.",
+        variant: "default",
+      });
+
     } catch (error) {
-      console.error("Error updating profile:", error);
+      // Show user-friendly error notification
+      toast({
+        title: "Error",
+        description: "Could not save your profile. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

@@ -18,16 +18,18 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      // ... your existing stats fetching logic ...
       try {
+        // Fetch total suppliers and pending approvals from Firestore
         const suppliersCollectionRef = collection(db, 'suppliers');
         const allSuppliersSnapshot = await getDocs(suppliersCollectionRef);
         setTotalSuppliers(allSuppliersSnapshot.size);
+        
         const pendingQuery = query(suppliersCollectionRef, where("status", "==", "pending_approval"));
         const pendingSnapshot = await getDocs(pendingQuery);
         setPendingApprovals(pendingSnapshot.size);
       } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
+        // Dashboard stats fetching failed - user will see loading state persist
+        // Could add error toast here if needed
       } finally {
         setIsLoading(false);
       }
@@ -35,13 +37,14 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  // --- NEW: Function to handle user logout ---
+  // User logout handler
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Sign out the current user
-      navigate('/login'); // Redirect to the login page
+      await signOut(auth);
+      navigate('/login');
     } catch (error) {
-      console.error("Error signing out:", error);
+      // Logout failed - could add error toast if needed
+      // For now, user can try again or refresh page
     }
   };
 

@@ -27,12 +27,14 @@ const CategoryManager = ({ categoryName, title }) => {
   const handleAddItem = async (e) => {
     e.preventDefault();
     if (!newItem.trim()) return;
+    
     try {
       const docRef = await addDoc(itemsCollectionRef, { name: newItem });
       setItems([...items, { id: docRef.id, name: newItem }]);
       setNewItem(''); // Clear the input field
     } catch (error) {
-      console.error("Error adding document: ", error);
+      // Error adding item - user can try again
+      // Could add error toast here if needed
     }
   };
 
@@ -42,7 +44,8 @@ const CategoryManager = ({ categoryName, title }) => {
       await deleteDoc(itemDoc);
       setItems(items.filter(item => item.id !== id));
     } catch (error) {
-      console.error("Error deleting document: ", error);
+      // Error deleting item - could add error toast if needed
+      // For now, user can try again or refresh page
     }
   };
 

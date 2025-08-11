@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'; 
-import { db } from '../firebase.ts'; 
+import { db } from '../firebase'; 
 import { Link } from 'react-router-dom';
 
 // Import UI components

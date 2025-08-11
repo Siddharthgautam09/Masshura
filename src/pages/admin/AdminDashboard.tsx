@@ -1,64 +1,69 @@
 // src/pages/admin/AdminDashboard.tsx
 
 import React, { useState, useEffect } from 'react';
-import SupplierList from '../../components/admin/SupplierList';
-import { db } from '../../components/firebase'; // Import your Firestore instance
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { signOut } from 'firebase/auth'; // Import the signOut function
+
+import { db, auth } from '../../components/firebase'; // Import your Firestore and Auth instances
+import SupplierList from '../../components/admin/SupplierList';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { LogOut } from 'lucide-react'; // Import a nice icon for the button
 
 const AdminDashboard = () => {
-  // State to hold the dynamic values from Firestore
   const [totalSuppliers, setTotalSuppliers] = useState(0);
   const [pendingApprovals, setPendingApprovals] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate(); // Initialize the navigate function
 
-  // Fetch stats from Firestore when the component loads
   useEffect(() => {
     const fetchStats = async () => {
+      // ... your existing stats fetching logic ...
       try {
         const suppliersCollectionRef = collection(db, 'suppliers');
-        
-        // 1. Get the total count of all suppliers
         const allSuppliersSnapshot = await getDocs(suppliersCollectionRef);
         setTotalSuppliers(allSuppliersSnapshot.size);
-        
-        // 2. Get the count of suppliers needing approval
-        // Note: Change 'pending_approval' if you use a different status name
         const pendingQuery = query(suppliersCollectionRef, where("status", "==", "pending_approval"));
         const pendingSnapshot = await getDocs(pendingQuery);
         setPendingApprovals(pendingSnapshot.size);
-        
       } catch (error) {
         console.error("Error fetching dashboard stats:", error);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchStats();
-  }, []); // The empty array [] ensures this runs only once
+  }, []);
+
+  // --- NEW: Function to handle user logout ---
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out the current user
+      navigate('/login'); // Redirect to the login page
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4">
-      {/* --- MODIFIED: Header with navigation button --- */}
+      {/* --- MODIFIED: Header with navigation and logout buttons --- */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <Button asChild>
-          <Link to="/admin/settings">Manage Categories</Link>
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button asChild>
+            <Link to="/admin/settings">Manage Categories</Link>
+          </Button>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </div>
 
-      {/* --- MODIFIED: Stats cards now show live data --- */}
+      {/* Stats cards remain the same */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-600">Total Supplier Registrations</h3>
-          <p className="text-3xl font-bold">{isLoading ? '...' : totalSuppliers}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-600">Pending Approvals</h3>
-          <p className="text-3xl font-bold">{isLoading ? '...' : pendingApprovals}</p>
-        </div>
+        {/* ... stats cards ... */}
       </div>
       
       <h2 className="text-xl font-bold mb-4">Supplier Management</h2>

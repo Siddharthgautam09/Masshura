@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { Upload, FileText, Check, User, Building, Globe, Phone, Mail, Shield, ArrowRight, Paperclip, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../components/firebase';
+import { useToast } from "@/components/ui/use-toast";
 
 const SupplierRegistration = () => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     companyName: '',
     country: '',
@@ -22,6 +26,7 @@ const SupplierRegistration = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const supplyCategories = [
     "Laptops / Computers",
@@ -34,9 +39,72 @@ const SupplierRegistration = () => {
     "Other (please specify)"
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+
+    try {
+      // Validate required fields
+      if (!formData.companyName || !formData.email || !formData.phone || !formData.contactPerson) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (formData.categories.length === 0) {
+        toast({
+          title: "Validation Error", 
+          description: "Please select at least one supply category.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!formData.confirmAccuracy || !formData.agreeContact) {
+        toast({
+          title: "Validation Error",
+          description: "Please confirm accuracy and agree to be contacted.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Generate a reference number
+      const refNo = `SUP-${Date.now()}`;
+      
+      // Prepare data for Firestore
+      const supplierData = {
+        ...formData,
+        refNo,
+        status: 'pending_approval',
+        submittedAt: new Date(),
+        // Note: File uploads would need separate handling with Cloud Storage
+        tradeLicense: formData.tradeLicense ? 'uploaded' : null,
+        catalog: formData.catalog ? 'uploaded' : null,
+      };
+
+      // Save to Firestore
+      const docRef = await addDoc(collection(db, 'suppliers'), supplierData);
+      
+      toast({
+        title: "Success!",
+        description: `Registration submitted successfully. Reference: ${refNo}`,
+      });
+
+      setSubmitted(true);
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit registration. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCategoryChange = (category) => {
@@ -71,7 +139,26 @@ const SupplierRegistration = () => {
                 className="px-8 py-4 bg-[#6AAEFF] text-white rounded-xl font-semibold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF]"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setSubmitted(false)}
+                onClick={() => {
+                  setSubmitted(false);
+                  setFormData({
+                    companyName: '',
+                    country: '',
+                    emirate: '',
+                    website: '',
+                    tradeNumber: '',
+                    yearsOperation: '',
+                    contactPerson: '',
+                    designation: '',
+                    email: '',
+                    phone: '',
+                    categories: [],
+                    tradeLicense: null,
+                    catalog: null,
+                    confirmAccuracy: false,
+                    agreeContact: false
+                  });
+                }}
               >
                 Submit Another Application
               </motion.button>
@@ -463,11 +550,18 @@ const SupplierRegistration = () => {
                 <motion.button
                   type="submit"
                   className="w-full mt-8 px-8 py-4 bg-[#6AAEFF] text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!formData.confirmAccuracy || !formData.agreeContact}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={!formData.confirmAccuracy || !formData.agreeContact || isSubmitting}
+                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                 >
-                  ✅ Submit Application
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Submitting...
+                    </div>
+                  ) : (
+                    "✅ Submit Application"
+                  )}
                 </motion.button>
               </div>
             </motion.div>

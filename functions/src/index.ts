@@ -1,12 +1,26 @@
 // functions/src/index.ts
 
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import * as nodemailer from "nodemailer";
 import { logger } from "firebase-functions";
+import * as cloudinary from 'cloudinary';
+import cors from 'cors';
 
 // Initialize the Firebase Admin SDK
 admin.initializeApp();
+
+// Configure CORS to allow requests from your Vercel frontend
+const corsHandler = cors({ origin: true });
+
+// Configure Cloudinary with your credentials from the secure config
+// Note: Using legacy functions.config() - consider migrating to environment variables
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "domqsb9le",
+  api_key: process.env.CLOUDINARY_API_KEY || "454939533181921",
+  api_secret: process.env.CLOUDINARY_API_SECRET || "KOpXJfR9GHb3wMZyO7WZeJDcWcI",
+});
 
 // Get your Gmail credentials from environment variables (for v2 functions)
 const gmailEmail = process.env.GMAIL_EMAIL;
@@ -67,3 +81,22 @@ export const onSupplierApprove = onDocumentUpdated(
     }
   }
 );
+
+// --- Cloudinary Signature Function ---
+export const getCloudinarySignature = onRequest((request, response) => {
+  // Use the cors handler to manage security
+  corsHandler(request, response, () => {
+    const timestamp = Math.round((new Date()).getTime() / 1000);
+
+    // Use the Cloudinary SDK to create a signature
+    const signature = cloudinary.v2.utils.api_sign_request(
+      {
+        timestamp: timestamp,
+      },
+      process.env.CLOUDINARY_API_SECRET || "KOpXJfR9GHb3wMZyO7WZeJDcWcI"
+    );
+
+    // Send the signature and timestamp back to the frontend
+    response.json({ signature, timestamp });
+  });
+});

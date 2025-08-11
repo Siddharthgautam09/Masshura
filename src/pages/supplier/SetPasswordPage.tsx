@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../components/firebase';
+import { auth, db } from '../../components/firebase';
+import { doc, collection, getDocs, setDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -17,9 +18,23 @@ const SetPasswordPage = () => {
     e.preventDefault();
     setError('');
     try {
-      // Create user in Firebase Auth
-      await createUserWithEmailAndPassword(auth, email, password);
-      // Auto-login after setting password
+      // Create Auth user
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+
+      // --- Find and migrate their supplier Firestore doc ---
+      // 1. Find the supplier document by email
+      const q = query(collection(db, 'suppliers'), where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const prevDoc = querySnapshot.docs[0];
+        // 2. Copy their data into a new doc, named by user.uid
+        await setDoc(doc(db, 'suppliers', user.uid), prevDoc.data());
+        // 3. Optionally, delete the old doc (to avoid duplicates)
+        await deleteDoc(prevDoc.ref);
+      }
+
+      // Auto-login
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/supplier-dashboard');
     } catch (err: any) {

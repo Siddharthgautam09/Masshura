@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../components/firebase';
 import { useToast } from "@/components/ui/use-toast";
+import { useAllCategories } from '../hooks/useAdminCategories';
 
 const SupplierRegistration = () => {
   const { toast } = useToast();
+  const { countries, yearsInOperation, employeeCount, loading: categoriesLoading } = useAllCategories();
   const [formData, setFormData] = useState({
     companyName: '',
     country: '',
@@ -14,6 +16,7 @@ const SupplierRegistration = () => {
     website: '',
     tradeNumber: '',
     yearsOperation: '',
+    employeeCount: '',
     contactPerson: '',
     designation: '',
     email: '',
@@ -148,6 +151,7 @@ const SupplierRegistration = () => {
                     website: '',
                     tradeNumber: '',
                     yearsOperation: '',
+                    employeeCount: '',
                     contactPerson: '',
                     designation: '',
                     email: '',
@@ -288,10 +292,15 @@ const SupplierRegistration = () => {
                     onChange={(e) => setFormData(prev => ({...prev, yearsOperation: e.target.value}))}
                   >
                     <option value="">Select years</option>
-                    <option value="0-2">0-2 years</option>
-                    <option value="3-5">3-5 years</option>
-                    <option value="6-10">6-10 years</option>
-                    <option value="10+">10+ years</option>
+                    {categoriesLoading ? (
+                      <option value="">Loading...</option>
+                    ) : yearsInOperation.error ? (
+                      <option value="">Error loading options</option>
+                    ) : (
+                      yearsInOperation.items.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -303,12 +312,15 @@ const SupplierRegistration = () => {
                     onChange={(e) => setFormData(prev => ({...prev, country: e.target.value}))}
                   >
                     <option value="">Select country</option>
-                    <option value="UAE">United Arab Emirates</option>
-                    <option value="Saudi Arabia">Saudi Arabia</option>
-                    <option value="Qatar">Qatar</option>
-                    <option value="Oman">Oman</option>
-                    <option value="Bahrain">Bahrain</option>
-                    <option value="Kuwait">Kuwait</option>
+                    {categoriesLoading ? (
+                      <option value="">Loading...</option>
+                    ) : countries.error ? (
+                      <option value="">Error loading countries</option>
+                    ) : (
+                      countries.items.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -327,6 +339,26 @@ const SupplierRegistration = () => {
                     <option value="Ras Al Khaimah">Ras Al Khaimah</option>
                     <option value="Fujairah">Fujairah</option>
                     <option value="Umm Al Quwain">Umm Al Quwain</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-2">Number of Employees</label>
+                  <select 
+                    className="w-full px-4 py-3 bg-slate-700/60 border border-slate-600/50 rounded-xl text-white focus:border-[#6AAEFF] focus:outline-none focus:ring-2 focus:ring-[#6AAEFF]/20 transition-all duration-300"
+                    value={formData.employeeCount}
+                    onChange={(e) => setFormData(prev => ({...prev, employeeCount: e.target.value}))}
+                  >
+                    <option value="">Select employee range</option>
+                    {categoriesLoading ? (
+                      <option value="">Loading...</option>
+                    ) : employeeCount.error ? (
+                      <option value="">Error loading options</option>
+                    ) : (
+                      employeeCount.items.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 

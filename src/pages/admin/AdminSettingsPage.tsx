@@ -52,7 +52,22 @@ const AdminSettingsPage = () => {
         description: "Adding default categories to the database...",
       });
       
-      await populateDefaultCategories();
+      // Manually add default categories
+      const categoriesData = {
+        countries: ['United Arab Emirates', 'Saudi Arabia', 'Kuwait', 'Qatar', 'Bahrain', 'Oman'],
+        emirates: ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'],
+        yearsOfOperation: ['1-2 years', '3-5 years', '6-10 years', '11-15 years', '15+ years'],
+        businessTypes: ['IT Services', 'Hardware Supplier', 'Software Developer', 'Consulting', 'System Integration'],
+        employeeCount: ['1-10', '11-50', '51-100', '101-500', '500+']
+      };
+
+      // Add categories to Firebase
+      for (const [categoryName, items] of Object.entries(categoriesData)) {
+        for (const itemName of items) {
+          const itemsCollectionRef = collection(db, 'categories', categoryName, 'items');
+          await addDoc(itemsCollectionRef, { name: itemName });
+        }
+      }
       
       toast({
         title: "Success!",

@@ -42,6 +42,42 @@ const SupplierRegistration = () => {
     "Other (please specify)"
   ];
 
+  // Fallback options if Firebase data isn't loaded
+  const defaultCountries = [
+    { id: '1', name: 'United Arab Emirates' },
+    { id: '2', name: 'Saudi Arabia' },
+    { id: '3', name: 'Kuwait' },
+    { id: '4', name: 'Qatar' },
+    { id: '5', name: 'Bahrain' },
+    { id: '6', name: 'Oman' }
+  ];
+
+  const defaultEmirates = [
+    { id: '1', name: 'Dubai' },
+    { id: '2', name: 'Abu Dhabi' },
+    { id: '3', name: 'Sharjah' },
+    { id: '4', name: 'Ajman' },
+    { id: '5', name: 'Ras Al Khaimah' },
+    { id: '6', name: 'Fujairah' },
+    { id: '7', name: 'Umm Al Quwain' }
+  ];
+
+  const defaultYearsInOperation = [
+    { id: '1', name: '1-2 years' },
+    { id: '2', name: '3-5 years' },
+    { id: '3', name: '6-10 years' },
+    { id: '4', name: '11-15 years' },
+    { id: '5', name: '15+ years' }
+  ];
+
+  const defaultEmployeeCount = [
+    { id: '1', name: '1-10' },
+    { id: '2', name: '11-50' },
+    { id: '3', name: '51-100' },
+    { id: '4', name: '101-500' },
+    { id: '5', name: '500+' }
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -294,8 +330,10 @@ const SupplierRegistration = () => {
                     <option value="">Select years</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : yearsInOperation.error ? (
-                      <option value="">Error loading options</option>
+                    ) : yearsInOperation.error || yearsInOperation.items.length === 0 ? (
+                      defaultYearsInOperation.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
                     ) : (
                       yearsInOperation.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -314,8 +352,10 @@ const SupplierRegistration = () => {
                     <option value="">Select country</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : countries.error ? (
-                      <option value="">Error loading countries</option>
+                    ) : countries.error || countries.items.length === 0 ? (
+                      defaultCountries.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
                     ) : (
                       countries.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -334,8 +374,10 @@ const SupplierRegistration = () => {
                     <option value="">Select emirate</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : emirates.error ? (
-                      <option value="">Error loading emirates</option>
+                    ) : emirates.error || emirates.items.length === 0 ? (
+                      defaultEmirates.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
                     ) : (
                       emirates.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -354,8 +396,10 @@ const SupplierRegistration = () => {
                     <option value="">Select employee range</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : employeeCount.error ? (
-                      <option value="">Error loading options</option>
+                    ) : employeeCount.error || employeeCount.items.length === 0 ? (
+                      defaultEmployeeCount.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
                     ) : (
                       employeeCount.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>

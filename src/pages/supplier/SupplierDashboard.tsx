@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import axios from 'axios'; // For making the upload request
 import { auth, db } from '../../components/firebase';
 import { useToast } from "@/hooks/use-toast";
 import { motion } from 'framer-motion';
 import { 
-  User, 
   Building, 
   Mail, 
   Phone,
@@ -24,7 +24,10 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  BarChart3
+  BarChart3,
+  UploadCloud,
+  File,
+  Trash2
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -52,16 +55,22 @@ interface SupplierData {
   submittedAt?: string;
   createdAt?: string;
   lastUpdated?: string;
+  uploadedDocuments?: any[]; // To hold the list of uploaded files
   [key: string]: any;
 }
 
 const SupplierDashboard = () => {
   const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
   const [supplier, setSupplier] = useState<SupplierData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+
+  // State for file uploads
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Enhanced form data state
   const [formData, setFormData] = useState({
@@ -133,6 +142,7 @@ const SupplierDashboard = () => {
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        setUser(user);
         try {
           const supplierDocRef = doc(db, 'suppliers', user.uid);
           const docSnap = await getDoc(supplierDocRef);
@@ -238,6 +248,63 @@ const SupplierDashboard = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // File upload handlers
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile || !user) return;
+    setIsUploading(true);
+
+    // Cloudinary configuration
+    const CLOUDINARY_CLOUD_NAME = "domqsb9le"; // Replace with your cloud name
+    const CLOUDINARY_UPLOAD_PRESET = "supplier_document_uploads"; // Replace with your upload preset
+
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', selectedFile);
+    uploadFormData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, // Use auto for any file type
+        uploadFormData
+      );
+
+      const fileData = {
+        url: response.data.secure_url,
+        name: selectedFile.name,
+        asset_id: response.data.asset_id,
+        public_id: response.data.public_id,
+      };
+
+      const supplierDocRef = doc(db, 'suppliers', user.uid);
+      await updateDoc(supplierDocRef, { uploadedDocuments: arrayUnion(fileData) });
+      
+      setSupplier(prev => ({ ...prev!, uploadedDocuments: [...(prev?.uploadedDocuments || []), fileData] }));
+      setSelectedFile(null);
+      toast({ title: "Success", description: "File uploaded successfully." });
+
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({ title: "Upload Failed", description: "Please check your configuration.", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const handleDeleteFile = async (fileToDelete: any) => {
+    if (!user || !window.confirm("Are you sure? This will remove the file reference.")) return;
+    
+    const supplierDocRef = doc(db, 'suppliers', user.uid);
+    await updateDoc(supplierDocRef, { uploadedDocuments: arrayRemove(fileToDelete) });
+    
+    setSupplier(prev => ({ ...prev!, uploadedDocuments: prev!.uploadedDocuments!.filter(f => f.asset_id !== fileToDelete.asset_id) }));
+    toast({ title: "File Removed", description: "The file reference has been deleted." });
   };
 
   if (isLoading) {
@@ -571,6 +638,163 @@ const SupplierDashboard = () => {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* File Management Card */}
+            <motion.div 
+              className="xl:col-span-3"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl hover:shadow-blue-500/10 transition-all duration-300">
+                <CardHeader className="pb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                      <UploadCloud className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-white text-2xl font-bold">Document Management</CardTitle>
+                      <CardDescription className="text-slate-300 text-base mt-1">
+                        Upload and manage your business documents securely
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  {/* Upload Section */}
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <h3 className="text-lg font-semibold text-white">Upload New Document</h3>
+                    </div>
+                    <div className="border-2 border-dashed border-slate-600/50 rounded-xl p-8 bg-slate-900/30 hover:border-blue-500/50 hover:bg-slate-900/50 transition-all duration-300">
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center">
+                          <File className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-lg">Choose files to upload</p>
+                          <p className="text-slate-400 text-sm mt-1">Supports PDF, DOC, DOCX, PNG, JPG and more</p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-md">
+                          <div className="relative w-full">
+                            <Input 
+                              type="file" 
+                              onChange={handleFileChange}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt,.csv,.xls,.xlsx"
+                            />
+                            <div className="flex items-center justify-center w-full h-12 px-6 bg-slate-700/50 border-2 border-slate-500/50 rounded-lg text-white hover:bg-slate-600/50 hover:border-slate-400/50 transition-all duration-200 cursor-pointer">
+                              <File className="w-5 h-5 mr-3 text-slate-400" />
+                              <span className="font-medium">
+                                {selectedFile ? selectedFile.name : "Choose Document"}
+                              </span>
+                            </div>
+                          </div>
+                          <Button 
+                            onClick={handleFileUpload} 
+                            disabled={!selectedFile || isUploading} 
+                            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-blue-500/25 transition-all duration-200 px-8 py-3 h-12 font-medium w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isUploading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                                <span>Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud className="w-5 h-5 mr-3" />
+                                <span>Upload</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Uploaded Files Section */}
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <h3 className="text-lg font-semibold text-white">Your Documents</h3>
+                        {supplier?.uploadedDocuments && supplier.uploadedDocuments.length > 0 && (
+                          <Badge variant="secondary" className="bg-slate-700/50 text-slate-300 border-slate-600">
+                            {supplier.uploadedDocuments.length} file{supplier.uploadedDocuments.length !== 1 ? 's' : ''}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {supplier?.uploadedDocuments && supplier.uploadedDocuments.length > 0 ? (
+                      <div className="grid gap-4">
+                        {supplier.uploadedDocuments.map((file, index) => (
+                          <motion.div
+                            key={file.asset_id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="group flex items-center justify-between p-5 bg-slate-700/30 hover:bg-slate-700/50 rounded-xl border border-slate-600/30 hover:border-slate-500/50 transition-all duration-200"
+                          >
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center border border-blue-500/20">
+                                <File className="w-6 h-6 text-blue-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-white font-medium text-base truncate group-hover:text-blue-300 transition-colors">
+                                  {file.name}
+                                </h4>
+                                <p className="text-slate-400 text-sm mt-1">
+                                  Uploaded • Click to view
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                asChild
+                                className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all duration-200"
+                              >
+                                <a 
+                                  href={file.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2"
+                                >
+                                  <Globe className="w-4 h-4" />
+                                  <span className="hidden sm:inline">View</span>
+                                </a>
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteFile(file)}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                <span className="hidden sm:inline ml-2">Delete</span>
+                              </Button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="w-20 h-20 bg-slate-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <File className="w-10 h-10 text-slate-500" />
+                        </div>
+                        <h4 className="text-slate-300 font-medium text-lg mb-2">No documents uploaded yet</h4>
+                        <p className="text-slate-400 text-base max-w-md mx-auto">
+                          Start by uploading your business documents. Supported formats include PDF, Word documents, images, and more.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

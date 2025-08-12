@@ -8,7 +8,7 @@ import { useAllCategories } from '../hooks/useAdminCategories';
 
 const SupplierRegistration = () => {
   const { toast } = useToast();
-  const { countries, yearsInOperation, employeeCount, loading: categoriesLoading } = useAllCategories();
+  const { countries, emirates, yearsInOperation, employeeCount, loading: categoriesLoading } = useAllCategories();
   const [formData, setFormData] = useState({
     companyName: '',
     country: '',
@@ -332,13 +332,15 @@ const SupplierRegistration = () => {
                     onChange={(e) => setFormData(prev => ({...prev, emirate: e.target.value}))}
                   >
                     <option value="">Select emirate</option>
-                    <option value="Dubai">Dubai</option>
-                    <option value="Abu Dhabi">Abu Dhabi</option>
-                    <option value="Sharjah">Sharjah</option>
-                    <option value="Ajman">Ajman</option>
-                    <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                    <option value="Fujairah">Fujairah</option>
-                    <option value="Umm Al Quwain">Umm Al Quwain</option>
+                    {categoriesLoading ? (
+                      <option value="">Loading...</option>
+                    ) : emirates.error ? (
+                      <option value="">Error loading emirates</option>
+                    ) : (
+                      emirates.items.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 

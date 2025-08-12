@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Building, FileText, CheckCircle, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,11 +6,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAllCategories } from '@/hooks/useAdminCategories';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from './firebase';
+import { useToast } from '@/components/ui/use-toast';
 
 const SupplierForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  
+  // Get admin-managed categories
+  const { 
+    countries, 
+    emirates, 
+    yearsOfOperation, 
+    businessTypes: adminBusinessTypes,
+    loading: categoriesLoading 
+  } = useAllCategories();
+
   const [formData, setFormData] = useState({
     // Company Information
     companyName: '',
@@ -18,6 +34,9 @@ const SupplierForm = () => {
     taxId: '',
     yearEstablished: '',
     employeeCount: '',
+    country: '',
+    emirate: '',
+    yearsOfOperation: '',
     
     // Contact Information
     contactName: '',
@@ -45,6 +64,10 @@ const SupplierForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleNext = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -61,11 +84,33 @@ const SupplierForm = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsLoading(false);
-    setIsSubmitted(true);
+    try {
+      // Add supplier to Firebase
+      const docRef = await addDoc(collection(db, 'suppliers'), {
+        ...formData,
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        id: crypto.randomUUID()
+      });
+
+      console.log('Supplier registered with ID: ', docRef.id);
+      
+      toast({
+        title: "Application Submitted!",
+        description: "Your supplier registration has been submitted successfully.",
+      });
+      
+      setIsSubmitted(true);
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Submission Failed",
+        description: `Error: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const steps = [
@@ -73,15 +118,6 @@ const SupplierForm = () => {
     { number: 2, title: "Contact Details", icon: FileText },
     { number: 3, title: "Business Details", icon: Building },
     { number: 4, title: "Additional Info", icon: Upload }
-  ];
-
-  const businessTypes = [
-    "Manufacturer",
-    "Distributor",
-    "Reseller",
-    "Service Provider",
-    "Consultant",
-    "Other"
   ];
 
   const employeeCounts = [
@@ -144,6 +180,7 @@ const SupplierForm = () => {
                         setCurrentStep(1);
                         setFormData({
                           companyName: '', businessRegistration: '', taxId: '', yearEstablished: '', employeeCount: '',
+                          country: '', emirate: '', yearsOfOperation: '',
                           contactName: '', position: '', email: '', phone: '', website: '', address: '',
                           businessType: '', products: '', experience: '', certifications: '', references: '',
                           capacity: '', qualityStandards: '', additionalInfo: ''
@@ -275,6 +312,88 @@ const SupplierForm = () => {
                                   ))}
                                 </select>
                               </div>
+                              
+                              {/* New dropdown fields */}
+                              <div>
+                                <Label htmlFor="country">Country *</Label>
+                                <Select value={formData.country} onValueChange={(value) => handleSelectChange('country', value)}>
+                                  <SelectTrigger className="mt-2">
+                                    <SelectValue placeholder="Select country" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {categoriesLoading ? (
+                                      <SelectItem value="loading" disabled>Loading countries...</SelectItem>
+                                    ) : countries.length > 0 ? (
+                                      countries.map((country) => (
+                                        <SelectItem key={country.id} value={country.name}>
+                                          {country.name}
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <SelectItem value="uae" disabled>UAE (Default)</SelectItem>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div>
+                                <Label htmlFor="emirate">Emirate *</Label>
+                                <Select value={formData.emirate} onValueChange={(value) => handleSelectChange('emirate', value)}>
+                                  <SelectTrigger className="mt-2">
+                                    <SelectValue placeholder="Select emirate" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {categoriesLoading ? (
+                                      <SelectItem value="loading" disabled>Loading emirates...</SelectItem>
+                                    ) : emirates.length > 0 ? (
+                                      emirates.map((emirate) => (
+                                        <SelectItem key={emirate.id} value={emirate.name}>
+                                          {emirate.name}
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <>
+                                        <SelectItem value="dubai">Dubai</SelectItem>
+                                        <SelectItem value="abu-dhabi">Abu Dhabi</SelectItem>
+                                        <SelectItem value="sharjah">Sharjah</SelectItem>
+                                        <SelectItem value="ajman">Ajman</SelectItem>
+                                        <SelectItem value="fujairah">Fujairah</SelectItem>
+                                        <SelectItem value="ras-al-khaimah">Ras Al Khaimah</SelectItem>
+                                        <SelectItem value="umm-al-quwain">Umm Al Quwain</SelectItem>
+                                      </>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div>
+                                <Label htmlFor="yearsOfOperation">Years of Operation</Label>
+                                <Select value={formData.yearsOfOperation} onValueChange={(value) => handleSelectChange('yearsOfOperation', value)}>
+                                  <SelectTrigger className="mt-2">
+                                    <SelectValue placeholder="Select years of operation" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {categoriesLoading ? (
+                                      <SelectItem value="loading" disabled>Loading options...</SelectItem>
+                                    ) : yearsOfOperation.length > 0 ? (
+                                      yearsOfOperation.map((years) => (
+                                        <SelectItem key={years.id} value={years.name}>
+                                          {years.name}
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <>
+                                        <SelectItem value="0-1">0-1 Years</SelectItem>
+                                        <SelectItem value="1-3">1-3 Years</SelectItem>
+                                        <SelectItem value="3-5">3-5 Years</SelectItem>
+                                        <SelectItem value="5-10">5-10 Years</SelectItem>
+                                        <SelectItem value="10-20">10-20 Years</SelectItem>
+                                        <SelectItem value="20+">20+ Years</SelectItem>
+                                      </>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
                           </motion.div>
                         )}
@@ -371,18 +490,31 @@ const SupplierForm = () => {
                           >
                             <div>
                               <Label htmlFor="businessType">Business Type</Label>
-                              <select
-                                id="businessType"
-                                name="businessType"
-                                value={formData.businessType}
-                                onChange={handleInputChange}
-                                className="mt-2 w-full px-3 py-2 border border-input bg-background rounded-md"
-                              >
-                                <option value="">Select business type</option>
-                                {businessTypes.map((type, index) => (
-                                  <option key={index} value={type}>{type}</option>
-                                ))}
-                              </select>
+                              <Select value={formData.businessType} onValueChange={(value) => handleSelectChange('businessType', value)}>
+                                <SelectTrigger className="mt-2">
+                                  <SelectValue placeholder="Select business type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categoriesLoading ? (
+                                    <SelectItem value="loading" disabled>Loading business types...</SelectItem>
+                                  ) : adminBusinessTypes.length > 0 ? (
+                                    adminBusinessTypes.map((type) => (
+                                      <SelectItem key={type.id} value={type.name}>
+                                        {type.name}
+                                      </SelectItem>
+                                    ))
+                                  ) : (
+                                    <>
+                                      <SelectItem value="manufacturer">Manufacturer</SelectItem>
+                                      <SelectItem value="distributor">Distributor</SelectItem>
+                                      <SelectItem value="reseller">Reseller</SelectItem>
+                                      <SelectItem value="service-provider">Service Provider</SelectItem>
+                                      <SelectItem value="consultant">Consultant</SelectItem>
+                                      <SelectItem value="other">Other</SelectItem>
+                                    </>
+                                  )}
+                                </SelectContent>
+                              </Select>
                             </div>
                             <div>
                               <Label htmlFor="products">Products/Services Offered *</Label>

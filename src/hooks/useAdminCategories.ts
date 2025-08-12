@@ -49,13 +49,18 @@ export const useAdminCategories = (categoryName: string) => {
 // Hook for multiple categories at once
 export const useAllCategories = () => {
   const countries = useAdminCategories('countries');
-  const yearsInOperation = useAdminCategories('yearsInOperation');
+  const emirates = useAdminCategories('emirates');
+  const yearsInOperation = useAdminCategories('yearsOfOperation');
+  const businessTypes = useAdminCategories('businessTypes');
   const employeeCount = useAdminCategories('employeeCount');
 
   return {
     countries,
+    emirates,
     yearsInOperation,
+    businessTypes,
     employeeCount,
-    loading: countries.loading || yearsInOperation.loading || employeeCount.loading
+    loading: countries.loading || emirates.loading || yearsInOperation.loading || businessTypes.loading || employeeCount.loading,
+    error: countries.error || emirates.error || yearsInOperation.error || businessTypes.error || employeeCount.error
   };
 };

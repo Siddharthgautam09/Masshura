@@ -16,6 +16,7 @@ const HardwarePage = lazy(() => import("./pages/HardwarePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const SupplierRegistration = lazy(() => import("./pages/SupplierResgistration"));
+const SupplierRegistrationPage = lazy(() => import("./pages/SupplierRegistrationPage"));
 const ItConsulting = lazy(() => import("./pages/ItConsulting"));
 const Services = lazy(() => import("./components/Services"));
 const WhyUs = lazy(() => import("./components/WhyUs"));
@@ -89,6 +90,7 @@ const App = () => {
               <Route path="/hardware" element={<HardwarePage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="*" element={<NotFound />} />
+              <Route path="/supplier-registration" element={<SupplierRegistrationPage />} />
               <Route path="/SupplierRegistration" element={<SupplierRegistration />} />
               <Route path="/ItConsulting" element={<ItConsulting />} />
               <Route path="/Services" element={<Services />} />

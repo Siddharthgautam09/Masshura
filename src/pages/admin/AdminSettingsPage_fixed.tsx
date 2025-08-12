@@ -2,13 +2,12 @@
 
 import React from 'react';
 import CategoryManager from '../../components/admin/CategoryManager';
-import { Settings, Database, Users, Globe, RefreshCw, TestTube, Plus } from 'lucide-react';
+import { Settings, Database, Users, Globe, RefreshCw, TestTube } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/components/ui/use-toast";
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../components/firebase';
-import { populateDefaultCategories } from '../../utils/populateDefaultCategories';
 
 const AdminSettingsPage = () => {
   const { toast } = useToast();
@@ -40,34 +39,6 @@ const AdminSettingsPage = () => {
       toast({
         title: "Connection Error",
         description: `Firebase error: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePopulateDefaults = async () => {
-    try {
-      toast({
-        title: "Populating Categories",
-        description: "Adding default categories to the database...",
-      });
-      
-      await populateDefaultCategories();
-      
-      toast({
-        title: "Success!",
-        description: "Default categories have been populated successfully.",
-      });
-      
-      // Refresh the page to show new data
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error: any) {
-      console.error('Error populating defaults:', error);
-      toast({
-        title: "Error",
-        description: `Failed to populate defaults: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -124,14 +95,6 @@ const AdminSettingsPage = () => {
             >
               <TestTube className="mr-2 h-4 w-4" />
               Test Connection
-            </Button>
-            <Button
-              onClick={handlePopulateDefaults}
-              variant="outline"
-              className="bg-blue-600/20 border-blue-500 text-blue-400 hover:bg-blue-600/30"
-            >
-              <Database className="mr-2 h-4 w-4" />
-              Populate Defaults
             </Button>
           </motion.div>
 

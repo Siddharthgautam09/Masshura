@@ -261,25 +261,53 @@ const SupplierDashboard = () => {
     if (!selectedFile || !user) return;
     setIsUploading(true);
 
-    // Cloudinary configuration
-    const CLOUDINARY_CLOUD_NAME = "domqsb9le"; // Replace with your cloud name
-    const CLOUDINARY_UPLOAD_PRESET = "supplier_document_uploads"; // Replace with your upload preset
+    // Cloudinary configuration - Updated for better access control
+    const CLOUDINARY_CLOUD_NAME = "domqsb9le";
+    const CLOUDINARY_UPLOAD_PRESET = "masshura_supplier_docs";
 
     const uploadFormData = new FormData();
     uploadFormData.append('file', selectedFile);
     uploadFormData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    
+    // Add additional parameters to ensure proper access
+    uploadFormData.append('resource_type', 'auto');
+    
+    // The folder is already set in the upload preset as 'supplier_files'
+    // We can add a subfolder for user organization
+    uploadFormData.append('folder', `supplier_files/${user.uid}`);
 
     try {
+      console.log('Uploading to Cloudinary with config:', {
+        cloud_name: CLOUDINARY_CLOUD_NAME,
+        upload_preset: CLOUDINARY_UPLOAD_PRESET,
+        file_size: selectedFile.size,
+        file_type: selectedFile.type
+      });
+
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, // Use auto for any file type
-        uploadFormData
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
+        uploadFormData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
       );
+
+      console.log('Cloudinary upload response:', response.data);
 
       const fileData = {
         url: response.data.secure_url,
         name: selectedFile.name,
         asset_id: response.data.asset_id,
         public_id: response.data.public_id,
+        resource_type: response.data.resource_type,
+        format: response.data.format,
+        uploaded_at: new Date().toISOString(),
+        file_size: response.data.bytes,
+        // Store both secure and non-secure URLs for fallback
+        secure_url: response.data.secure_url,
+        url_fallback: response.data.url
       };
 
       const supplierDocRef = doc(db, 'suppliers', user.uid);
@@ -287,11 +315,47 @@ const SupplierDashboard = () => {
       
       setSupplier(prev => ({ ...prev!, uploadedDocuments: [...(prev?.uploadedDocuments || []), fileData] }));
       setSelectedFile(null);
-      toast({ title: "Success", description: "File uploaded successfully." });
+      toast({ 
+        title: "Success", 
+        description: `File "${selectedFile.name}" uploaded successfully to Cloudinary.` 
+      });
 
     } catch (error) {
       console.error("Error uploading file:", error);
-      toast({ title: "Upload Failed", description: "Please check your configuration.", variant: "destructive" });
+      
+      // Enhanced error handling
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const errorData = error.response?.data;
+        
+        console.error('Cloudinary error details:', errorData);
+        
+        if (status === 401) {
+          toast({ 
+            title: "Upload Failed - Authentication Error", 
+            description: "Upload preset configuration issue. Please contact support.", 
+            variant: "destructive" 
+          });
+        } else if (status === 400) {
+          toast({ 
+            title: "Upload Failed - Invalid File", 
+            description: "File format not supported or file is corrupted.", 
+            variant: "destructive" 
+          });
+        } else {
+          toast({ 
+            title: "Upload Failed", 
+            description: `Error ${status}: ${errorData?.error?.message || 'Unknown error'}`, 
+            variant: "destructive" 
+          });
+        }
+      } else {
+        toast({ 
+          title: "Upload Failed", 
+          description: "Network error. Please check your connection and try again.", 
+          variant: "destructive" 
+        });
+      }
     } finally {
       setIsUploading(false);
     }
@@ -748,28 +812,104 @@ const SupplierDashboard = () => {
                                 <h4 className="text-white font-medium text-base truncate group-hover:text-blue-300 transition-colors">
                                   {file.name}
                                 </h4>
-                                <p className="text-slate-400 text-sm mt-1">
-                                  Uploaded • Click to view
-                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <p className="text-slate-400 text-sm">
+                                    {file.uploaded_at ? new Date(file.uploaded_at).toLocaleDateString() : 'Uploaded'}
+                                  </p>
+                                  {file.file_size && (
+                                    <>
+                                      <span className="text-slate-600">•</span>
+                                      <p className="text-slate-400 text-sm">
+                                        {(file.file_size / 1024 / 1024).toFixed(2)} MB
+                                      </p>
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                asChild
+                                onClick={async () => {
+                                  try {
+                                    // Try secure URL first, then fallback URL
+                                    const urlToTry = file.secure_url || file.url_fallback || file.url;
+                                    
+                                    // Test URL accessibility
+                                    const response = await fetch(urlToTry, { method: 'HEAD' });
+                                    
+                                    if (response.ok) {
+                                      window.open(urlToTry, '_blank', 'noopener,noreferrer');
+                                    } else {
+                                      throw new Error(`HTTP ${response.status}`);
+                                    }
+                                  } catch (error) {
+                                    console.error('File access error:', error);
+                                    toast({
+                                      title: "Access Error",
+                                      description: "File cannot be accessed. It may have been moved or deleted from Cloudinary. Try downloading instead.",
+                                      variant: "destructive"
+                                    });
+                                    
+                                    // Provide fallback options
+                                    const fallbackUrl = file.url_fallback || file.url;
+                                    if (fallbackUrl && fallbackUrl !== (file.secure_url || file.url)) {
+                                      if (confirm("Try accessing with alternative URL?")) {
+                                        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+                                      }
+                                    }
+                                  }
+                                }}
                                 className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all duration-200"
                               >
-                                <a 
-                                  href={file.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2"
-                                >
-                                  <Globe className="w-4 h-4" />
-                                  <span className="hidden sm:inline">View</span>
-                                </a>
+                                <Globe className="w-4 h-4" />
+                                <span className="hidden sm:inline ml-2">View</span>
                               </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async () => {
+                                  try {
+                                    const urlToDownload = file.secure_url || file.url_fallback || file.url;
+                                    
+                                    // Create download link
+                                    const link = document.createElement('a');
+                                    link.href = urlToDownload;
+                                    link.download = file.name || 'download';
+                                    link.target = '_blank';
+                                    
+                                    // Test if URL is accessible before attempting download
+                                    const response = await fetch(urlToDownload, { method: 'HEAD' });
+                                    
+                                    if (response.ok) {
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                      
+                                      toast({
+                                        title: "Download Started",
+                                        description: `Downloading ${file.name}`
+                                      });
+                                    } else {
+                                      throw new Error(`HTTP ${response.status}`);
+                                    }
+                                  } catch (error) {
+                                    console.error('Download error:', error);
+                                    toast({
+                                      title: "Download Failed",
+                                      description: "File cannot be downloaded. It may have been moved or deleted from Cloudinary.",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }}
+                                className="text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-all duration-200"
+                              >
+                                <UploadCloud className="w-4 h-4 rotate-180" />
+                                <span className="hidden sm:inline ml-2">Download</span>
+                              </Button>
+                              
                               <Button 
                                 variant="ghost" 
                                 size="sm"

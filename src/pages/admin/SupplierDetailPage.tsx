@@ -31,7 +31,8 @@ import {
   Briefcase,
   Award,
   Target,
-  Settings
+  Settings,
+  Eye
 } from 'lucide-react';
 
 interface Supplier {
@@ -61,7 +62,18 @@ interface Supplier {
   approvedAt?: string;
   rejectedAt?: string;
   notes?: string;
-  uploadedDocuments?: Array<{ url: string; name: string; asset_id: string; public_id: string }>; // Added for file management
+  uploadedDocuments?: Array<{ 
+    url: string; 
+    name: string; 
+    asset_id: string; 
+    public_id: string;
+    secure_url?: string; // Optional secure URL for Cloudinary
+    resource_type?: string; // Resource type from Cloudinary
+    format?: string; // File format
+    uploaded_at?: string; // Upload timestamp
+    file_size?: number; // File size in bytes
+    url_fallback?: string; // Fallback URL
+  }>; // Added for file management
 }
 
 const SupplierDetailPage = () => {
@@ -736,7 +748,12 @@ const SupplierDetailPage = () => {
               <CardContent>
                 {supplier.uploadedDocuments && supplier.uploadedDocuments.length > 0 ? (
                   <div className="space-y-3">
-                    {supplier.uploadedDocuments.map((doc, index) => (
+                    <p className="text-slate-400 text-sm mb-4">
+                      Found {supplier.uploadedDocuments.length} uploaded document(s)
+                    </p>
+                    {supplier.uploadedDocuments.map((doc, index) => {
+                      console.log('Rendering document:', doc); // Debug log
+                      return (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, x: -10 }}
@@ -749,30 +766,140 @@ const SupplierDetailPage = () => {
                             <FileText className="w-5 h-5 text-green-400" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-white font-medium truncate">{doc.name}</p>
-                            <p className="text-slate-400 text-sm">Document uploaded by supplier</p>
+                            <p className="text-white font-medium truncate">{doc.name || 'Unknown file'}</p>
+                            <div className="flex items-center gap-2 text-slate-400 text-sm">
+                              <span>Document uploaded by supplier</span>
+                              {doc.url ? (
+                                doc.url.includes('cloudinary.com') ? (
+                                  <span className="text-green-400">• Cloudinary hosted</span>
+                                ) : (
+                                  <span className="text-blue-400">• External link</span>
+                                )
+                              ) : (
+                                <span className="text-red-400">• URL missing</span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            asChild
+                            onClick={async () => {
+                              console.log('Opening document:', doc.url);
+                              if (doc.url) {
+                                try {
+                                  // For Cloudinary URLs, try to construct a more reliable URL
+                                  let urlToOpen = doc.url;
+                                  
+                                  // If it's a Cloudinary URL, try multiple URL variants
+                                  if (doc.url.includes('cloudinary.com')) {
+                                    // Try secure URL first
+                                    if (doc.secure_url) {
+                                      urlToOpen = doc.secure_url;
+                                    }
+                                    
+                                    console.log('Using Cloudinary URL:', urlToOpen);
+                                    
+                                    // For Cloudinary, try opening directly without pre-flight check
+                                    // as CORS might block HEAD requests but allow GET requests
+                                    window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+                                    
+                                  } else {
+                                    // For non-Cloudinary URLs, do a quick check
+                                    try {
+                                      const response = await fetch(doc.url, { 
+                                        method: 'HEAD',
+                                        mode: 'no-cors' // This bypasses CORS for the check
+                                      });
+                                      window.open(doc.url, '_blank', 'noopener,noreferrer');
+                                    } catch (error) {
+                                      console.log('Pre-flight check failed, trying direct access:', error);
+                                      window.open(doc.url, '_blank', 'noopener,noreferrer');
+                                    }
+                                  }
+                                  
+                                } catch (error) {
+                                  console.error('Error accessing document:', error);
+                                  // Always try opening as a fallback
+                                  window.open(doc.url, '_blank', 'noopener,noreferrer');
+                                }
+                              } else {
+                                console.error('Document URL is missing');
+                                alert('Document URL is not available');
+                              }
+                            }}
                             className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
                           >
-                            <a 
-                              href={doc.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2"
-                            >
-                              <Download className="w-4 h-4" />
-                              <span className="hidden sm:inline">View</span>
-                            </a>
+                            <Eye className="w-4 h-4" />
+                            <span className="hidden sm:inline ml-2">View</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              console.log('Downloading document:', doc.url, doc.name);
+                              if (doc.url) {
+                                try {
+                                  // For Cloudinary URLs, skip the pre-flight check and try direct download
+                                  let downloadUrl = doc.url;
+                                  
+                                  if (doc.url.includes('cloudinary.com')) {
+                                    // Use secure URL if available for Cloudinary
+                                    if (doc.secure_url) {
+                                      downloadUrl = doc.secure_url;
+                                    }
+                                    
+                                    console.log('Using Cloudinary download URL:', downloadUrl);
+                                  }
+                                  
+                                  // Create a temporary anchor element to trigger download
+                                  const link = document.createElement('a');
+                                  link.href = downloadUrl;
+                                  link.download = doc.name || 'document';
+                                  link.target = '_blank';
+                                  link.rel = 'noopener noreferrer';
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                  
+                                } catch (error) {
+                                  console.error('Error downloading document:', error);
+                                  // Try opening in new tab as fallback
+                                  window.open(doc.url, '_blank', 'noopener,noreferrer');
+                                }
+                              } else {
+                                console.error('Document URL is missing');
+                                alert('Document URL is not available');
+                              }
+                            }}
+                            className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                          >
+                            <Download className="w-4 h-4" />
+                            <span className="hidden sm:inline ml-2">Download</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              // Copy URL to clipboard for manual inspection
+                              if (doc.url) {
+                                navigator.clipboard.writeText(doc.url).then(() => {
+                                  alert('Document URL copied to clipboard');
+                                }).catch(() => {
+                                  prompt('Copy this URL manually:', doc.url);
+                                });
+                              }
+                            }}
+                            className="text-slate-400 hover:text-slate-300 hover:bg-slate-500/10"
+                            title="Copy URL to clipboard"
+                          >
+                            <Globe className="w-4 h-4" />
                           </Button>
                         </div>
                       </motion.div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -781,6 +908,16 @@ const SupplierDetailPage = () => {
                     </div>
                     <p className="text-slate-400 font-medium">No documents uploaded</p>
                     <p className="text-slate-500 text-sm mt-1">This supplier hasn't uploaded any documents yet.</p>
+                    <div className="mt-4 p-4 bg-slate-800/30 rounded-lg border border-slate-600/30">
+                      <p className="text-slate-400 text-xs">
+                        <strong>Troubleshooting:</strong> If documents should be here but aren't showing:
+                      </p>
+                      <ul className="text-slate-500 text-xs mt-2 space-y-1 text-left">
+                        <li>• Check if uploadedDocuments field exists in Firestore</li>
+                        <li>• Verify Cloudinary upload was successful</li>
+                        <li>• Ensure document URLs are valid and accessible</li>
+                      </ul>
+                    </div>
                   </div>
                 )}
               </CardContent>

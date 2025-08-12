@@ -22,7 +22,6 @@ const SupplierForm = () => {
   const { 
     countries, 
     emirates, 
-    yearsOfOperation, 
     businessTypes: adminBusinessTypes,
     loading: categoriesLoading 
   } = useAllCategories();
@@ -323,8 +322,8 @@ const SupplierForm = () => {
                                   <SelectContent>
                                     {categoriesLoading ? (
                                       <SelectItem value="loading" disabled>Loading countries...</SelectItem>
-                                    ) : countries.length > 0 ? (
-                                      countries.map((country) => (
+                                    ) : countries.items.length > 0 ? (
+                                      countries.items.map((country) => (
                                         <SelectItem key={country.id} value={country.name}>
                                           {country.name}
                                         </SelectItem>
@@ -345,8 +344,8 @@ const SupplierForm = () => {
                                   <SelectContent>
                                     {categoriesLoading ? (
                                       <SelectItem value="loading" disabled>Loading emirates...</SelectItem>
-                                    ) : emirates.length > 0 ? (
-                                      emirates.map((emirate) => (
+                                    ) : emirates.items.length > 0 ? (
+                                      emirates.items.map((emirate) => (
                                         <SelectItem key={emirate.id} value={emirate.name}>
                                           {emirate.name}
                                         </SelectItem>
@@ -375,19 +374,12 @@ const SupplierForm = () => {
                                   <SelectContent>
                                     {categoriesLoading ? (
                                       <SelectItem value="loading" disabled>Loading options...</SelectItem>
-                                    ) : yearsOfOperation.length > 0 ? (
-                                      yearsOfOperation.map((years) => (
-                                        <SelectItem key={years.id} value={years.name}>
-                                          {years.name}
-                                        </SelectItem>
-                                      ))
                                     ) : (
                                       <>
                                         <SelectItem value="0-1">0-1 Years</SelectItem>
-                                        <SelectItem value="1-3">1-3 Years</SelectItem>
-                                        <SelectItem value="3-5">3-5 Years</SelectItem>
-                                        <SelectItem value="5-10">5-10 Years</SelectItem>
-                                        <SelectItem value="10-20">10-20 Years</SelectItem>
+                                        <SelectItem value="2-5">2-5 Years</SelectItem>
+                                        <SelectItem value="6-10">6-10 Years</SelectItem>
+                                        <SelectItem value="11-20">11-20 Years</SelectItem>
                                         <SelectItem value="20+">20+ Years</SelectItem>
                                       </>
                                     )}
@@ -497,8 +489,8 @@ const SupplierForm = () => {
                                 <SelectContent>
                                   {categoriesLoading ? (
                                     <SelectItem value="loading" disabled>Loading business types...</SelectItem>
-                                  ) : adminBusinessTypes.length > 0 ? (
-                                    adminBusinessTypes.map((type) => (
+                                  ) : adminBusinessTypes.items.length > 0 ? (
+                                    adminBusinessTypes.items.map((type) => (
                                       <SelectItem key={type.id} value={type.name}>
                                         {type.name}
                                       </SelectItem>

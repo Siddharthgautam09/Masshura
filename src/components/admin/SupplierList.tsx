@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'; 
 import { db } from '../firebase.ts';
+import emailjs from '@emailjs/browser';
 import { Link } from 'react-router-dom';
 import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
@@ -85,11 +86,104 @@ const SupplierList = () => {
       currentSuppliers.map(s => (s.id === supplierId ? { ...s, status: newStatus } : s))
     );
   };
+
+  // Test function to verify EmailJS is working
+  const testEmailJS = async () => {
+    try {
+      const YOUR_SERVICE_ID = "service_6qlid92";
+      const YOUR_TEMPLATE_ID = "template_h01qmqi";
+      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+      const testParams = {
+        supplier_name: "Test Supplier",
+        to_email: "your-email@example.com", // CHANGE THIS TO YOUR EMAIL FOR TESTING
+        set_password_link: "http://localhost:5173/set-password?email=test@example.com",
+        from_name: "Masshura Team",
+        message: "This is a test email to verify EmailJS integration."
+      };
+
+      console.log('Testing EmailJS with params:', testParams);
+      
+      // Initialize EmailJS
+      emailjs.init(YOUR_PUBLIC_KEY);
+      
+      const result = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, testParams);
+      console.log('Test email sent successfully:', result);
+      toast({ title: "Test Email Sent", description: "EmailJS is working properly! Check your email." });
+    } catch (error) {
+      console.error("EmailJS test failed:", error);
+      
+      let errorMessage = 'Unknown error';
+      if (error && typeof error === 'object' && 'status' in error) {
+        const emailError = error as any;
+        errorMessage = `EmailJS Error (${emailError.status}): ${emailError.text || emailError.message}`;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "EmailJS Test Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  };
   
-  const handleApprove = async (supplierId: string) => {
-    await updateDoc(doc(db, 'suppliers', supplierId), { status: 'approved' });
-    updateSupplierStatusInState(supplierId, 'approved');
-    toast({ title: "Success", description: "Supplier has been approved." });
+  const handleApprove = async (supplierId: string, supplierEmail: string, supplierName: string) => {
+    try {
+      console.log('Starting approval process for:', { supplierId, supplierEmail, supplierName });
+      
+      // Validate email before proceeding
+      if (!supplierEmail || !supplierEmail.includes('@')) {
+        throw new Error('Invalid supplier email address');
+      }
+      
+      // Step 1: Update the supplier's status in Firestore
+      await updateDoc(doc(db, 'suppliers', supplierId), { status: 'approved' });
+      console.log('Firestore update successful');
+      
+      // Update the state locally to reflect the change instantly
+      updateSupplierStatusInState(supplierId, 'approved');
+      toast({ title: "Success", description: "Supplier has been approved." });
+
+      // Step 2: Send the approval email using EmailJS
+      const YOUR_SERVICE_ID = "service_6qlid92";
+      const YOUR_TEMPLATE_ID = "template_h01qmqi";
+      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+      // Validate EmailJS configuration
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID || !YOUR_PUBLIC_KEY) {
+        throw new Error('EmailJS configuration is missing');
+      }
+
+      // Construct the password link
+      const setPasswordLink = `http://localhost:5173/set-password?email=${encodeURIComponent(supplierEmail)}`;
+
+      const templateParams = {
+        supplier_name: supplierName,
+        to_email: supplierEmail, // <-- This tells EmailJS who to send the email to.
+        set_password_link: setPasswordLink,
+      };
+
+      console.log('Sending email with params:', templateParams);
+      console.log('EmailJS config:', { YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, YOUR_PUBLIC_KEY });
+
+      // Initialize EmailJS with your public key first
+      emailjs.init(YOUR_PUBLIC_KEY);
+      
+      const emailResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, templateParams);
+      console.log('Email sent successfully:', emailResult);
+
+      toast({ title: "Email Sent", description: "Approval email has been sent to the supplier." });
+
+    } catch (error) {
+      console.error("EmailJS send failed:", error); // <-- This will log the full error object
+      toast({
+        title: "Email Failed",
+        description: `Could not send email. Error: ${error.text || 'Unknown error'}`, // Show error in toast
+        variant: "destructive"
+      });
+    }
   };
 
   const handleReject = async (supplierId: string) => {
@@ -138,6 +232,14 @@ const SupplierList = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <Button
+            onClick={testEmailJS}
+            variant="outline"
+            size="sm"
+            className="border-blue-500 text-blue-300 hover:bg-blue-700/50 hover:text-blue-200"
+          >
+            Test EmailJS
+          </Button>
           <Button
             onClick={refreshSuppliers}
             variant="outline"
@@ -198,7 +300,7 @@ const SupplierList = () => {
                       <>
                         <Button 
                           size="sm" 
-                          onClick={() => handleApprove(supplier.id)}
+                          onClick={() => handleApprove(supplier.id, supplier.email, supplier.companyName)}
                           className="bg-green-600/80 hover:bg-green-600 text-white border-green-500"
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />

@@ -61,6 +61,7 @@ interface Supplier {
   approvedAt?: string;
   rejectedAt?: string;
   notes?: string;
+  uploadedDocuments?: Array<{ url: string; name: string; asset_id: string; public_id: string }>; // Added for file management
 }
 
 const SupplierDetailPage = () => {
@@ -716,6 +717,74 @@ const SupplierDetailPage = () => {
                 </CardContent>
               </Card>
             )}
+          </motion.div>
+
+          {/* Uploaded Documents Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="xl:col-span-2"
+          >
+            <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-green-400" />
+                  Uploaded Documents
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {supplier.uploadedDocuments && supplier.uploadedDocuments.length > 0 ? (
+                  <div className="space-y-3">
+                    {supplier.uploadedDocuments.map((doc, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg border border-slate-600/30 hover:border-slate-500/50 transition-all duration-200"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-lg flex items-center justify-center border border-green-500/20">
+                            <FileText className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white font-medium truncate">{doc.name}</p>
+                            <p className="text-slate-400 text-sm">Document uploaded by supplier</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                          >
+                            <a 
+                              href={doc.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2"
+                            >
+                              <Download className="w-4 h-4" />
+                              <span className="hidden sm:inline">View</span>
+                            </a>
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-slate-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-8 h-8 text-slate-500" />
+                    </div>
+                    <p className="text-slate-400 font-medium">No documents uploaded</p>
+                    <p className="text-slate-500 text-sm mt-1">This supplier hasn't uploaded any documents yet.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
         </AnimatePresence>
         </div>

@@ -71,7 +71,7 @@ const HeroSection = () => {
   return (
     <>
       {/* Landing Page Section */}
-      <section id="home" className="relative min-h-screen h-auto bg-slate-900 overflow-hidden pt-24 md:pt-28 lg:pt-32 xl:pt-36 pb-8 md:pb-12 lg:pb-16">
+      <section id="home" className="relative h-screen bg-slate-900 overflow-hidden pt-16 md:pt-20 lg:pt-24">
         {/* BackgroundBoxes Grid - Layer 1 */}
         <div className="absolute inset-0 w-full h-full bg-slate-900">
           <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
@@ -171,7 +171,7 @@ const HeroSection = () => {
                 transition={{ duration: 1, delay: 0.3 }}
                 className="relative z-30"
               >
-                <div className="relative w-full h-96 lg:h-[500px] xl:h-[550px] rounded-2xl overflow-hidden shadow-2xl shadow-[#6AAEFF]/20 bg-slate-800">
+                <div className="relative w-full h-80 lg:h-96 xl:h-[450px] rounded-2xl overflow-hidden shadow-2xl shadow-[#6AAEFF]/20 bg-slate-800">
                   {heroImages.map((image, index) => (
                     <motion.div
                       key={index}
@@ -232,62 +232,60 @@ const HeroSection = () => {
               </motion.div>
             </div>
 
-            {/* Full-width subtitle below both text and images - Desktop/Tablet only */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="hidden md:block mt-8 lg:mt-12 text-center"
-            >
-              <h2 className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-200 max-w-6xl mx-auto leading-relaxed font-medium">
-                <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent">
-                  Empowering Small to Mid-scale Businesses with Custom Software Solutions, 
-                  Smart Technology Consulting & Digital Support — Done Right, Done Fast.
-                </span>
-              </h2>
-            </motion.div>
-
-            {/* Mobile Layout - Stacked with reduced spacing, NO IMAGES */}
+            {/* Mobile Layout - Stacked with optimized spacing */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, staggerChildren: 0.2 }}
-              className="block md:hidden text-center px-2 py-8"
+              className="block md:hidden text-center px-4 py-12"
             >
-              {/* Mobile Heading */}
+              {/* Mobile Heading - Three lines with better spacing */}
               <motion.h1
-                className="text-2xl sm:text-3xl font-bold mb-4 leading-tight relative z-30 text-white"
+                className="text-3xl sm:text-4xl font-bold mb-8 leading-tight relative z-30 text-white"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  Simple. Smart. Affordable
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  IT Consultancy
-                </span>
-                <br />
-                <span className="text-gray-300 text-lg sm:text-xl mt-2 block">
-                  for Growing Businesses in Dubai, UAE & the GCC
-                </span>
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-4xl sm:text-5xl font-extrabold">
+                    Simple.
+                  </div>
+                  <div className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-4xl sm:text-5xl font-extrabold">
+                    Smart.
+                  </div>
+                  <div className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-4xl sm:text-5xl font-extrabold">
+                    Affordable
+                  </div>
+                </div>
+                <div className="mt-6 space-y-2">
+                  <div className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-xl sm:text-2xl font-bold">
+                    IT Consultancy
+                  </div>
+                  <div className="text-gray-300 text-base sm:text-lg font-medium leading-relaxed">
+                    for Growing Businesses in
+                  </div>
+                  <div className="text-gray-300 text-base sm:text-lg font-medium leading-relaxed">
+                    Dubai, UAE & the GCC
+                  </div>
+                </div>
               </motion.h1>
 
-              {/* Mobile Subtitle */}
+              {/* Mobile Subtitle - Enhanced and expanded */}
               <motion.p
-                className="text-sm sm:text-base text-gray-300 mb-6 leading-relaxed relative z-30 max-w-lg mx-auto"
+                className="text-base sm:text-lg text-gray-300 mb-10 leading-relaxed relative z-30 max-w-lg mx-auto font-medium px-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                Transforming businesses through innovative software solutions, 
-                cutting-edge hardware, and expert IT consultancy services.
+                <span className="text-gray-200 font-semibold">Transforming businesses</span> through 
+                <span className="text-blue-200"> innovative software solutions</span>, 
+                <span className="text-blue-200"> cutting-edge hardware</span>, and 
+                <span className="text-blue-200"> expert IT consultancy services</span>.
               </motion.p>
 
-              {/* Mobile CTA Buttons */}
+              {/* Mobile CTA Buttons - Increased gaps */}
               <motion.div
-                className="flex flex-col gap-3 items-center relative z-30"
+                className="flex flex-col gap-5 items-center relative z-30"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
@@ -324,6 +322,25 @@ const HeroSection = () => {
               </motion.div>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Scroll-triggered Subtitle Section */}
+      <section className="relative bg-slate-900 py-16 md:py-20 lg:py-24">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <h2 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl text-gray-200 max-w-6xl mx-auto leading-relaxed font-medium">
+              <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent">
+                Empowering Small to Mid-scale Businesses with Custom Software Solutions, 
+                Smart Technology Consulting & Digital Support — Done Right, Done Fast.
+              </span>
+            </h2>
+          </motion.div>
         </div>
       </section>
     </>

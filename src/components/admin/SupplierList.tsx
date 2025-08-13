@@ -5,7 +5,7 @@ import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase.ts';
 import emailjs from '@emailjs/browser';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, FileText, Download, ExternalLink } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, FileText, Download, ExternalLink, Shield, ShieldOff, Power, PowerOff } from 'lucide-react';
 
 // Import UI components from shadcn/ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -312,40 +312,48 @@ const SupplierList = () => {
 
       {/* Suppliers Table */}
       <div className="bg-slate-800/60 rounded-lg border border-slate-600/50 shadow-sm overflow-hidden backdrop-blur-sm">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-700/50 border-slate-600/50">
-              <TableHead className="font-semibold text-slate-200">Sl</TableHead>
-              <TableHead className="font-semibold text-slate-200">Ref No</TableHead>
-              <TableHead className="font-semibold text-slate-200">Company Name</TableHead>
-              <TableHead className="font-semibold text-slate-200">Country</TableHead>
-              <TableHead className="font-semibold text-slate-200">Email</TableHead>
-              <TableHead className="font-semibold text-slate-200">Files</TableHead>
-              <TableHead className="font-semibold text-slate-200">Expiry Date</TableHead>
-              <TableHead className="font-semibold text-slate-200">Status</TableHead>
-              <TableHead className="font-semibold text-slate-200">Active</TableHead>
-              <TableHead className="font-semibold text-slate-200 text-center">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+        <div className="overflow-x-auto min-w-full">
+          <Table className="min-w-[1200px]">
+            <TableHeader>
+              <TableRow className="bg-slate-700/50 border-slate-600/50">
+                <TableHead className="font-semibold text-slate-200 w-12 whitespace-nowrap">Sl</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-20 whitespace-nowrap">Ref No</TableHead>
+                <TableHead className="font-semibold text-slate-200 min-w-44 whitespace-nowrap">Company Name</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-28 whitespace-nowrap">Country</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Country Code</TableHead>
+                <TableHead className="font-semibold text-slate-200 min-w-52 whitespace-nowrap">Email</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Files</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Expiry Date</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-20 text-center whitespace-nowrap">Status</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-20 text-center whitespace-nowrap">Active</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-20 text-center whitespace-nowrap">Block</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-28 text-center whitespace-nowrap">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {paginatedSuppliers.map((supplier, index) => (
               <TableRow key={supplier.id} className="hover:bg-slate-700/30 transition-colors border-slate-600/30">
-                <TableCell className="font-medium text-slate-200">
+                <TableCell className="font-medium text-slate-200 whitespace-nowrap">
                   {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                 </TableCell>
-                <TableCell className="font-medium text-slate-200">
+                <TableCell className="font-medium text-slate-200 whitespace-nowrap">
                   {supplier.refNo || `REF-${String(index + 1).padStart(3, '0')}`}
                 </TableCell>
-                <TableCell className="font-medium text-slate-200">{supplier.companyName}</TableCell>
-                <TableCell className="text-slate-300">{supplier.country}</TableCell>
-                <TableCell className="text-slate-300">{supplier.email}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
+                <TableCell className="font-medium text-slate-200 whitespace-nowrap">{supplier.companyName}</TableCell>
+                <TableCell className="text-slate-300 whitespace-nowrap">{supplier.country}</TableCell>
+                <TableCell className="text-slate-300 whitespace-nowrap">
+                  <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-400/30 font-mono text-xs whitespace-nowrap">
+                    {supplier.countryCode || 'N/A'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-slate-300 whitespace-nowrap max-w-52 truncate" title={supplier.email}>{supplier.email}</TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="flex gap-1">
                     {supplier.tradeLicense && (
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-xs border-blue-500/50 text-blue-400 hover:bg-blue-500/20 p-1 h-auto"
+                        className="text-xs border-blue-500/50 text-blue-400 hover:bg-blue-500/20 p-1 h-auto whitespace-nowrap"
                         onClick={() => {
                           if (supplier.tradeLicense.data) {
                             // Create blob URL for base64 data
@@ -365,14 +373,14 @@ const SupplierList = () => {
                         title={`View Trade License (${supplier.tradeLicense.fileName})`}
                       >
                         <FileText className="h-3 w-3 mr-1" />
-                        License
+                        TL
                       </Button>
                     )}
                     {supplier.catalog && (
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-xs border-green-500/50 text-green-400 hover:bg-green-500/20 p-1 h-auto"
+                        className="text-xs border-green-500/50 text-green-400 hover:bg-green-500/20 p-1 h-auto whitespace-nowrap"
                         onClick={() => {
                           if (supplier.catalog.data) {
                             // Create blob URL for base64 data
@@ -392,18 +400,18 @@ const SupplierList = () => {
                         title={`View Catalog (${supplier.catalog.fileName})`}
                       >
                         <FileText className="h-3 w-3 mr-1" />
-                        Catalog
+                        Cat
                       </Button>
                     )}
                     {!supplier.tradeLicense && !supplier.catalog && (
-                      <span className="text-slate-500 text-xs">No files</span>
+                      <span className="text-slate-500 text-xs">-</span>
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="text-slate-300">
+                <TableCell className="text-slate-300 whitespace-nowrap text-xs">
                   {calculateExpiryDate(supplier)}
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   <Badge 
                     variant={
                       supplier.status === 'accepted' ? 'default' : 
@@ -413,35 +421,81 @@ const SupplierList = () => {
                       supplier.status === 'approved' ? 'default' : 
                       'secondary'
                     }
-                    className={
+                    className={`text-xs whitespace-nowrap ${
                       supplier.status === 'accepted' ? 'bg-green-500/20 text-green-400 border-green-400/30' :
                       supplier.status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-400/30' :
                       supplier.status === 'blocked' ? 'bg-red-500/20 text-red-400 border-red-400/30' :
                       supplier.status === 'rejected' ? 'bg-red-500/20 text-red-400 border-red-400/30' :
                       supplier.status === 'approved' ? 'bg-blue-500/20 text-blue-400 border-blue-400/30' :
                       'bg-slate-500/20 text-slate-400 border-slate-400/30'
-                    }
+                    }`}
                   >
                     {supplier.status?.toUpperCase() || 'PENDING'}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   <div className="flex items-center justify-center">
-                    <Switch
-                      checked={supplier.isActive !== false} // Default to true if not set
-                      onCheckedChange={() => handleToggleActive(supplier.id, supplier.isActive !== false)}
-                      className="data-[state=checked]:bg-green-500"
-                    />
+                    <div className="relative">
+                      <Button
+                        size="sm"
+                        variant={supplier.isActive !== false ? "default" : "secondary"}
+                        onClick={() => handleToggleActive(supplier.id, supplier.isActive !== false)}
+                        className={`transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap ${
+                          supplier.isActive !== false 
+                            ? 'bg-green-600/90 hover:bg-green-600 text-white border-green-500 shadow-green-500/20' 
+                            : 'bg-slate-600/90 hover:bg-slate-600 text-slate-300 border-slate-500 shadow-slate-500/20'
+                        } shadow-lg hover:shadow-xl`}
+                      >
+                        {supplier.isActive !== false ? (
+                          <>
+                            <Power className="h-3 w-3 mr-1" />
+                            On
+                          </>
+                        ) : (
+                          <>
+                            <PowerOff className="h-3 w-3 mr-1" />
+                            Off
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center gap-2">
+                <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center justify-center">
+                    {(supplier.status === 'accepted' || supplier.status === 'approved') && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => handleBlock(supplier.id)}
+                        className="bg-red-600/90 hover:bg-red-600 text-white border-red-500 shadow-red-500/20 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
+                      >
+                        <Shield className="h-3 w-3 mr-1" />
+                        Block
+                      </Button>
+                    )}
+                    {supplier.status === 'blocked' && (
+                      <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-400/30 text-xs whitespace-nowrap">
+                        <ShieldOff className="h-3 w-3 mr-1" />
+                        Blocked
+                      </Badge>
+                    )}
+                    {supplier.status === 'pending' && (
+                      <span className="text-slate-500 text-xs italic whitespace-nowrap">Pending</span>
+                    )}
+                    {supplier.status === 'rejected' && (
+                      <span className="text-slate-500 text-xs italic whitespace-nowrap">N/A</span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-1">
                     {supplier.status === 'pending' && (
                       <>
                         <Button 
                           size="sm" 
                           onClick={() => handleAccept(supplier.id)}
-                          className="bg-green-600/80 hover:bg-green-600 text-white border-green-500"
+                          className="bg-green-600/90 hover:bg-green-600 text-white border-green-500 shadow-green-500/20 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Accept
@@ -450,25 +504,16 @@ const SupplierList = () => {
                           variant="destructive" 
                           size="sm" 
                           onClick={() => handleReject(supplier.id)}
-                          className="bg-red-600/80 hover:bg-red-600 border-red-500"
+                          className="bg-red-600/90 hover:bg-red-600 border-red-500 shadow-red-500/20 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
                         >
                           <XCircle className="h-3 w-3 mr-1" />
                           Reject
                         </Button>
                       </>
                     )}
-                    {(supplier.status === 'accepted' || supplier.status === 'approved') && (
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
-                        onClick={() => handleBlock(supplier.id)}
-                        className="bg-orange-600/80 hover:bg-orange-600 border-orange-500"
-                      >
-                        <XCircle className="h-3 w-3 mr-1" />
-                        Block
-                      </Button>
-                    )}
-                    <Button asChild variant="outline" size="sm" className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200">
+                    <Button asChild variant="outline" size="sm" 
+                      className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200 transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
+                    >
                       <Link to={`/admin/supplier/${supplier.id}`}>
                         <Eye className="h-3 w-3 mr-1" />
                         View
@@ -480,6 +525,7 @@ const SupplierList = () => {
             ))}
           </TableBody>
         </Table>
+        </div>
 
         {/* Empty State */}
         {paginatedSuppliers.length === 0 && (

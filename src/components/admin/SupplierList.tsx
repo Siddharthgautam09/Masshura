@@ -98,7 +98,8 @@ const SupplierList = () => {
       const testParams = {
         supplier_name: "Test Supplier",
         to_email: "your-email@example.com", // CHANGE THIS TO YOUR EMAIL FOR TESTING
-        set_password_link: "http://localhost:5173/set-password?email=test@example.com",
+        set_password_link: "http://localhost:8082/set-password?email=test@example.com",
+        company_name: "Test Company Ltd",
         from_name: "Masshura Team",
         message: "This is a test email to verify EmailJS integration."
       };
@@ -124,6 +125,52 @@ const SupplierList = () => {
       
       toast({
         title: "EmailJS Test Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Test function for the second email template
+  const testSecondTemplate = async () => {
+    try {
+      const YOUR_SERVICE_ID = "service_6qlid92";
+      const YOUR_TEMPLATE_ID_2 = "template_acceptance";
+      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+      const testParams = {
+        supplier_name: "Test Supplier",
+        to_email: "your-email@example.com", // CHANGE THIS TO YOUR EMAIL FOR TESTING
+        company_name: "Test Company Ltd",
+        ref_no: "SUP-TEST-001",
+        acceptance_date: new Date().toLocaleDateString(),
+        portal_link: `${window.location.origin}/supplier-portal`,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "Welcome to Masshura! Your supplier application has been approved."
+      };
+
+      console.log('Testing second template with params:', testParams);
+      
+      // Initialize EmailJS
+      emailjs.init(YOUR_PUBLIC_KEY);
+      
+      const result = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, testParams);
+      console.log('Second template test email sent successfully:', result);
+      toast({ title: "Template 2 Test Sent", description: "Second email template is working! Check your email." });
+    } catch (error) {
+      console.error("Second template test failed:", error);
+      
+      let errorMessage = 'Unknown error';
+      if (error && typeof error === 'object' && 'status' in error) {
+        const emailError = error as any;
+        errorMessage = `EmailJS Error (${emailError.status}): ${emailError.text || emailError.message}`;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Template 2 Test Failed",
         description: errorMessage,
         variant: "destructive"
       });
@@ -197,12 +244,117 @@ const SupplierList = () => {
 
   // New function to handle Accept status (different from approve)
   const handleAccept = async (supplierId: string) => {
-    await updateDoc(doc(db, 'suppliers', supplierId), { 
-      status: 'accepted',
-      acceptedAt: new Date().toISOString()
-    });
-    updateSupplierStatusInState(supplierId, 'accepted');
-    toast({ title: "Success", description: "Supplier has been accepted. They can now proceed to payment." });
+    try {
+      // Find the supplier data to get email and name
+      const supplier = suppliers.find(s => s.id === supplierId);
+      if (!supplier) {
+        throw new Error('Supplier not found');
+      }
+
+      console.log('Starting acceptance process for:', { 
+        supplierId, 
+        supplierEmail: supplier.email, 
+        supplierName: supplier.contactPerson || supplier.companyName 
+      });
+
+      // Validate email before proceeding
+      if (!supplier.email || !supplier.email.includes('@')) {
+        throw new Error('Invalid supplier email address');
+      }
+
+      // Step 1: Update the supplier's status in Firestore
+      await updateDoc(doc(db, 'suppliers', supplierId), { 
+        status: 'accepted',
+        acceptedAt: new Date().toISOString()
+      });
+      console.log('Firestore update successful');
+      
+      updateSupplierStatusInState(supplierId, 'accepted');
+      toast({ title: "Success", description: "Supplier has been accepted. They can now proceed to payment." });
+
+      // Step 2: Send TWO approval emails using EmailJS
+      const YOUR_SERVICE_ID = "service_6qlid92";
+      const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";      // First template (existing)
+      const YOUR_TEMPLATE_ID_2 = "template_4up1wxm";    // Second template (new)
+      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+      // Validate EmailJS configuration
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID_1 || !YOUR_TEMPLATE_ID_2 || !YOUR_PUBLIC_KEY) {
+        throw new Error('EmailJS configuration is missing');
+      }
+
+      // Initialize EmailJS with your public key first
+      emailjs.init(YOUR_PUBLIC_KEY);
+
+      // Construct the password link
+      const setPasswordLink = `${window.location.origin}/set-password?email=${encodeURIComponent(supplier.email)}`;
+
+      // Template parameters for first email (Account Setup)
+      const templateParams1 = {
+        supplier_name: supplier.contactPerson || supplier.companyName,
+        to_email: supplier.email,
+        set_password_link: setPasswordLink,
+        company_name: supplier.companyName,
+        from_name: "Masshura Team"
+      };
+
+      // Template parameters for second email (Welcome/Instructions)
+      const templateParams2 = {
+        supplier_name: supplier.contactPerson || supplier.companyName,
+        to_email: supplier.email,
+        company_name: supplier.companyName,
+        ref_no: supplier.refNo || `SUP-${supplierId.slice(-6)}`,
+        acceptance_date: new Date().toLocaleDateString(),
+        portal_link: `${window.location.origin}/supplier-portal`,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "Welcome to Masshura! Your supplier application has been approved."
+      };
+
+      console.log('Sending first email with params:', templateParams1);
+      console.log('Sending second email with params:', templateParams2);
+      
+      // Send first email (Account Setup)
+      try {
+        const emailResult1 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
+        console.log('First email sent successfully:', emailResult1);
+        
+        // Send second email (Welcome Instructions)
+        const emailResult2 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, templateParams2);
+        console.log('Second email sent successfully:', emailResult2);
+
+        toast({ 
+          title: "Emails Sent", 
+          description: "Both acceptance emails have been sent to the supplier." 
+        });
+        
+      } catch (emailError) {
+        console.error('Error sending one or both emails:', emailError);
+        
+        // Try to send at least one email if the other fails
+        try {
+          if (!emailError.message?.includes('template_acceptance')) {
+            // If second template failed, try to send at least the first one
+            const fallbackResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
+            console.log('Fallback email sent successfully:', fallbackResult);
+            toast({ 
+              title: "Partial Success", 
+              description: "Account setup email sent. Welcome email failed." 
+            });
+          }
+        } catch (fallbackError) {
+          throw emailError; // Re-throw original error if fallback also fails
+        }
+      }
+
+    } catch (error) {
+      console.error("Email send failed:", error);
+      toast({
+        title: "Email Failed",
+        description: `Supplier accepted but email failed: ${error.text || error.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
   };
 
   // New function to handle Block status
@@ -293,6 +445,14 @@ const SupplierList = () => {
             className="border-blue-500 text-blue-300 hover:bg-blue-700/50 hover:text-blue-200"
           >
             Test EmailJS
+          </Button>
+          <Button
+            onClick={testSecondTemplate}
+            variant="outline"
+            size="sm"
+            className="border-green-500 text-green-300 hover:bg-green-700/50 hover:text-green-200"
+          >
+            Test Template 2
           </Button>
           <Button
             onClick={refreshSuppliers}

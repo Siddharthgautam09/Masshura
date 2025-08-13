@@ -831,34 +831,37 @@ const SupplierDashboard = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={async () => {
-                                  try {
-                                    // Try secure URL first, then fallback URL
-                                    const urlToTry = file.secure_url || file.url_fallback || file.url;
+                                onClick={() => {
+                                  const urlToOpen = file.secure_url || file.url;
+                                  if (urlToOpen) {
+                                    // Check if it's a PDF file
+                                    const isPDF = file.format === 'pdf' || file.name?.toLowerCase().endsWith('.pdf') || urlToOpen.includes('.pdf');
                                     
-                                    // Test URL accessibility
-                                    const response = await fetch(urlToTry, { method: 'HEAD' });
-                                    
-                                    if (response.ok) {
-                                      window.open(urlToTry, '_blank', 'noopener,noreferrer');
+                                    if (isPDF) {
+                                      // For PDFs, force download instead of trying to view
+                                      // Cloudinary PDFs often have CORS issues when opened directly
+                                      const link = document.createElement('a');
+                                      link.href = urlToOpen;
+                                      link.download = file.name || 'document.pdf';
+                                      link.target = '_blank';
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                      
+                                      toast({
+                                        title: "PDF Download Started",
+                                        description: "PDF file is being downloaded for viewing.",
+                                      });
                                     } else {
-                                      throw new Error(`HTTP ${response.status}`);
+                                      // For other file types (images, documents), open directly
+                                      window.open(urlToOpen, '_blank', 'noopener,noreferrer');
                                     }
-                                  } catch (error) {
-                                    console.error('File access error:', error);
+                                  } else {
                                     toast({
-                                      title: "Access Error",
-                                      description: "File cannot be accessed. It may have been moved or deleted from Cloudinary. Try downloading instead.",
+                                      title: "No URL Available",
+                                      description: "This file doesn't have a valid URL to view.",
                                       variant: "destructive"
                                     });
-                                    
-                                    // Provide fallback options
-                                    const fallbackUrl = file.url_fallback || file.url;
-                                    if (fallbackUrl && fallbackUrl !== (file.secure_url || file.url)) {
-                                      if (confirm("Try accessing with alternative URL?")) {
-                                        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
-                                      }
-                                    }
                                   }
                                 }}
                                 className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all duration-200"

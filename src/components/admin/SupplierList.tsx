@@ -158,7 +158,7 @@ const SupplierList = () => {
 
       // Construct the password link
       // IMPORTANT: Replace with your actual deployed website URL for production
-      const setPasswordLink = `http://localhost:5173/set-password?email=${encodeURIComponent(supplierEmail)}`;
+      const setPasswordLink = `http://localhost:8080/set-password?email=${encodeURIComponent(supplierEmail)}`;
       // For production use: `https://yourdomain.com/set-password?email=${encodeURIComponent(supplierEmail)}`;
 
       const templateParams = {

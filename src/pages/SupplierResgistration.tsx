@@ -8,7 +8,7 @@ import { useAllCategories } from '../hooks/useAdminCategories';
 
 const SupplierRegistration = () => {
   const { toast } = useToast();
-  const { countries, emirates, yearsInOperation, employeeCount, loading: categoriesLoading } = useAllCategories();
+  const { countries, emirates, yearsInOperation, employeeCount, supplyCategories, countryCodes, loading: categoriesLoading } = useAllCategories();
   const [formData, setFormData] = useState({
     companyName: '',
     country: '',
@@ -20,7 +20,7 @@ const SupplierRegistration = () => {
     contactPerson: '',
     designation: '',
     email: '',
-    countryCode: '+971', // Default to UAE
+    countryCode: '',
     phone: '',
     categories: [],
     tradeLicense: null,
@@ -31,53 +31,6 @@ const SupplierRegistration = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const supplyCategories = [
-    "Laptops / Computers",
-    "Printers / Peripherals / Toners", 
-    "Network Equipment (Routers, Switches, Cables)",
-    "Storage & Servers",
-    "Cloud Services / Virtualization",
-    "Software Support / AMC",
-    "Installation & Logistics",
-    "Other (please specify)"
-  ];
-
-  // Fallback options if Firebase data isn't loaded
-  const defaultCountries = [
-    { id: '1', name: 'United Arab Emirates' },
-    { id: '2', name: 'Saudi Arabia' },
-    { id: '3', name: 'Kuwait' },
-    { id: '4', name: 'Qatar' },
-    { id: '5', name: 'Bahrain' },
-    { id: '6', name: 'Oman' }
-  ];
-
-  const defaultEmirates = [
-    { id: '1', name: 'Dubai' },
-    { id: '2', name: 'Abu Dhabi' },
-    { id: '3', name: 'Sharjah' },
-    { id: '4', name: 'Ajman' },
-    { id: '5', name: 'Ras Al Khaimah' },
-    { id: '6', name: 'Fujairah' },
-    { id: '7', name: 'Umm Al Quwain' }
-  ];
-
-  const defaultYearsInOperation = [
-    { id: '1', name: '1-2 years' },
-    { id: '2', name: '3-5 years' },
-    { id: '3', name: '6-10 years' },
-    { id: '4', name: '11-15 years' },
-    { id: '5', name: '15+ years' }
-  ];
-
-  const defaultEmployeeCount = [
-    { id: '1', name: '1-10' },
-    { id: '2', name: '11-50' },
-    { id: '3', name: '51-100' },
-    { id: '4', name: '101-500' },
-    { id: '5', name: '500+' }
-  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -192,7 +145,7 @@ const SupplierRegistration = () => {
                     contactPerson: '',
                     designation: '',
                     email: '',
-                    countryCode: '+971',
+                    countryCode: '',
                     phone: '',
                     categories: [],
                     tradeLicense: null,
@@ -332,10 +285,6 @@ const SupplierRegistration = () => {
                     <option value="">Select years</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : yearsInOperation.error || yearsInOperation.items.length === 0 ? (
-                      defaultYearsInOperation.map(item => (
-                        <option key={item.id} value={item.name}>{item.name}</option>
-                      ))
                     ) : (
                       yearsInOperation.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -354,10 +303,6 @@ const SupplierRegistration = () => {
                     <option value="">Select country</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : countries.error || countries.items.length === 0 ? (
-                      defaultCountries.map(item => (
-                        <option key={item.id} value={item.name}>{item.name}</option>
-                      ))
                     ) : (
                       countries.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -373,53 +318,16 @@ const SupplierRegistration = () => {
                     onChange={(e) => setFormData(prev => ({...prev, countryCode: e.target.value}))}
                     className="w-full px-4 py-3 bg-slate-700/60 border border-slate-600/50 rounded-xl text-white focus:border-[#6AAEFF] focus:outline-none focus:ring-2 focus:ring-[#6AAEFF]/20 transition-all duration-300"
                   >
-                    <option value="+971">🇦🇪 +971 (UAE)</option>
-                    <option value="+966">🇸🇦 +966 (Saudi Arabia)</option>
-                    <option value="+965">🇰🇼 +965 (Kuwait)</option>
-                    <option value="+974">🇶🇦 +974 (Qatar)</option>
-                    <option value="+968">🇴🇲 +968 (Oman)</option>
-                    <option value="+973">🇧🇭 +973 (Bahrain)</option>
-                    <option value="+1">🇺🇸 +1 (USA)</option>
-                    <option value="+44">🇬🇧 +44 (UK)</option>
-                    <option value="+91">🇮🇳 +91 (India)</option>
-                    <option value="+92">🇵🇰 +92 (Pakistan)</option>
-                    <option value="+880">🇧🇩 +880 (Bangladesh)</option>
-                    <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
-                    <option value="+977">🇳🇵 +977 (Nepal)</option>
-                    <option value="+63">🇵🇭 +63 (Philippines)</option>
-                    <option value="+62">🇮🇩 +62 (Indonesia)</option>
-                    <option value="+60">🇲🇾 +60 (Malaysia)</option>
-                    <option value="+65">🇸🇬 +65 (Singapore)</option>
-                    <option value="+86">🇨🇳 +86 (China)</option>
-                    <option value="+82">🇰🇷 +82 (South Korea)</option>
-                    <option value="+81">🇯🇵 +81 (Japan)</option>
-                    <option value="+49">🇩🇪 +49 (Germany)</option>
-                    <option value="+33">🇫🇷 +33 (France)</option>
-                    <option value="+39">🇮🇹 +39 (Italy)</option>
-                    <option value="+34">🇪🇸 +34 (Spain)</option>
-                    <option value="+31">🇳🇱 +31 (Netherlands)</option>
-                    <option value="+41">🇨🇭 +41 (Switzerland)</option>
-                    <option value="+43">🇦🇹 +43 (Austria)</option>
-                    <option value="+32">🇧🇪 +32 (Belgium)</option>
-                    <option value="+45">🇩🇰 +45 (Denmark)</option>
-                    <option value="+46">🇸🇪 +46 (Sweden)</option>
-                    <option value="+47">🇳🇴 +47 (Norway)</option>
-                    <option value="+358">🇫🇮 +358 (Finland)</option>
-                    <option value="+61">🇦🇺 +61 (Australia)</option>
-                    <option value="+64">🇳🇿 +64 (New Zealand)</option>
-                    <option value="+55">🇧🇷 +55 (Brazil)</option>
-                    <option value="+52">🇲🇽 +52 (Mexico)</option>
-                    <option value="+54">🇦🇷 +54 (Argentina)</option>
-                    <option value="+56">🇨🇱 +56 (Chile)</option>
-                    <option value="+57">🇨🇴 +57 (Colombia)</option>
-                    <option value="+51">🇵🇪 +51 (Peru)</option>
-                    <option value="+27">🇿🇦 +27 (South Africa)</option>
-                    <option value="+234">🇳🇬 +234 (Nigeria)</option>
-                    <option value="+254">🇰🇪 +254 (Kenya)</option>
-                    <option value="+20">🇪🇬 +20 (Egypt)</option>
-                    <option value="+212">🇲🇦 +212 (Morocco)</option>
-                    <option value="+216">🇹🇳 +216 (Tunisia)</option>
-                    <option value="+213">🇩🇿 +213 (Algeria)</option>
+                    <option value="">Select country code</option>
+                    {categoriesLoading ? (
+                      <option value="">Loading...</option>
+                    ) : countryCodes.items.length === 0 ? (
+                      <option value="+971">�� +971 (UAE) - Default</option>
+                    ) : (
+                      countryCodes.items.map(item => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -433,10 +341,6 @@ const SupplierRegistration = () => {
                     <option value="">Select emirate</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : emirates.error || emirates.items.length === 0 ? (
-                      defaultEmirates.map(item => (
-                        <option key={item.id} value={item.name}>{item.name}</option>
-                      ))
                     ) : (
                       emirates.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -455,10 +359,6 @@ const SupplierRegistration = () => {
                     <option value="">Select employee range</option>
                     {categoriesLoading ? (
                       <option value="">Loading...</option>
-                    ) : employeeCount.error || employeeCount.items.length === 0 ? (
-                      defaultEmployeeCount.map(item => (
-                        <option key={item.id} value={item.name}>{item.name}</option>
-                      ))
                     ) : (
                       employeeCount.items.map(item => (
                         <option key={item.id} value={item.name}>{item.name}</option>
@@ -587,32 +487,42 @@ const SupplierRegistration = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {supplyCategories.map((category, index) => (
-                  <motion.div
-                    key={index}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
-                      formData.categories.includes(category)
-                        ? 'bg-[#6AAEFF]/20 border-[#6AAEFF] text-[#6AAEFF]'
-                        : 'bg-slate-700/60 border-slate-600/50 text-slate-300 hover:border-[#6AAEFF]/50'
-                    }`}
-                    onClick={() => handleCategoryChange(category)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                        formData.categories.includes(category)
-                          ? 'bg-[#6AAEFF] border-[#6AAEFF]'
-                          : 'border-slate-400'
-                      }`}>
-                        {formData.categories.includes(category) && (
-                          <Check className="w-3 h-3 text-white" />
-                        )}
+                {categoriesLoading ? (
+                  <div className="col-span-full flex justify-center items-center py-8">
+                    <div className="text-slate-300">Loading categories...</div>
+                  </div>
+                ) : supplyCategories.items.length === 0 ? (
+                  <div className="col-span-full flex justify-center items-center py-8">
+                    <div className="text-slate-300">No supply categories available. Please contact admin.</div>
+                  </div>
+                ) : (
+                  supplyCategories.items.map((category) => (
+                    <motion.div
+                      key={category.id}
+                      className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
+                        formData.categories.includes(category.name)
+                          ? 'bg-[#6AAEFF]/20 border-[#6AAEFF] text-[#6AAEFF]'
+                          : 'bg-slate-700/60 border-slate-600/50 text-slate-300 hover:border-[#6AAEFF]/50'
+                      }`}
+                      onClick={() => handleCategoryChange(category.name)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                          formData.categories.includes(category.name)
+                            ? 'bg-[#6AAEFF] border-[#6AAEFF]'
+                            : 'border-slate-400'
+                        }`}>
+                          {formData.categories.includes(category.name) && (
+                            <Check className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                        <span className="text-sm font-medium">{category.name}</span>
                       </div>
-                      <span className="text-sm font-medium">{category}</span>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))
+                )}
               </div>
             </motion.div>
 

@@ -53,6 +53,8 @@ export const useAllCategories = () => {
   const yearsInOperation = useAdminCategories('yearsOfOperation');
   const businessTypes = useAdminCategories('businessTypes');
   const employeeCount = useAdminCategories('employeeCount');
+  const supplyCategories = useAdminCategories('supplyCategories');
+  const countryCodes = useAdminCategories('countryCodes');
 
   return {
     countries,
@@ -60,7 +62,9 @@ export const useAllCategories = () => {
     yearsInOperation,
     businessTypes,
     employeeCount,
-    loading: countries.loading || emirates.loading || yearsInOperation.loading || businessTypes.loading || employeeCount.loading,
-    error: countries.error || emirates.error || yearsInOperation.error || businessTypes.error || employeeCount.error
+    supplyCategories,
+    countryCodes,
+    loading: countries.loading || emirates.loading || yearsInOperation.loading || businessTypes.loading || employeeCount.loading || supplyCategories.loading || countryCodes.loading,
+    error: countries.error || emirates.error || yearsInOperation.error || businessTypes.error || employeeCount.error || supplyCategories.error || countryCodes.error
   };
 };

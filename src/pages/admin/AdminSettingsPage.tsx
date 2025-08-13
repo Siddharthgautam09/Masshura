@@ -2,7 +2,7 @@
 
 import React from 'react';
 import CategoryManager from '../../components/admin/CategoryManager';
-import { Settings, Database, Users, Globe, RefreshCw, TestTube, Plus } from 'lucide-react';
+import { Settings, Database, Users, Globe, RefreshCw, TestTube, Plus, CheckCircle, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/components/ui/use-toast";
@@ -242,6 +242,40 @@ const AdminSettingsPage = () => {
               />
             </div>
 
+            {/* Supply Categories */}
+            <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-slate-600/30">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-emerald-500/20 rounded-lg border border-emerald-400/30">
+                  <CheckCircle className="h-6 w-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Supply Categories</h3>
+                  <p className="text-slate-300 text-sm">Manage available supply categories for suppliers</p>
+                </div>
+              </div>
+              <CategoryManager
+                title=""
+                categoryName="supplyCategories"
+              />
+            </div>
+
+            {/* Country Codes */}
+            <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-slate-600/30">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-pink-500/20 rounded-lg border border-pink-400/30">
+                  <Phone className="h-6 w-6 text-pink-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Country Codes</h3>
+                  <p className="text-slate-300 text-sm">Manage available country codes for phone numbers</p>
+                </div>
+              </div>
+              <CategoryManager
+                title=""
+                categoryName="countryCodes"
+              />
+            </div>
+
             {/* System Statistics */}
             <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-slate-600/30">
               <div className="flex items-center space-x-3 mb-6">
@@ -259,7 +293,7 @@ const AdminSettingsPage = () => {
                     <span className="text-white font-medium">Active Categories</span>
                     <p className="text-slate-400 text-xs">Total number of category types</p>
                   </div>
-                  <div className="text-2xl font-bold text-blue-400">5</div>
+                  <div className="text-2xl font-bold text-blue-400">7</div>
                 </div>
                 <div className="flex justify-between items-center p-4 bg-slate-700/40 rounded-lg border border-slate-600/30">
                   <div>

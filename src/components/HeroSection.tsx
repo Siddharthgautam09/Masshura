@@ -1,22 +1,15 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Code, Cpu, Globe, CheckCircle, Users, Award } from 'lucide-react';
+import { ArrowRight, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-// import { Boxes } from '@/components/ui/background-boxes';
 import { cn } from "@/lib/utils";
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imageLoadErrors, setImageLoadErrors] = useState({});
   const navigate = useNavigate();
-  
-  // Refs for scroll-triggered animations
-  const slideshowRef = useRef(null);
-  const h2Ref = useRef(null);
-  const slideshowInView = useInView(slideshowRef, { once: true, amount: 0.3 });
-  const h2InView = useInView(h2Ref, { once: true, amount: 0.3 });
   
   const scrollToContact = () => {
     const element = document.getElementById('contact');
@@ -78,7 +71,7 @@ const HeroSection = () => {
   return (
     <>
       {/* Landing Page Section */}
-      <section id="home" className="relative h-screen bg-slate-900 overflow-hidden pt-20 md:pt-0">
+      <section id="home" className="relative min-h-screen h-auto bg-slate-900 overflow-hidden pt-24 md:pt-28 lg:pt-32 xl:pt-36 pb-8 md:pb-12 lg:pb-16">
         {/* BackgroundBoxes Grid - Layer 1 */}
         <div className="absolute inset-0 w-full h-full bg-slate-900">
           <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
@@ -86,214 +79,251 @@ const HeroSection = () => {
         </div>
 
         {/* Main Content - Layer 3 */}
-        <div className="container mx-auto px-6 lg:px-8 text-center z-30 relative h-full flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, staggerChildren: 0.3 }}
-            className="max-w-6xl mx-auto"
-            style={{ marginTop: '20px' }}
-          >
-
-            {/* Main Heading */}
-            <motion.h1
-              className={cn("text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-8 leading-tight relative z-30 text-white")}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              {/* Desktop heading */}
-              <span className="hidden lg:block">
-                <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                  Simple. Smart. Affordable
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                  IT Consultancy
-                </span>
-                <br />
-                <span className="text-gray-300 text-4xl lg:text-5xl">
-                  for Growing Businesses in Dubai, UAE & the GCC
-                </span>
-              </span>
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 z-30 relative h-full flex items-center justify-center">
+          <div className="w-full max-w-7xl mx-auto">
+            
+            {/* Desktop & Tablet Layout - Side by side */}
+            <div className="hidden md:grid md:grid-cols-2 md:gap-8 lg:gap-12 xl:gap-16 items-center h-full">
               
-              {/* Tablet heading */}
-              <span className="hidden md:block lg:hidden">
-                <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                  Simple. Smart. Affordable
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                  IT Consultancy
-                </span>
-              </span>
-              
-              {/* Mobile heading */}
-              <span className="block md:hidden text-3xl">
-                <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  Smart. Affordable
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  IT Consultancy
-                </span>
-              </span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed relative z-30"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              Transforming businesses through innovative software solutions, 
-              cutting-edge hardware, and expert IT consultancy services.
-            </motion.p>
-
-            {/* CTA Buttons - Updated with new color scheme */}
-            <motion.div
-              className="flex flex-col sm:flex-row gap-6 justify-center items-center relative z-30"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              {/* Primary CTA Button - Light Blue (#6AAEFF) */}
-              <motion.div 
-                whileHover={{ scale: 1.05, y: -2 }} 
-                whileTap={{ scale: 0.95 }}
-                className="group"
+              {/* Left Content */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, staggerChildren: 0.3 }}
+                className="text-left"
               >
-                <Button
-                  onClick={navigateToContact}
-                  className="relative bg-[#6AAEFF] hover:bg-[#5A9EEF] text-white px-10 py-4 text-lg rounded-full shadow-2xl shadow-[#6AAEFF]/25 transition-all duration-300 border-0"
+                {/* Main Heading */}
+                <motion.h1
+                  className={cn("text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight relative z-30 text-white")}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                  <span className="relative z-10 flex items-center font-semibold">
-                    Get Started Today
-                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                  <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                    Simple. Smart. Affordable
                   </span>
-                  {/* Gradient accent overlay on hover */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#6AAEFF] to-[#6ECCAF] opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                </Button>
+                  <br />
+                  <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                    IT Consultancy
+                  </span>
+                  <br />
+                  <span className="text-gray-300 text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+                    for Growing Businesses in Dubai, UAE & the GCC
+                  </span>
+                </motion.h1>
+
+                {/* Subtitle */}
+                <motion.p
+                  className="text-base md:text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed relative z-30"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                >
+                  Transforming businesses through innovative software solutions, 
+                  cutting-edge hardware, and expert IT consultancy services.
+                </motion.p>
+
+                {/* CTA Buttons */}
+                <motion.div
+                  className="flex flex-col sm:flex-row gap-4 lg:gap-6 relative z-30"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
+                >
+                  {/* Primary CTA Button */}
+                  <motion.div 
+                    whileHover={{ scale: 1.05, y: -2 }} 
+                    whileTap={{ scale: 0.95 }}
+                    className="group"
+                  >
+                    <Button
+                      onClick={navigateToContact}
+                      className="relative bg-[#6AAEFF] hover:bg-[#5A9EEF] text-white px-8 py-3 lg:px-10 lg:py-4 text-base lg:text-lg rounded-full shadow-2xl shadow-[#6AAEFF]/25 transition-all duration-300 border-0"
+                    >
+                      <span className="relative z-10 flex items-center font-semibold">
+                        Get Started Today
+                        <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                      </span>
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#6AAEFF] to-[#6ECCAF] opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                    </Button>
+                  </motion.div>
+
+                  {/* Secondary CTA Button */}
+                  <motion.div 
+                    whileHover={{ scale: 1.05, y: -2 }} 
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="outline"
+                      onClick={scrollToServices}
+                      className="border-2 border-[#6AAEFF]/50 bg-transparent text-[#6AAEFF] hover:bg-[#6AAEFF]/10 hover:border-[#6AAEFF] px-8 py-3 lg:px-10 lg:py-4 text-base lg:text-lg rounded-full transition-all duration-300 font-medium"
+                    >
+                      Explore Services
+                    </Button>
+                  </motion.div>
+                </motion.div>
               </motion.div>
 
-              {/* Secondary CTA Button - Light Blue outline */}
-              <motion.div 
-                whileHover={{ scale: 1.05, y: -2 }} 
-                whileTap={{ scale: 0.95 }}
+              {/* Right Slideshow - Hidden on mobile */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.3 }}
+                className="relative z-30"
               >
-                <Button
-                  variant="outline"
-                  onClick={scrollToServices}
-                  className="border-2 border-[#6AAEFF]/50 bg-transparent text-[#6AAEFF] hover:bg-[#6AAEFF]/10 hover:border-[#6AAEFF] px-10 py-4 text-lg rounded-full transition-all duration-300 font-medium"
-                >
-                  Explore Services
-                </Button>
+                <div className="relative w-full h-96 lg:h-[500px] xl:h-[550px] rounded-2xl overflow-hidden shadow-2xl shadow-[#6AAEFF]/20 bg-slate-800">
+                  {heroImages.map((image, index) => (
+                    <motion.div
+                      key={index}
+                      className="absolute inset-0"
+                      initial={{ opacity: 0 }}
+                      animate={{ 
+                        opacity: index === currentSlide ? 1 : 0,
+                        scale: index === currentSlide ? 1 : 1.1
+                      }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                    >
+                      {!imageLoadErrors[index] ? (
+                        <>
+                          <img
+                            src={image.src}
+                            alt={image.alt}
+                            className="w-full h-full object-cover"
+                            loading={index === 0 ? "eager" : "lazy"}
+                            onError={() => handleImageError(index)}
+                            width="800"
+                            height="600"
+                            style={{ aspectRatio: '4/3' }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-slate-900/20" />
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+                          <div className="text-center p-8">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-[#6AAEFF]/20 rounded-full flex items-center justify-center">
+                              <Code className="w-8 h-8 text-[#6AAEFF]" />
+                            </div>
+                            <p className="text-gray-300 text-sm max-w-xs">
+                              {image.alt}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Slide indicators */}
+                <div className="flex justify-center mt-6 space-x-3">
+                  {heroImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={cn(
+                        "w-3 h-3 rounded-full transition-all duration-300",
+                        index === currentSlide 
+                          ? "bg-[#6AAEFF] scale-125" 
+                          : "bg-gray-500 hover:bg-gray-400"
+                      )}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
               </motion.div>
+            </div>
+
+            {/* Full-width subtitle below both text and images - Desktop/Tablet only */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="hidden md:block mt-8 lg:mt-12 text-center"
+            >
+              <h2 className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-200 max-w-6xl mx-auto leading-relaxed font-medium">
+                <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent">
+                  Empowering Small to Mid-scale Businesses with Custom Software Solutions, 
+                  Smart Technology Consulting & Digital Support — Done Right, Done Fast.
+                </span>
+              </h2>
             </motion.div>
 
-          </motion.div>
-        </div>
-      </section>
+            {/* Mobile Layout - Stacked with reduced spacing, NO IMAGES */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, staggerChildren: 0.2 }}
+              className="block md:hidden text-center px-2 py-8"
+            >
+              {/* Mobile Heading */}
+              <motion.h1
+                className="text-2xl sm:text-3xl font-bold mb-4 leading-tight relative z-30 text-white"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                  Simple. Smart. Affordable
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                  IT Consultancy
+                </span>
+                <br />
+                <span className="text-gray-300 text-lg sm:text-xl mt-2 block">
+                  for Growing Businesses in Dubai, UAE & the GCC
+                </span>
+              </motion.h1>
 
-      {/* Scroll-triggered Content Section - Now with identical background */}
-      <section className="relative bg-slate-900 py-20 overflow-hidden">
-        {/* BackgroundBoxes Grid - Identical to landing page */}
-        <div className="absolute inset-0 w-full h-full bg-slate-900">
-          <div className="absolute inset-0 w-full h-full bg-slate-900 z-10 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
-          {/* <Boxes /> */}
-        </div>
+              {/* Mobile Subtitle */}
+              <motion.p
+                className="text-sm sm:text-base text-gray-300 mb-6 leading-relaxed relative z-30 max-w-lg mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                Transforming businesses through innovative software solutions, 
+                cutting-edge hardware, and expert IT consultancy services.
+              </motion.p>
 
-        <div className="container mx-auto px-6 lg:px-8 text-center relative z-30">
-          
-          {/* Image Slideshow - Appears on scroll */}
-          <motion.div
-            ref={slideshowRef}
-            className="relative max-w-4xl mx-auto mb-16 z-10"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ 
-              opacity: slideshowInView ? 1 : 0, 
-              y: slideshowInView ? 0 : 50 
-            }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden shadow-2xl shadow-[#6AAEFF]/10 bg-slate-800">
-              {heroImages.map((image, index) => (
-                <motion.div
-                  key={index}
-                  className="absolute inset-0"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: index === currentSlide ? 1 : 0,
-                    scale: index === currentSlide ? 1 : 1.1
-                  }}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
+              {/* Mobile CTA Buttons */}
+              <motion.div
+                className="flex flex-col gap-3 items-center relative z-30"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <motion.div 
+                  whileHover={{ scale: 1.02 }} 
+                  whileTap={{ scale: 0.98 }}
+                  className="group w-full max-w-xs"
                 >
-                  {!imageLoadErrors[index] ? (
-                    <>
-                      <img
-                        src={image.src}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        loading={index === 0 ? "eager" : "lazy"}
-                        onError={() => handleImageError(index)}
-                        width="800"
-                        height="600"
-                        style={{ aspectRatio: '4/3' }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-900/20" />
-                    </>
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
-                      <div className="text-center p-8">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-[#6AAEFF]/20 rounded-full flex items-center justify-center">
-                          <Code className="w-8 h-8 text-[#6AAEFF]" />
-                        </div>
-                        <p className="text-gray-300 text-sm max-w-xs">
-                          {image.alt}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                  <Button
+                    onClick={navigateToContact}
+                    className="relative bg-[#6AAEFF] hover:bg-[#5A9EEF] text-white px-8 py-3 text-base rounded-full shadow-xl shadow-[#6AAEFF]/25 transition-all duration-300 border-0 w-full"
+                  >
+                    <span className="relative z-10 flex items-center justify-center font-semibold">
+                      Get Started Today
+                      <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={16} />
+                    </span>
+                  </Button>
                 </motion.div>
-              ))}
-            </div>
 
-            {/* Slide indicators - Updated with new accent color */}
-            <div className="flex justify-center mt-6 space-x-3">
-              {heroImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={cn(
-                    "w-3 h-3 rounded-full transition-all duration-300",
-                    index === currentSlide 
-                      ? "bg-[#6AAEFF] scale-125" 
-                      : "bg-gray-500 hover:bg-gray-400"
-                  )}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          </motion.div>
-
-          {/* H2 Subtitle - Appears on scroll */}
-          <motion.h2
-            ref={h2Ref}
-            className="text-xl md:text-2xl lg:text-3xl text-gray-200 max-w-5xl mx-auto leading-relaxed relative z-10 font-medium"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ 
-              opacity: h2InView ? 1 : 0, 
-              y: h2InView ? 0 : 50 
-            }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          >
-            <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent">
-              Empowering Small to Mid-scale Businesses with Custom Software Solutions, 
-              Smart Technology Consulting & Digital Support — Done Right, Done Fast.
-            </span>
-          </motion.h2>
-
+                <motion.div 
+                  whileHover={{ scale: 1.02 }} 
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full max-w-xs"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={scrollToServices}
+                    className="border-2 border-[#6AAEFF]/50 bg-transparent text-[#6AAEFF] hover:bg-[#6AAEFF]/10 hover:border-[#6AAEFF] px-8 py-3 text-base rounded-full transition-all duration-300 font-medium w-full"
+                  >
+                    Explore Services
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
     </>

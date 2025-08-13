@@ -5,6 +5,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../components/firebase';
+import emailjs from '@emailjs/browser';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -135,6 +136,11 @@ const SupplierDetailPage = () => {
       
       setSupplier(prev => prev ? { ...prev, ...updateData } : null);
       
+      // Send approval emails if status is approved
+      if (status === 'approved') {
+        await sendApprovalEmails();
+      }
+      
       toast({
         title: "Success",
         description: `${supplier.companyName} has been ${status} successfully.`,
@@ -148,6 +154,112 @@ const SupplierDetailPage = () => {
       });
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const sendApprovalEmails = async () => {
+    if (!supplier) return;
+
+    try {
+      // EmailJS configuration
+      const YOUR_SERVICE_ID = "service_6qlid92";
+      const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";      // First template (Account Setup)
+      const YOUR_TEMPLATE_ID_2 = "template_4up1wxm";    // Second template (Welcome/Instructions)
+      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+      // Validate EmailJS configuration
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID_1 || !YOUR_TEMPLATE_ID_2 || !YOUR_PUBLIC_KEY) {
+        throw new Error('EmailJS configuration is missing');
+      }
+
+      // Validate email before proceeding
+      if (!supplier.email || !supplier.email.includes('@')) {
+        throw new Error('Invalid supplier email address');
+      }
+
+      // Initialize EmailJS
+      emailjs.init(YOUR_PUBLIC_KEY);
+
+      // Construct the password link
+      const setPasswordLink = `${window.location.origin}/set-password?email=${encodeURIComponent(supplier.email)}`;
+
+      // Template parameters for first email (Account Setup)
+      const templateParams1 = {
+        supplier_name: supplier.contactName || supplier.companyName,
+        to_email: supplier.email,
+        set_password_link: setPasswordLink,
+        company_name: supplier.companyName,
+        from_name: "Masshura Team"
+      };
+
+      // Template parameters for second email (Welcome/Instructions)
+      const templateParams2 = {
+        supplier_name: supplier.contactName || supplier.companyName,
+        to_email: supplier.email,
+        company_name: supplier.companyName,
+        ref_no: supplier.refNo || `SUP-${supplier.id.slice(-6)}`,
+        acceptance_date: new Date().toLocaleDateString(),
+        portal_link: `${window.location.origin}/supplier-portal`,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "Welcome to Masshura! Your supplier application has been approved."
+      };
+
+      console.log('Sending approval emails with params:', { templateParams1, templateParams2 });
+
+      // Send first email (Account Setup)
+      const emailResult1 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
+      console.log('First approval email sent successfully:', emailResult1);
+      
+      // Send second email (Welcome Instructions)
+      const emailResult2 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, templateParams2);
+      console.log('Second approval email sent successfully:', emailResult2);
+
+      toast({ 
+        title: "Approval Emails Sent", 
+        description: "Both approval emails have been sent to the supplier." 
+      });
+
+    } catch (emailError) {
+      console.error("Approval email sending failed:", emailError);
+      
+      // Try to send at least the first email if both failed
+      try {
+        if (emailError.message?.includes('template_4up1wxm') || emailError.message?.includes('second')) {
+          // If second template failed, try to send at least the first one
+          const YOUR_SERVICE_ID = "service_6qlid92";
+          const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";
+          const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+          
+          emailjs.init(YOUR_PUBLIC_KEY);
+          const setPasswordLink = `${window.location.origin}/set-password?email=${encodeURIComponent(supplier.email)}`;
+          
+          const fallbackParams = {
+            supplier_name: supplier.contactName || supplier.companyName,
+            to_email: supplier.email,
+            set_password_link: setPasswordLink,
+            company_name: supplier.companyName,
+            from_name: "Masshura Team"
+          };
+          
+          const fallbackResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, fallbackParams);
+          console.log('Fallback approval email sent successfully:', fallbackResult);
+          
+          toast({ 
+            title: "Partial Success", 
+            description: "Account setup email sent, but welcome email failed." 
+          });
+          return;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback email also failed:', fallbackError);
+      }
+      
+      toast({
+        title: "Email Failed",
+        description: `Supplier approved but emails failed: ${emailError.text || emailError.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
     }
   };
 

@@ -194,13 +194,14 @@ const SupplierList = () => {
       updateSupplierStatusInState(supplierId, 'approved');
       toast({ title: "Success", description: "Supplier has been approved." });
 
-      // Step 2: Send the approval email using EmailJS
+      // Step 2: Send TWO approval emails using EmailJS
       const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID = "template_h01qmqi";
+      const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";      // First template (Account Setup)
+      const YOUR_TEMPLATE_ID_2 = "template_4up1wxm";    // Second template (Welcome/Instructions)
       const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
 
       // Validate EmailJS configuration
-      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID || !YOUR_PUBLIC_KEY) {
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID_1 || !YOUR_TEMPLATE_ID_2 || !YOUR_PUBLIC_KEY) {
         throw new Error('EmailJS configuration is missing');
       }
 
@@ -209,28 +210,84 @@ const SupplierList = () => {
       const setPasswordLink = `http://localhost:8080/set-password?email=${encodeURIComponent(supplierEmail)}`;
       // For production use: `https://yourdomain.com/set-password?email=${encodeURIComponent(supplierEmail)}`;
 
-      const templateParams = {
-        supplier_name: supplierName,
-        to_email: supplierEmail, // <-- This tells EmailJS who to send the email to.
-        set_password_link: setPasswordLink,
-      };
-
-      console.log('Sending email with params:', templateParams);
-      console.log('EmailJS config:', { YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, YOUR_PUBLIC_KEY });
-
       // Initialize EmailJS with your public key first
       emailjs.init(YOUR_PUBLIC_KEY);
-      
-      const emailResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, templateParams);
-      console.log('Email sent successfully:', emailResult);
 
-      toast({ title: "Email Sent", description: "Approval email has been sent to the supplier." });
+      // Template parameters for first email (Account Setup)
+      const templateParams1 = {
+        supplier_name: supplierName,
+        to_email: supplierEmail,
+        set_password_link: setPasswordLink,
+        company_name: supplierName, // You may want to get actual company name from supplier data
+        from_name: "Masshura Team"
+      };
+
+      // Template parameters for second email (Welcome/Instructions)
+      const templateParams2 = {
+        supplier_name: supplierName,
+        to_email: supplierEmail,
+        company_name: supplierName, // You may want to get actual company name from supplier data
+        ref_no: `SUP-${supplierId.slice(-6)}`,
+        acceptance_date: new Date().toLocaleDateString(),
+        portal_link: `${window.location.origin}/supplier-portal`,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "Welcome to Masshura! Your supplier application has been approved."
+      };
+
+      console.log('Sending approval emails with params:', { templateParams1, templateParams2 });
+
+      // Send first email (Account Setup)
+      const emailResult1 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
+      console.log('First approval email sent successfully:', emailResult1);
+      
+      // Send second email (Welcome Instructions)
+      const emailResult2 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, templateParams2);
+      console.log('Second approval email sent successfully:', emailResult2);
+
+      toast({ 
+        title: "Approval Emails Sent", 
+        description: "Both approval emails have been sent to the supplier." 
+      });
 
     } catch (error) {
-      console.error("EmailJS send failed:", error); // <-- This will log the full error object
+      console.error("Approval process failed:", error);
+      
+      // Try to send at least the first email if both failed
+      try {
+        if (error.message?.includes('template_4up1wxm') || error.message?.includes('second')) {
+          // If second template failed, try to send at least the first one
+          const YOUR_SERVICE_ID = "service_6qlid92";
+          const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";
+          const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+          
+          emailjs.init(YOUR_PUBLIC_KEY);
+          const setPasswordLink = `http://localhost:8080/set-password?email=${encodeURIComponent(supplierEmail)}`;
+          
+          const fallbackParams = {
+            supplier_name: supplierName,
+            to_email: supplierEmail,
+            set_password_link: setPasswordLink,
+            company_name: supplierName,
+            from_name: "Masshura Team"
+          };
+          
+          const fallbackResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, fallbackParams);
+          console.log('Fallback approval email sent successfully:', fallbackResult);
+          
+          toast({ 
+            title: "Partial Success", 
+            description: "Supplier approved. Account setup email sent, but welcome email failed." 
+          });
+          return;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback email also failed:', fallbackError);
+      }
+      
       toast({
         title: "Email Failed",
-        description: `Could not send email. Error: ${error.text || 'Unknown error'}`, // Show error in toast
+        description: `Could not send approval emails. Error: ${error.text || error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -272,14 +329,13 @@ const SupplierList = () => {
       updateSupplierStatusInState(supplierId, 'accepted');
       toast({ title: "Success", description: "Supplier has been accepted. They can now proceed to payment." });
 
-      // Step 2: Send TWO approval emails using EmailJS
+      // Step 2: Send acceptance email using EmailJS (Account Setup Only)
       const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";      // First template (existing)
-      const YOUR_TEMPLATE_ID_2 = "template_4up1wxm";    // Second template (new)
+      const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";      // First template (Account Setup)
       const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
 
       // Validate EmailJS configuration
-      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID_1 || !YOUR_TEMPLATE_ID_2 || !YOUR_PUBLIC_KEY) {
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID_1 || !YOUR_PUBLIC_KEY) {
         throw new Error('EmailJS configuration is missing');
       }
 
@@ -289,8 +345,8 @@ const SupplierList = () => {
       // Construct the password link
       const setPasswordLink = `${window.location.origin}/set-password?email=${encodeURIComponent(supplier.email)}`;
 
-      // Template parameters for first email (Account Setup)
-      const templateParams1 = {
+      // Template parameters for acceptance email (Account Setup Only)
+      const templateParams = {
         supplier_name: supplier.contactPerson || supplier.companyName,
         to_email: supplier.email,
         set_password_link: setPasswordLink,
@@ -298,54 +354,16 @@ const SupplierList = () => {
         from_name: "Masshura Team"
       };
 
-      // Template parameters for second email (Welcome/Instructions)
-      const templateParams2 = {
-        supplier_name: supplier.contactPerson || supplier.companyName,
-        to_email: supplier.email,
-        company_name: supplier.companyName,
-        ref_no: supplier.refNo || `SUP-${supplierId.slice(-6)}`,
-        acceptance_date: new Date().toLocaleDateString(),
-        portal_link: `${window.location.origin}/supplier-portal`,
-        support_email: "support@masshura.com",
-        from_name: "Masshura Team",
-        message: "Welcome to Masshura! Your supplier application has been approved."
-      };
-
-      console.log('Sending first email with params:', templateParams1);
-      console.log('Sending second email with params:', templateParams2);
+      console.log('Sending acceptance email with params:', templateParams);
       
-      // Send first email (Account Setup)
-      try {
-        const emailResult1 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
-        console.log('First email sent successfully:', emailResult1);
-        
-        // Send second email (Welcome Instructions)
-        const emailResult2 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, templateParams2);
-        console.log('Second email sent successfully:', emailResult2);
+      // Send acceptance email (Account Setup Only)
+      const emailResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams);
+      console.log('Acceptance email sent successfully:', emailResult);
 
-        toast({ 
-          title: "Emails Sent", 
-          description: "Both acceptance emails have been sent to the supplier." 
-        });
-        
-      } catch (emailError) {
-        console.error('Error sending one or both emails:', emailError);
-        
-        // Try to send at least one email if the other fails
-        try {
-          if (!emailError.message?.includes('template_acceptance')) {
-            // If second template failed, try to send at least the first one
-            const fallbackResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
-            console.log('Fallback email sent successfully:', fallbackResult);
-            toast({ 
-              title: "Partial Success", 
-              description: "Account setup email sent. Welcome email failed." 
-            });
-          }
-        } catch (fallbackError) {
-          throw emailError; // Re-throw original error if fallback also fails
-        }
-      }
+      toast({ 
+        title: "Email Sent", 
+        description: "Acceptance email has been sent to the supplier." 
+      });
 
     } catch (error) {
       console.error("Email send failed:", error);
@@ -659,6 +677,14 @@ const SupplierList = () => {
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Accept
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleApprove(supplier.id, supplier.email, supplier.contactPerson || supplier.companyName)}
+                          className="bg-blue-600/90 hover:bg-blue-600 text-white border-blue-500 shadow-blue-500/20 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
+                        >
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Approve
                         </Button>
                         <Button 
                           variant="destructive" 

@@ -31,6 +31,103 @@ const SupplierRegistration = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState({ tradeLicense: false, catalog: false });
+
+  const handleFileUpload = async (file, type) => {
+    setUploading(prev => ({ ...prev, [type]: true }));
+    
+    try {
+      // For now, we'll store the file as base64 in Firestore
+      // In production, you should use Cloud Storage
+      const reader = new FileReader();
+      
+      reader.onload = () => {
+        const result = reader.result;
+        
+        // Update form data with file data
+        setFormData(prev => ({
+          ...prev,
+          [type]: {
+            data: result, // Base64 data
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            uploadedAt: new Date().toISOString()
+          }
+        }));
+        
+        toast({
+          title: "Upload Successful",
+          description: `${type === 'tradeLicense' ? 'Trade License' : 'Catalog'} uploaded successfully.`,
+        });
+        
+        setUploading(prev => ({ ...prev, [type]: false }));
+      };
+      
+      reader.onerror = () => {
+        toast({
+          title: "Upload Failed",
+          description: `Failed to upload ${type === 'tradeLicense' ? 'Trade License' : 'Catalog'}. Please try again.`,
+          variant: "destructive",
+        });
+        setUploading(prev => ({ ...prev, [type]: false }));
+      };
+      
+      reader.readAsDataURL(file);
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: `Failed to upload ${type === 'tradeLicense' ? 'Trade License' : 'Catalog'}. Please try again.`,
+        variant: "destructive",
+      });
+      setUploading(prev => ({ ...prev, [type]: false }));
+    }
+  };
+
+  const handleDrop = (e, type) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const file = files[0];
+      if (validateFile(file, type)) {
+        handleFileUpload(file, type);
+      }
+    }
+  };
+
+  const handleFileSelect = (e, type) => {
+    const file = e.target.files[0];
+    if (file && validateFile(file, type)) {
+      handleFileUpload(file, type);
+    }
+  };
+
+  const validateFile = (file, type) => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Please select a file smaller than 10MB.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select a PDF, JPG, or PNG file.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,6 +153,15 @@ const SupplierRegistration = () => {
         return;
       }
 
+      if (!formData.tradeLicense) {
+        toast({
+          title: "Validation Error",
+          description: "Please upload your trade license copy.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (!formData.confirmAccuracy || !formData.agreeContact) {
         toast({
           title: "Validation Error",
@@ -74,9 +180,8 @@ const SupplierRegistration = () => {
         refNo,
         status: 'pending_approval',
         submittedAt: new Date(),
-        // Note: File uploads would need separate handling with Cloud Storage
-        tradeLicense: formData.tradeLicense ? 'uploaded' : null,
-        catalog: formData.catalog ? 'uploaded' : null,
+        tradeLicense: formData.tradeLicense || null,
+        catalog: formData.catalog || null,
       };
 
       // Save to Firestore
@@ -545,17 +650,75 @@ const SupplierRegistration = () => {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-slate-300 font-semibold mb-3">Upload Trade License Copy (PDF/JPG)</label>
-                    <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-[#6AAEFF]/50 transition-colors cursor-pointer">
-                      <Paperclip className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-slate-400 text-sm">Click to upload or drag and drop</p>
+                    <div 
+                      className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-[#6AAEFF]/50 transition-colors cursor-pointer relative"
+                      onDrop={(e) => handleDrop(e, 'tradeLicense')}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDragEnter={(e) => e.preventDefault()}
+                      onClick={() => document.getElementById('tradeLicense').click()}
+                    >
+                      <input
+                        type="file"
+                        id="tradeLicense"
+                        className="hidden"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => handleFileSelect(e, 'tradeLicense')}
+                      />
+                      {uploading.tradeLicense ? (
+                        <div className="flex flex-col items-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6AAEFF] mb-2"></div>
+                          <p className="text-[#6AAEFF] text-sm">Uploading...</p>
+                        </div>
+                      ) : formData.tradeLicense ? (
+                        <div className="flex flex-col items-center">
+                          <CheckCircle className="w-8 h-8 text-green-400 mb-2" />
+                          <p className="text-green-400 text-sm font-medium">{formData.tradeLicense.fileName}</p>
+                          <p className="text-slate-400 text-xs">({(formData.tradeLicense.fileSize / 1024 / 1024).toFixed(2)} MB)</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <Paperclip className="w-8 h-8 text-slate-400 mb-2" />
+                          <p className="text-slate-400 text-sm">Click to upload or drag and drop</p>
+                          <p className="text-slate-500 text-xs mt-1">PDF, JPG, PNG (max 10MB)</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-slate-300 font-semibold mb-3">Upload Product Catalog / Company Profile (Optional)</label>
-                    <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-[#6AAEFF]/50 transition-colors cursor-pointer">
-                      <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-slate-400 text-sm">Click to upload or drag and drop</p>
+                    <div 
+                      className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-[#6AAEFF]/50 transition-colors cursor-pointer relative"
+                      onDrop={(e) => handleDrop(e, 'catalog')}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDragEnter={(e) => e.preventDefault()}
+                      onClick={() => document.getElementById('catalog').click()}
+                    >
+                      <input
+                        type="file"
+                        id="catalog"
+                        className="hidden"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => handleFileSelect(e, 'catalog')}
+                      />
+                      {uploading.catalog ? (
+                        <div className="flex flex-col items-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6AAEFF] mb-2"></div>
+                          <p className="text-[#6AAEFF] text-sm">Uploading...</p>
+                        </div>
+                      ) : formData.catalog ? (
+                        <div className="flex flex-col items-center">
+                          <CheckCircle className="w-8 h-8 text-green-400 mb-2" />
+                          <p className="text-green-400 text-sm font-medium">{formData.catalog.fileName}</p>
+                          <p className="text-slate-400 text-xs">({(formData.catalog.fileSize / 1024 / 1024).toFixed(2)} MB)</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <FileText className="w-8 h-8 text-slate-400 mb-2" />
+                          <p className="text-slate-400 text-sm">Click to upload or drag and drop</p>
+                          <p className="text-slate-500 text-xs mt-1">PDF, JPG, PNG (max 10MB)</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

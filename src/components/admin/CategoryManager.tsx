@@ -198,14 +198,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ categoryName, title }
         </div>
       </div>
 
-      {/* Debug info */}
-      <div className="text-xs text-slate-400 mb-2 p-2 bg-slate-700/20 rounded">
-        <span className="text-white font-medium">Category:</span> {categoryName} | 
-        <span className="text-white font-medium"> Items:</span> {items.length} | 
-        <span className="text-white font-medium"> Status:</span> {isLoading ? 'Loading...' : 'Ready'} |
-        <span className="text-white font-medium"> User:</span> {auth.currentUser?.uid || 'Not logged in'}
-      </div>
-      
       <form onSubmit={handleAddItem} className="flex gap-3">
         <Input
           type="text"

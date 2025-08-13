@@ -5,7 +5,7 @@ import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase.ts';
 import emailjs from '@emailjs/browser';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, FileText, Download, ExternalLink } from 'lucide-react';
 
 // Import UI components from shadcn/ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -267,6 +267,7 @@ const SupplierList = () => {
               <TableHead className="font-semibold text-slate-200">Company Name</TableHead>
               <TableHead className="font-semibold text-slate-200">Country</TableHead>
               <TableHead className="font-semibold text-slate-200">Email</TableHead>
+              <TableHead className="font-semibold text-slate-200">Files</TableHead>
               <TableHead className="font-semibold text-slate-200">Status</TableHead>
               <TableHead className="font-semibold text-slate-200 text-center">Actions</TableHead>
             </TableRow>
@@ -280,6 +281,67 @@ const SupplierList = () => {
                 <TableCell className="font-medium text-slate-200">{supplier.companyName}</TableCell>
                 <TableCell className="text-slate-300">{supplier.country}</TableCell>
                 <TableCell className="text-slate-300">{supplier.email}</TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    {supplier.tradeLicense && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs border-blue-500/50 text-blue-400 hover:bg-blue-500/20 p-1 h-auto"
+                        onClick={() => {
+                          if (supplier.tradeLicense.data) {
+                            // Create blob URL for base64 data
+                            const byteCharacters = atob(supplier.tradeLicense.data.split(',')[1]);
+                            const byteNumbers = new Array(byteCharacters.length);
+                            for (let i = 0; i < byteCharacters.length; i++) {
+                              byteNumbers[i] = byteCharacters.charCodeAt(i);
+                            }
+                            const byteArray = new Uint8Array(byteNumbers);
+                            const blob = new Blob([byteArray], { type: supplier.tradeLicense.fileType });
+                            const url = URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                          } else if (supplier.tradeLicense.url) {
+                            window.open(supplier.tradeLicense.url, '_blank');
+                          }
+                        }}
+                        title={`View Trade License (${supplier.tradeLicense.fileName})`}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        License
+                      </Button>
+                    )}
+                    {supplier.catalog && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs border-green-500/50 text-green-400 hover:bg-green-500/20 p-1 h-auto"
+                        onClick={() => {
+                          if (supplier.catalog.data) {
+                            // Create blob URL for base64 data
+                            const byteCharacters = atob(supplier.catalog.data.split(',')[1]);
+                            const byteNumbers = new Array(byteCharacters.length);
+                            for (let i = 0; i < byteCharacters.length; i++) {
+                              byteNumbers[i] = byteCharacters.charCodeAt(i);
+                            }
+                            const byteArray = new Uint8Array(byteNumbers);
+                            const blob = new Blob([byteArray], { type: supplier.catalog.fileType });
+                            const url = URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                          } else if (supplier.catalog.url) {
+                            window.open(supplier.catalog.url, '_blank');
+                          }
+                        }}
+                        title={`View Catalog (${supplier.catalog.fileName})`}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        Catalog
+                      </Button>
+                    )}
+                    {!supplier.tradeLicense && !supplier.catalog && (
+                      <span className="text-slate-500 text-xs">No files</span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <Badge 
                     variant={

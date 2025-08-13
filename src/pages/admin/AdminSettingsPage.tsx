@@ -2,90 +2,33 @@
 
 import React from 'react';
 import CategoryManager from '../../components/admin/CategoryManager';
-import { Settings, Database, Users, Globe, RefreshCw, TestTube, Plus, CheckCircle, Phone } from 'lucide-react';
+import { Settings, Database, Users, Globe, RefreshCw, Plus, CheckCircle, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/components/ui/use-toast";
-import { collection, addDoc } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { db } from '../../components/firebase';
 import { populateDefaultCategories } from '../../utils/populateDefaultCategories';
+import { useAllCategories } from '../../hooks/useAdminCategories';
 
 const AdminSettingsPage = () => {
   const { toast } = useToast();
+  const { countries, emirates, yearsInOperation, businessTypes, employeeCount, supplyCategories, countryCodes } = useAllCategories();
+  
+  // Calculate total number of category types with items
+  const activeCategoriesCount = [
+    countries.items.length > 0 ? 1 : 0,
+    emirates.items.length > 0 ? 1 : 0,
+    yearsInOperation.items.length > 0 ? 1 : 0,
+    businessTypes.items.length > 0 ? 1 : 0,
+    employeeCount.items.length > 0 ? 1 : 0,
+    supplyCategories.items.length > 0 ? 1 : 0,
+    countryCodes.items.length > 0 ? 1 : 0
+  ].reduce((sum, count) => sum + count, 0);
+  
   
   const handleRefreshPage = () => {
     window.location.reload();
-  };
-
-  const testFirebaseConnection = async () => {
-    try {
-      toast({
-        title: "Testing Connection",
-        description: "Testing Firebase connection...",
-      });
-      
-      // Test adding a document to test collection
-      const testCollection = collection(db, 'test');
-      const docRef = await addDoc(testCollection, {
-        test: 'connection',
-        timestamp: new Date().toISOString()
-      });
-      
-      toast({
-        title: "Success!",
-        description: `Firebase connection works! Test doc ID: ${docRef.id}`,
-      });
-    } catch (error: any) {
-      console.error('Firebase test error:', error);
-      toast({
-        title: "Connection Error",
-        description: `Firebase error: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePopulateDefaults = async () => {
-    try {
-      toast({
-        title: "Populating Categories",
-        description: "Adding default categories to the database...",
-      });
-      
-      // Manually add default categories
-      const categoriesData = {
-        countries: ['United Arab Emirates', 'Saudi Arabia', 'Kuwait', 'Qatar', 'Bahrain', 'Oman'],
-        emirates: ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'],
-        yearsOfOperation: ['1-2 years', '3-5 years', '6-10 years', '11-15 years', '15+ years'],
-        businessTypes: ['IT Services', 'Hardware Supplier', 'Software Developer', 'Consulting', 'System Integration'],
-        employeeCount: ['1-10', '11-50', '51-100', '101-500', '500+']
-      };
-
-      // Add categories to Firebase
-      for (const [categoryName, items] of Object.entries(categoriesData)) {
-        for (const itemName of items) {
-          const itemsCollectionRef = collection(db, 'categories', categoryName, 'items');
-          await addDoc(itemsCollectionRef, { name: itemName });
-        }
-      }
-      
-      toast({
-        title: "Success!",
-        description: "Default categories have been populated successfully.",
-      });
-      
-      // Refresh the page to show new data
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error: any) {
-      console.error('Error populating defaults:', error);
-      toast({
-        title: "Error",
-        description: `Failed to populate defaults: ${error.message}`,
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -131,22 +74,6 @@ const AdminSettingsPage = () => {
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh Page
-            </Button>
-            <Button
-              onClick={testFirebaseConnection}
-              variant="outline"
-              className="bg-slate-800/50 border-slate-600 text-white hover:bg-slate-700/50"
-            >
-              <TestTube className="mr-2 h-4 w-4" />
-              Test Connection
-            </Button>
-            <Button
-              onClick={handlePopulateDefaults}
-              variant="outline"
-              className="bg-blue-600/20 border-blue-500 text-blue-400 hover:bg-blue-600/30"
-            >
-              <Database className="mr-2 h-4 w-4" />
-              Populate Defaults
             </Button>
           </motion.div>
 
@@ -291,9 +218,9 @@ const AdminSettingsPage = () => {
                 <div className="flex justify-between items-center p-4 bg-slate-700/40 rounded-lg border border-slate-600/30">
                   <div>
                     <span className="text-white font-medium">Active Categories</span>
-                    <p className="text-slate-400 text-xs">Total number of category types</p>
+                    <p className="text-slate-400 text-xs">Total number of category types with data</p>
                   </div>
-                  <div className="text-2xl font-bold text-blue-400">7</div>
+                  <div className="text-2xl font-bold text-blue-400">{activeCategoriesCount}</div>
                 </div>
                 <div className="flex justify-between items-center p-4 bg-slate-700/40 rounded-lg border border-slate-600/30">
                   <div>

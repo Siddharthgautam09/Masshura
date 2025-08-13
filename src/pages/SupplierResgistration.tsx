@@ -20,6 +20,7 @@ const SupplierRegistration = () => {
     contactPerson: '',
     designation: '',
     email: '',
+    countryCode: '+971', // Default to UAE
     phone: '',
     categories: [],
     tradeLicense: null,
@@ -191,6 +192,7 @@ const SupplierRegistration = () => {
                     contactPerson: '',
                     designation: '',
                     email: '',
+                    countryCode: '+971',
                     phone: '',
                     categories: [],
                     tradeLicense: null,
@@ -365,6 +367,63 @@ const SupplierRegistration = () => {
                 </div>
 
                 <div>
+                  <label className="block text-slate-300 font-semibold mb-2">Country Code</label>
+                  <select
+                    value={formData.countryCode}
+                    onChange={(e) => setFormData(prev => ({...prev, countryCode: e.target.value}))}
+                    className="w-full px-4 py-3 bg-slate-700/60 border border-slate-600/50 rounded-xl text-white focus:border-[#6AAEFF] focus:outline-none focus:ring-2 focus:ring-[#6AAEFF]/20 transition-all duration-300"
+                  >
+                    <option value="+971">🇦🇪 +971 (UAE)</option>
+                    <option value="+966">🇸🇦 +966 (Saudi Arabia)</option>
+                    <option value="+965">🇰🇼 +965 (Kuwait)</option>
+                    <option value="+974">🇶🇦 +974 (Qatar)</option>
+                    <option value="+968">🇴🇲 +968 (Oman)</option>
+                    <option value="+973">🇧🇭 +973 (Bahrain)</option>
+                    <option value="+1">🇺🇸 +1 (USA)</option>
+                    <option value="+44">🇬🇧 +44 (UK)</option>
+                    <option value="+91">🇮🇳 +91 (India)</option>
+                    <option value="+92">🇵🇰 +92 (Pakistan)</option>
+                    <option value="+880">🇧🇩 +880 (Bangladesh)</option>
+                    <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+                    <option value="+977">🇳🇵 +977 (Nepal)</option>
+                    <option value="+63">🇵🇭 +63 (Philippines)</option>
+                    <option value="+62">🇮🇩 +62 (Indonesia)</option>
+                    <option value="+60">🇲🇾 +60 (Malaysia)</option>
+                    <option value="+65">🇸🇬 +65 (Singapore)</option>
+                    <option value="+86">🇨🇳 +86 (China)</option>
+                    <option value="+82">🇰🇷 +82 (South Korea)</option>
+                    <option value="+81">🇯🇵 +81 (Japan)</option>
+                    <option value="+49">🇩🇪 +49 (Germany)</option>
+                    <option value="+33">🇫🇷 +33 (France)</option>
+                    <option value="+39">🇮🇹 +39 (Italy)</option>
+                    <option value="+34">🇪🇸 +34 (Spain)</option>
+                    <option value="+31">🇳🇱 +31 (Netherlands)</option>
+                    <option value="+41">🇨🇭 +41 (Switzerland)</option>
+                    <option value="+43">🇦🇹 +43 (Austria)</option>
+                    <option value="+32">🇧🇪 +32 (Belgium)</option>
+                    <option value="+45">🇩🇰 +45 (Denmark)</option>
+                    <option value="+46">🇸🇪 +46 (Sweden)</option>
+                    <option value="+47">🇳🇴 +47 (Norway)</option>
+                    <option value="+358">🇫🇮 +358 (Finland)</option>
+                    <option value="+61">🇦🇺 +61 (Australia)</option>
+                    <option value="+64">🇳🇿 +64 (New Zealand)</option>
+                    <option value="+55">🇧🇷 +55 (Brazil)</option>
+                    <option value="+52">🇲🇽 +52 (Mexico)</option>
+                    <option value="+54">🇦🇷 +54 (Argentina)</option>
+                    <option value="+56">🇨🇱 +56 (Chile)</option>
+                    <option value="+57">🇨🇴 +57 (Colombia)</option>
+                    <option value="+51">🇵🇪 +51 (Peru)</option>
+                    <option value="+27">🇿🇦 +27 (South Africa)</option>
+                    <option value="+234">🇳🇬 +234 (Nigeria)</option>
+                    <option value="+254">🇰🇪 +254 (Kenya)</option>
+                    <option value="+20">🇪🇬 +20 (Egypt)</option>
+                    <option value="+212">🇲🇦 +212 (Morocco)</option>
+                    <option value="+216">🇹🇳 +216 (Tunisia)</option>
+                    <option value="+213">🇩🇿 +213 (Algeria)</option>
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-slate-300 font-semibold mb-2">Emirate (if UAE)</label>
                   <select 
                     className="w-full px-4 py-3 bg-slate-700/60 border border-slate-600/50 rounded-xl text-white focus:border-[#6AAEFF] focus:outline-none focus:ring-2 focus:ring-[#6AAEFF]/20 transition-all duration-300"
@@ -500,10 +559,13 @@ const SupplierRegistration = () => {
                       type="tel"
                       required
                       className="w-full px-4 py-3 bg-slate-700/60 border border-slate-600/50 rounded-xl text-white focus:border-[#6AAEFF] focus:outline-none focus:ring-2 focus:ring-[#6AAEFF]/20 transition-all duration-300"
-                      placeholder="+971 XX XXX XXXX"
+                      placeholder="XX XXX XXXX"
                       value={formData.phone}
                       onChange={(e) => setFormData(prev => ({...prev, phone: e.target.value}))}
                     />
+                    <p className="text-slate-400 text-sm mt-2">
+                      Full number will be: {formData.countryCode} {formData.phone}
+                    </p>
                   </div>
                 </div>
               </div>

@@ -178,10 +178,12 @@ const SupplierRegistration = () => {
       const supplierData = {
         ...formData,
         refNo,
-        status: 'pending_approval',
+        status: 'pending',
         submittedAt: new Date(),
         tradeLicense: formData.tradeLicense || null,
         catalog: formData.catalog || null,
+        isActive: true, // Default to active when first submitted
+        expiryDate: null, // Will be set when accepted and payment is made
       };
 
       // Save to Firestore

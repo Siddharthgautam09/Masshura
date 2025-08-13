@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 
 const ITEMS_PER_PAGE = 10;
@@ -193,6 +194,55 @@ const SupplierList = () => {
     updateSupplierStatusInState(supplierId, 'rejected');
     toast({ title: "Success", description: "Supplier has been rejected.", variant: "destructive" });
   };
+
+  // New function to handle Accept status (different from approve)
+  const handleAccept = async (supplierId: string) => {
+    await updateDoc(doc(db, 'suppliers', supplierId), { 
+      status: 'accepted',
+      acceptedAt: new Date().toISOString()
+    });
+    updateSupplierStatusInState(supplierId, 'accepted');
+    toast({ title: "Success", description: "Supplier has been accepted. They can now proceed to payment." });
+  };
+
+  // New function to handle Block status
+  const handleBlock = async (supplierId: string) => {
+    await updateDoc(doc(db, 'suppliers', supplierId), { 
+      status: 'blocked',
+      blockedAt: new Date().toISOString()
+    });
+    updateSupplierStatusInState(supplierId, 'blocked');
+    toast({ title: "Success", description: "Supplier has been blocked.", variant: "destructive" });
+  };
+
+  // Function to toggle active status
+  const handleToggleActive = async (supplierId: string, currentActive: boolean) => {
+    const newActiveStatus = !currentActive;
+    await updateDoc(doc(db, 'suppliers', supplierId), { 
+      isActive: newActiveStatus,
+      lastActiveToggle: new Date().toISOString()
+    });
+    
+    setSuppliers(currentSuppliers =>
+      currentSuppliers.map(s => (s.id === supplierId ? { ...s, isActive: newActiveStatus } : s))
+    );
+    
+    toast({ 
+      title: "Success", 
+      description: `Supplier ${newActiveStatus ? 'activated' : 'deactivated'} successfully.` 
+    });
+  };
+
+  // Function to calculate expiry date (example: 1 year from acceptance)
+  const calculateExpiryDate = (supplier: any) => {
+    if (supplier.acceptedAt && supplier.status === 'accepted') {
+      const acceptedDate = new Date(supplier.acceptedAt);
+      const expiryDate = new Date(acceptedDate);
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1); // 1 year validity
+      return expiryDate.toLocaleDateString();
+    }
+    return 'N/A';
+  };
   
   if (isLoading) {
     return (
@@ -226,9 +276,11 @@ const SupplierList = () => {
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600">
                 <SelectItem value="all" className="text-slate-200 hover:bg-slate-700">All Statuses</SelectItem>
-                <SelectItem value="pending_approval" className="text-slate-200 hover:bg-slate-700">Pending Approval</SelectItem>
-                <SelectItem value="approved" className="text-slate-200 hover:bg-slate-700">Approved</SelectItem>
+                <SelectItem value="pending" className="text-slate-200 hover:bg-slate-700">Pending</SelectItem>
+                <SelectItem value="accepted" className="text-slate-200 hover:bg-slate-700">Accepted</SelectItem>
                 <SelectItem value="rejected" className="text-slate-200 hover:bg-slate-700">Rejected</SelectItem>
+                <SelectItem value="blocked" className="text-slate-200 hover:bg-slate-700">Blocked</SelectItem>
+                <SelectItem value="approved" className="text-slate-200 hover:bg-slate-700">Approved (Legacy)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -263,18 +315,24 @@ const SupplierList = () => {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-700/50 border-slate-600/50">
+              <TableHead className="font-semibold text-slate-200">Sl</TableHead>
               <TableHead className="font-semibold text-slate-200">Ref No</TableHead>
               <TableHead className="font-semibold text-slate-200">Company Name</TableHead>
               <TableHead className="font-semibold text-slate-200">Country</TableHead>
               <TableHead className="font-semibold text-slate-200">Email</TableHead>
               <TableHead className="font-semibold text-slate-200">Files</TableHead>
+              <TableHead className="font-semibold text-slate-200">Expiry Date</TableHead>
               <TableHead className="font-semibold text-slate-200">Status</TableHead>
+              <TableHead className="font-semibold text-slate-200">Active</TableHead>
               <TableHead className="font-semibold text-slate-200 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedSuppliers.map((supplier, index) => (
               <TableRow key={supplier.id} className="hover:bg-slate-700/30 transition-colors border-slate-600/30">
+                <TableCell className="font-medium text-slate-200">
+                  {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                </TableCell>
                 <TableCell className="font-medium text-slate-200">
                   {supplier.refNo || `REF-${String(index + 1).padStart(3, '0')}`}
                 </TableCell>
@@ -342,33 +400,51 @@ const SupplierList = () => {
                     )}
                   </div>
                 </TableCell>
+                <TableCell className="text-slate-300">
+                  {calculateExpiryDate(supplier)}
+                </TableCell>
                 <TableCell>
                   <Badge 
                     variant={
+                      supplier.status === 'accepted' ? 'default' : 
+                      supplier.status === 'pending' ? 'secondary' : 
+                      supplier.status === 'blocked' ? 'destructive' :
+                      supplier.status === 'rejected' ? 'destructive' :
                       supplier.status === 'approved' ? 'default' : 
-                      supplier.status === 'pending_approval' ? 'secondary' : 
-                      'destructive'
+                      'secondary'
                     }
                     className={
-                      supplier.status === 'approved' ? 'bg-green-500/20 text-green-400 border-green-400/30' :
-                      supplier.status === 'pending_approval' ? 'bg-orange-500/20 text-orange-400 border-orange-400/30' :
-                      'bg-red-500/20 text-red-400 border-red-400/30'
+                      supplier.status === 'accepted' ? 'bg-green-500/20 text-green-400 border-green-400/30' :
+                      supplier.status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-400/30' :
+                      supplier.status === 'blocked' ? 'bg-red-500/20 text-red-400 border-red-400/30' :
+                      supplier.status === 'rejected' ? 'bg-red-500/20 text-red-400 border-red-400/30' :
+                      supplier.status === 'approved' ? 'bg-blue-500/20 text-blue-400 border-blue-400/30' :
+                      'bg-slate-500/20 text-slate-400 border-slate-400/30'
                     }
                   >
-                    {supplier.status?.replace('_', ' ').toUpperCase() || 'N/A'}
+                    {supplier.status?.toUpperCase() || 'PENDING'}
                   </Badge>
                 </TableCell>
                 <TableCell>
+                  <div className="flex items-center justify-center">
+                    <Switch
+                      checked={supplier.isActive !== false} // Default to true if not set
+                      onCheckedChange={() => handleToggleActive(supplier.id, supplier.isActive !== false)}
+                      className="data-[state=checked]:bg-green-500"
+                    />
+                  </div>
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center justify-center gap-2">
-                    {supplier.status === 'pending_approval' && (
+                    {supplier.status === 'pending' && (
                       <>
                         <Button 
                           size="sm" 
-                          onClick={() => handleApprove(supplier.id, supplier.email, supplier.companyName)}
+                          onClick={() => handleAccept(supplier.id)}
                           className="bg-green-600/80 hover:bg-green-600 text-white border-green-500"
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
-                          Approve
+                          Accept
                         </Button>
                         <Button 
                           variant="destructive" 
@@ -380,6 +456,17 @@ const SupplierList = () => {
                           Reject
                         </Button>
                       </>
+                    )}
+                    {(supplier.status === 'accepted' || supplier.status === 'approved') && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => handleBlock(supplier.id)}
+                        className="bg-orange-600/80 hover:bg-orange-600 border-orange-500"
+                      >
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Block
+                      </Button>
                     )}
                     <Button asChild variant="outline" size="sm" className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200">
                       <Link to={`/admin/supplier/${supplier.id}`}>

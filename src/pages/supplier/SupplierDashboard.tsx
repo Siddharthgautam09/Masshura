@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import axios from 'axios'; // For making the upload request
-// import emailjs from 'emailjs-com'; // For sending emails - needs to be installed: npm install emailjs-com
 import { auth, db } from '../../components/firebase';
 import { useToast } from "@/hooks/use-toast";
 import { motion } from 'framer-motion';
@@ -153,6 +152,8 @@ const SupplierDashboard = () => {
         return { variant: 'default' as const, icon: CheckCircle, color: 'text-green-400' };
       case 'pending':
         return { variant: 'secondary' as const, icon: Clock, color: 'text-yellow-400' };
+      case 'pending_review':
+        return { variant: 'secondary' as const, icon: Clock, color: 'text-orange-400' };
       case 'rejected':
         return { variant: 'destructive' as const, icon: AlertCircle, color: 'text-red-400' };
       default:
@@ -272,9 +273,32 @@ const SupplierDashboard = () => {
     
     try {
       const supplierDocRef = doc(db, 'suppliers', supplier.id);
+      
+      // Only include fields that have values (not empty strings)
+      const filteredFormData = Object.entries(formData).reduce((acc, [key, value]) => {
+        if (value && value.trim() !== '') {
+          acc[key] = value.trim();
+        }
+        return acc;
+      }, {} as Record<string, any>);
+      
+      // Check if at least one field is filled
+      if (Object.keys(filteredFormData).length === 0) {
+        toast({
+          title: "No Changes Made",
+          description: "Please fill at least one field to update your profile.",
+          variant: "destructive",
+        });
+        setIsSaving(false);
+        return;
+      }
+      
       const updateData = {
-        ...formData,
-        lastUpdated: new Date().toISOString()
+        ...filteredFormData,
+        status: 'pending_review', // Set status to pending review when profile is updated
+        lastUpdated: new Date().toISOString(),
+        profileUpdateRequested: true,
+        profileUpdateDate: new Date().toISOString()
       };
       
       await updateDoc(supplierDocRef, updateData);
@@ -284,8 +308,8 @@ const SupplierDashboard = () => {
       setIsEditing(false);
 
       toast({
-        title: "Profile Updated!",
-        description: "Your profile has been successfully updated.",
+        title: "Profile Update Submitted!",
+        description: "Your profile changes have been submitted for admin approval. Only the fields you filled will be updated.",
       });
 
     } catch (error) {
@@ -492,7 +516,8 @@ const SupplierDashboard = () => {
               >
                 <StatusIcon className="w-4 h-4" />
                 {supplier.status === 'approved' ? 'Approved' : 
-                 supplier.status === 'pending' ? 'Pending Review' : 
+                 supplier.status === 'pending' ? 'Pending Review' :
+                 supplier.status === 'pending_review' ? 'Profile Under Review' : 
                  supplier.status === 'rejected' ? 'Rejected' : 'Under Review'}
               </Badge>
               <Button 
@@ -505,6 +530,28 @@ const SupplierDashboard = () => {
               </Button>
             </div>
           </motion.div>
+
+          {/* Profile Update Notification */}
+          {supplier.status === 'pending_review' && (
+            <motion.div 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mb-6"
+            >
+              <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4 backdrop-blur-sm">
+                <div className="flex items-center">
+                  <Clock className="w-5 h-5 text-orange-400 mr-3 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-orange-400 font-semibold">Profile Under Review</h3>
+                    <p className="text-slate-300 text-sm mt-1">
+                      Your profile changes have been submitted for admin approval. You will be notified once the review is complete.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             {/* Profile Overview Card */}
@@ -617,17 +664,52 @@ const SupplierDashboard = () => {
                   </div>
                   {!isEditing && (
                     <Button
-                      onClick={() => setIsEditing(true)}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg hover:shadow-blue-500/25 transition-all duration-200 px-6 py-2"
+                      onClick={() => {
+                        setIsEditing(true);
+                        // Initialize with empty fields so users can choose what to update
+                        setFormData({
+                          companyName: '',
+                          country: '',
+                          emirate: '',
+                          phone: '',
+                          website: '',
+                          contactPerson: '',
+                          businessType: '',
+                          yearsOfOperation: '',
+                          employeeCount: ''
+                        });
+                      }}
+                      disabled={supplier.status === 'pending_review'}
+                      className={`border-0 shadow-lg transition-all duration-200 px-6 py-2 ${
+                        supplier.status === 'pending_review'
+                          ? 'bg-slate-600 cursor-not-allowed opacity-50 text-slate-300'
+                          : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white hover:shadow-blue-500/25'
+                      }`}
                     >
                       <Edit className="w-4 h-4 mr-2" />
-                      Edit Profile
+                      {supplier.status === 'pending_review' ? 'Profile Under Review' : 'Edit Profile'}
                     </Button>
                   )}
                 </CardHeader>
                 <CardContent className="px-6 pb-6">
                   {isEditing ? (
                     <form onSubmit={handleSaveChanges} className="space-y-8">
+                      <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                            <svg className="w-5 h-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-blue-200 mb-1">Flexible Profile Editing</h4>
+                            <p className="text-xs text-blue-300/80">
+                              You only need to fill the fields you want to update. Leave fields empty if you don't want to change them. 
+                              Only the fields with values will be updated in your profile.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <Label htmlFor="companyName" className="text-slate-200 font-semibold text-sm">Company Name</Label>
@@ -636,8 +718,8 @@ const SupplierDashboard = () => {
                             name="companyName"
                             value={formData.companyName}
                             onChange={handleInputChange}
+                            placeholder="Enter company name (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
-                            required
                           />
                         </div>
                         <div className="space-y-2">
@@ -647,8 +729,8 @@ const SupplierDashboard = () => {
                             name="contactPerson"
                             value={formData.contactPerson}
                             onChange={handleInputChange}
+                            placeholder="Enter contact person name (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
-                            required
                           />
                         </div>
                         <div className="space-y-2">
@@ -658,8 +740,8 @@ const SupplierDashboard = () => {
                             name="phone"
                             value={formData.phone}
                             onChange={handleInputChange}
+                            placeholder="Enter phone number (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
-                            required
                           />
                         </div>
                         <div className="space-y-2">
@@ -669,6 +751,7 @@ const SupplierDashboard = () => {
                             name="website"
                             value={formData.website}
                             onChange={handleInputChange}
+                            placeholder="Enter website URL (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
                           />
                         </div>
@@ -679,8 +762,8 @@ const SupplierDashboard = () => {
                             name="country"
                             value={formData.country}
                             onChange={handleInputChange}
+                            placeholder="Enter country (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
-                            required
                           />
                         </div>
                         <div className="space-y-2">
@@ -690,8 +773,8 @@ const SupplierDashboard = () => {
                             name="emirate"
                             value={formData.emirate}
                             onChange={handleInputChange}
+                            placeholder="Enter emirate (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
-                            required
                           />
                         </div>
                         <div className="space-y-2">
@@ -701,8 +784,8 @@ const SupplierDashboard = () => {
                             name="businessType"
                             value={formData.businessType}
                             onChange={handleInputChange}
+                            placeholder="Enter business type (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
-                            required
                           />
                         </div>
                         <div className="space-y-2">
@@ -712,6 +795,7 @@ const SupplierDashboard = () => {
                             name="yearsOfOperation"
                             value={formData.yearsOfOperation}
                             onChange={handleInputChange}
+                            placeholder="Enter years of operation (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
                           />
                         </div>
@@ -722,6 +806,7 @@ const SupplierDashboard = () => {
                             name="employeeCount"
                             value={formData.employeeCount}
                             onChange={handleInputChange}
+                            placeholder="Enter employee count (optional)"
                             className="bg-slate-700/70 border-slate-500 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20 h-11 transition-all duration-200"
                           />
                         </div>

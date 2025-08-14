@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { CheckCircle, XCircle, ArrowLeft, CreditCard } from 'lucide-react';
+import { CheckCircle, XCircle, CreditCard } from 'lucide-react';
 
 // Initialize Stripe with your test publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -219,24 +219,9 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
       <DialogContent className="bg-slate-800 border-slate-600 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-center">
-            Step 3 of 3: Complete Registration Payment
+            Complete Registration Payment
           </DialogTitle>
         </DialogHeader>
-
-        {/* Progress Bar */}
-        <div className="flex items-center justify-center space-x-4 mb-6">
-          <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
-            <span className="text-green-400 text-sm">Step 1: Verification</span>
-          </div>
-          <ArrowLeft className="w-4 h-4 text-slate-400" />
-          <div className="flex items-center">
-            <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mr-2">
-              <span className="text-white text-xs font-bold">3</span>
-            </div>
-            <span className="text-blue-400 text-sm">Step 3: Payment</span>
-          </div>
-        </div>
 
         {paymentStatus === 'form' && (
           <div className="space-y-6">
@@ -273,7 +258,7 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                 <hr className="border-slate-600 my-2" />
                 <div className="flex justify-between font-semibold">
                   <span className="text-slate-200">Total Amount:</span>
-                  <span className="text-green-400 text-lg">₹{totalAmount}</span>
+                  <span className="text-white text-lg">₹{totalAmount}</span>
                 </div>
               </div>
             </div>
@@ -298,16 +283,16 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
 
         {paymentStatus === 'success' && (
           <div className="text-center space-y-6">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle className="w-10 h-10 text-green-400" />
+            <div className="w-16 h-16 bg-slate-600/20 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-10 h-10 text-slate-300" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-green-400 mb-2">🎉 Payment Successful!</h3>
+              <h3 className="text-xl font-bold text-white mb-2">🎉 Payment Successful!</h3>
               <p className="text-slate-300">Your Maashura Supplier Portal is now active.</p>
             </div>
             <Button
               onClick={handleGoToDashboard}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800"
             >
               Go to Dashboard
             </Button>
@@ -316,15 +301,15 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
 
         {paymentStatus === 'error' && (
           <div className="text-center space-y-6">
-            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
-              <XCircle className="w-10 h-10 text-red-400" />
+            <div className="w-16 h-16 bg-slate-600/20 rounded-full flex items-center justify-center mx-auto">
+              <XCircle className="w-10 h-10 text-slate-300" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-red-400 mb-2">❌ Payment Failed</h3>
+              <h3 className="text-xl font-bold text-slate-200 mb-2">❌ Payment Failed</h3>
               <p className="text-slate-300 mb-2">{errorMessage}</p>
               <p className="text-slate-400 text-sm">
                 Please try a different payment method or contact{' '}
-                <a href="mailto:support@maashura.com" className="text-blue-400">
+                <a href="mailto:support@maashura.com" className="text-slate-300 underline hover:text-white">
                   support@maashura.com
                 </a>
               </p>

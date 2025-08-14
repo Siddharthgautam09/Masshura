@@ -33,7 +33,11 @@ import {
   Award,
   Target,
   Settings,
-  Eye
+  Eye,
+  CreditCard,
+  DollarSign,
+  CalendarDays,
+  AlertCircle
 } from 'lucide-react';
 
 interface Supplier {
@@ -57,12 +61,25 @@ interface Supplier {
   capacity: string;
   qualityStandards: string;
   additionalInfo: string;
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected' | 'pending_review';
   refNo?: string;
   submittedAt?: string;
   approvedAt?: string;
   rejectedAt?: string;
+  profileUpdateRequested?: boolean;
+  profileUpdateDate?: string;
+  profileReapprovedAt?: string;
   notes?: string;
+  // Payment-related fields
+  paymentStatus?: string;
+  paymentDate?: string;
+  paymentAmount?: number;
+  paymentMethod?: string;
+  paymentId?: string;
+  subscriptionExpiryDate?: string;
+  subscriptionDuration?: number;
+  subscriptionAmount?: number;
+  registrationAmount?: number;
   uploadedDocuments?: Array<{ 
     url: string; 
     name: string; 
@@ -132,25 +149,34 @@ const SupplierDetailPage = () => {
         [`${status}At`]: new Date().toISOString(),
       };
 
-      // If approving, also activate the supplier
+      // If approving, also activate the supplier and clear profile update flags
       if (status === 'approved') {
         updateData.isActive = true;
+        // Clear profile update flags when re-approving
+        updateData.profileUpdateRequested = false;
+        updateData.profileReapprovedAt = new Date().toISOString();
       }
 
       await updateDoc(supplierRef, updateData);
       
       setSupplier(prev => prev ? { ...prev, ...updateData } : null);
       
-      // Send emails based on status
+      // Send emails based on status and context
       if (status === 'approved') {
-        await sendApprovalEmails();
+        // Check if this was a profile update re-approval
+        const isProfileUpdate = supplier.status === 'pending_review';
+        if (!isProfileUpdate) {
+          // Only send emails for initial approvals, not profile update re-approvals
+          await sendApprovalEmails();
+        }
       } else if (status === 'rejected') {
         await sendRejectionEmail();
       }
       
+      const actionText = supplier.status === 'pending_review' ? 'Profile changes approved' : `${status}`;
       toast({
         title: "Success",
-        description: `${supplier.companyName} has been ${status} successfully.`,
+        description: `${supplier.companyName} has been ${actionText} successfully.`,
       });
     } catch (error) {
       console.error('Error updating supplier status:', error);
@@ -333,6 +359,7 @@ const SupplierDetailPage = () => {
       case 'approved': return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'rejected': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'pending_review': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
       default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     }
   };
@@ -342,6 +369,7 @@ const SupplierDetailPage = () => {
       case 'approved': return <CheckCircle className="w-4 h-4" />;
       case 'rejected': return <XCircle className="w-4 h-4" />;
       case 'pending': return <Clock className="w-4 h-4" />;
+      case 'pending_review': return <Edit className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
     }
   };
@@ -350,6 +378,7 @@ const SupplierDetailPage = () => {
     { id: 'overview', label: 'Overview', icon: Building },
     { id: 'contact', label: 'Contact Info', icon: User },
     { id: 'business', label: 'Business Details', icon: Briefcase },
+    { id: 'payment', label: 'Payment & Subscription', icon: CreditCard },
     { id: 'additional', label: 'Additional Info', icon: FileText },
   ];
 
@@ -449,6 +478,31 @@ const SupplierDetailPage = () => {
             </div>
           </motion.div>
 
+        {/* Profile Update Notification */}
+        {supplier.status === 'pending_review' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-6"
+          >
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 backdrop-blur-sm">
+              <div className="flex items-center">
+                <Edit className="w-5 h-5 text-orange-400 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="text-orange-400 font-semibold">Profile Update Pending Review</h3>
+                  <p className="text-slate-300 text-sm mt-1">
+                    This supplier has updated their profile and is waiting for admin approval.
+                    {supplier.profileUpdateDate && (
+                      <span className="text-orange-400"> Updated on {new Date(supplier.profileUpdateDate).toLocaleDateString()}</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -464,7 +518,7 @@ const SupplierDetailPage = () => {
                 className="bg-green-600 hover:bg-green-700 text-white shadow-lg"
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
-                {isUpdating ? 'Approving...' : 'Approve'}
+                {isUpdating ? 'Approving...' : (supplier.status === 'pending_review' ? 'Approve Profile Changes' : 'Approve')}
               </Button>
             </motion.div>
           )}
@@ -664,7 +718,86 @@ const SupplierDetailPage = () => {
                             </div>
                           </motion.div>
                         )}
+
+                        {supplier.paymentDate && (
+                          <motion.div 
+                            whileHover={{ scale: 1.02 }}
+                            className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg hover:bg-slate-700/40 transition-colors"
+                          >
+                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                            <div>
+                              <p className="text-white text-sm font-medium">Payment Completed</p>
+                              <p className="text-slate-400 text-xs">
+                                {new Date(supplier.paymentDate).toLocaleDateString()} - ₹{supplier.paymentAmount || 'N/A'}
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
                       </div>
+
+                      {/* Quick Payment & Subscription Summary */}
+                      {(supplier.paymentStatus || supplier.subscriptionExpiryDate) && (
+                        <div className="pt-4 border-t border-slate-600/30">
+                          <div className="grid grid-cols-1 gap-3">
+                            {supplier.paymentStatus && (
+                              <div className="flex items-center justify-between p-3 bg-slate-700/20 rounded-lg">
+                                <div className="flex items-center gap-2">
+                                  <CreditCard className="w-4 h-4 text-green-400" />
+                                  <span className="text-slate-300 text-sm">Payment Status</span>
+                                </div>
+                                <Badge 
+                                  variant={supplier.paymentStatus === 'completed' ? 'default' : 'secondary'}
+                                  className={`${
+                                    supplier.paymentStatus === 'completed' 
+                                      ? 'bg-green-600/20 text-green-400 border-green-600/30' 
+                                      : 'bg-orange-600/20 text-orange-400 border-orange-600/30'
+                                  }`}
+                                >
+                                  {supplier.paymentStatus === 'completed' ? 'Completed' : supplier.paymentStatus || 'Pending'}
+                                </Badge>
+                              </div>
+                            )}
+
+                            {supplier.subscriptionExpiryDate && (
+                              <div className="flex items-center justify-between p-3 bg-slate-700/20 rounded-lg">
+                                <div className="flex items-center gap-2">
+                                  <CalendarDays className="w-4 h-4 text-purple-400" />
+                                  <span className="text-slate-300 text-sm">Subscription</span>
+                                </div>
+                                <div className="text-right">
+                                  {(() => {
+                                    const expiryDate = new Date(supplier.subscriptionExpiryDate);
+                                    const now = new Date();
+                                    const daysRemaining = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                                    const isExpired = daysRemaining <= 0;
+                                    const isExpiringSoon = daysRemaining <= 30 && daysRemaining > 0;
+
+                                    return (
+                                      <Badge 
+                                        variant="secondary"
+                                        className={`${
+                                          isExpired 
+                                            ? 'bg-red-600/20 text-red-400 border-red-600/30' 
+                                            : isExpiringSoon
+                                            ? 'bg-orange-600/20 text-orange-400 border-orange-600/30'
+                                            : 'bg-green-600/20 text-green-400 border-green-600/30'
+                                        }`}
+                                      >
+                                        {isExpired 
+                                          ? 'Expired'
+                                          : isExpiringSoon
+                                          ? `${daysRemaining}d left`
+                                          : `${daysRemaining}d left`
+                                        }
+                                      </Badge>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                       
                       {supplier.notes && (
                         <div className="pt-4 border-t border-slate-700/50">
@@ -832,6 +965,255 @@ const SupplierDetailPage = () => {
                         <p className="text-white">{supplier.references}</p>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === 'payment' && (
+              <div className="space-y-6">
+                {/* Payment Information */}
+                <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-green-400" />
+                      Payment Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-sm font-medium text-slate-400">Payment Status</label>
+                        <div className="mt-2">
+                          <Badge 
+                            variant={supplier.paymentStatus === 'completed' ? 'default' : 'secondary'}
+                            className={`${
+                              supplier.paymentStatus === 'completed' 
+                                ? 'bg-green-600/20 text-green-400 border-green-600/30' 
+                                : 'bg-orange-600/20 text-orange-400 border-orange-600/30'
+                            }`}
+                          >
+                            {supplier.paymentStatus === 'completed' ? 'Completed' : supplier.paymentStatus || 'Pending'}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {supplier.paymentDate && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Payment Date</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <Calendar className="w-4 h-4 text-blue-400" />
+                            {new Date(supplier.paymentDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      )}
+
+                      {supplier.paymentAmount && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Total Payment Amount</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <DollarSign className="w-4 h-4 text-green-400" />
+                            ₹{supplier.paymentAmount}
+                          </p>
+                        </div>
+                      )}
+
+                      {supplier.registrationAmount && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Registration Fee</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <DollarSign className="w-4 h-4 text-blue-400" />
+                            ₹{supplier.registrationAmount}
+                          </p>
+                        </div>
+                      )}
+
+                      {supplier.paymentMethod && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Payment Method</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <CreditCard className="w-4 h-4 text-blue-400" />
+                            {supplier.paymentMethod.charAt(0).toUpperCase() + supplier.paymentMethod.slice(1)}
+                          </p>
+                        </div>
+                      )}
+
+                      {supplier.paymentId && (
+                        <div className="md:col-span-2">
+                          <label className="text-sm font-medium text-slate-400">Payment ID</label>
+                          <p className="text-white font-mono text-sm mt-2 bg-slate-700/30 p-2 rounded">{supplier.paymentId}</p>
+                        </div>
+                      )}
+
+                      {/* Payment Breakdown */}
+                      {(supplier.registrationAmount || supplier.subscriptionAmount) && (
+                        <div className="md:col-span-2">
+                          <label className="text-sm font-medium text-slate-400">Payment Breakdown</label>
+                          <div className="mt-2 bg-slate-700/30 rounded-lg p-4 space-y-2">
+                            {supplier.registrationAmount && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-300">Registration Fee:</span>
+                                <span className="text-white font-medium">₹{supplier.registrationAmount}</span>
+                              </div>
+                            )}
+                            {supplier.subscriptionAmount && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-300">
+                                  Subscription ({supplier.subscriptionDuration || 1} year{(supplier.subscriptionDuration || 1) > 1 ? 's' : ''}):
+                                </span>
+                                <span className="text-white font-medium">₹{supplier.subscriptionAmount}</span>
+                              </div>
+                            )}
+                            {supplier.paymentAmount && (
+                              <>
+                                <hr className="border-slate-600" />
+                                <div className="flex justify-between items-center font-semibold">
+                                  <span className="text-white">Total Amount:</span>
+                                  <span className="text-green-400">₹{supplier.paymentAmount}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Subscription Information */}
+                <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <CalendarDays className="w-5 h-5 text-purple-400" />
+                      Subscription Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {supplier.subscriptionExpiryDate && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Subscription Expires</label>
+                          <div className="mt-2">
+                            {(() => {
+                              const expiryDate = new Date(supplier.subscriptionExpiryDate);
+                              const now = new Date();
+                              const daysRemaining = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                              const isExpired = daysRemaining <= 0;
+                              const isExpiringSoon = daysRemaining <= 30 && daysRemaining > 0;
+
+                              return (
+                                <div className="space-y-2">
+                                  <p className="text-white flex items-center gap-2">
+                                    <CalendarDays className="w-4 h-4 text-purple-400" />
+                                    {expiryDate.toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric'
+                                    })}
+                                  </p>
+                                  <Badge 
+                                    variant="secondary"
+                                    className={`${
+                                      isExpired 
+                                        ? 'bg-red-600/20 text-red-400 border-red-600/30' 
+                                        : isExpiringSoon
+                                        ? 'bg-orange-600/20 text-orange-400 border-orange-600/30'
+                                        : 'bg-green-600/20 text-green-400 border-green-600/30'
+                                    }`}
+                                  >
+                                    {isExpired 
+                                      ? `Expired ${Math.abs(daysRemaining)} days ago`
+                                      : isExpiringSoon
+                                      ? `Expires in ${daysRemaining} days`
+                                      : `${daysRemaining} days remaining`
+                                    }
+                                  </Badge>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      )}
+
+                      {supplier.subscriptionDuration && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Subscription Duration</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <Clock className="w-4 h-4 text-blue-400" />
+                            {supplier.subscriptionDuration} {supplier.subscriptionDuration === 1 ? 'Year' : 'Years'}
+                          </p>
+                        </div>
+                      )}
+
+                      {supplier.subscriptionAmount && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Subscription Amount</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <DollarSign className="w-4 h-4 text-green-400" />
+                            ₹{supplier.subscriptionAmount}
+                          </p>
+                        </div>
+                      )}
+
+                      {supplier.submittedAt && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-400">Registration Date</label>
+                          <p className="text-white flex items-center gap-2 mt-2">
+                            <Calendar className="w-4 h-4 text-blue-400" />
+                            {new Date(supplier.submittedAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Renewal Warning */}
+                    {supplier.subscriptionExpiryDate && (() => {
+                      const expiryDate = new Date(supplier.subscriptionExpiryDate);
+                      const now = new Date();
+                      const daysRemaining = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                      const isExpiringSoon = daysRemaining <= 30 && daysRemaining > 0;
+                      const isExpired = daysRemaining <= 0;
+
+                      if (isExpired || isExpiringSoon) {
+                        return (
+                          <div className={`p-4 rounded-lg border ${
+                            isExpired 
+                              ? 'bg-red-600/10 border-red-600/30' 
+                              : 'bg-orange-600/10 border-orange-600/30'
+                          }`}>
+                            <div className="flex items-start gap-3">
+                              <AlertCircle className={`w-5 h-5 mt-0.5 ${
+                                isExpired ? 'text-red-400' : 'text-orange-400'
+                              }`} />
+                              <div>
+                                <h4 className={`font-medium ${
+                                  isExpired ? 'text-red-300' : 'text-orange-300'
+                                }`}>
+                                  {isExpired ? 'Subscription Expired' : 'Subscription Expiring Soon'}
+                                </h4>
+                                <p className="text-slate-300 text-sm mt-1">
+                                  {isExpired 
+                                    ? `This supplier's subscription expired ${Math.abs(daysRemaining)} days ago. They may need to renew to continue accessing the platform.`
+                                    : `This supplier's subscription will expire in ${daysRemaining} days. Consider reaching out about renewal options.`
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </CardContent>
                 </Card>
               </div>

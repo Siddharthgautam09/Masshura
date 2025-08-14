@@ -136,9 +136,11 @@ const SupplierDetailPage = () => {
       
       setSupplier(prev => prev ? { ...prev, ...updateData } : null);
       
-      // Send approval emails if status is approved
+      // Send emails based on status
       if (status === 'approved') {
         await sendApprovalEmails();
+      } else if (status === 'rejected') {
+        await sendRejectionEmail();
       }
       
       toast({
@@ -258,6 +260,61 @@ const SupplierDetailPage = () => {
       toast({
         title: "Email Failed",
         description: `Supplier approved but emails failed: ${emailError.text || emailError.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const sendRejectionEmail = async () => {
+    if (!supplier) return;
+
+    try {
+      const REJECTION_SERVICE_ID = "service_gcr919g";
+      const REJECTION_TEMPLATE_ID = "template_zhrmd5l";
+      const REJECTION_PUBLIC_KEY = "_r7BfwEM87Padmulp";
+
+      // Validate EmailJS configuration
+      if (!REJECTION_SERVICE_ID || !REJECTION_TEMPLATE_ID || !REJECTION_PUBLIC_KEY) {
+        console.warn('Rejection EmailJS configuration is missing, skipping email');
+        return;
+      }
+
+      // Validate email before proceeding
+      if (!supplier.email || !supplier.email.includes('@')) {
+        throw new Error('Invalid supplier email address');
+      }
+
+      // Initialize EmailJS
+      emailjs.init(REJECTION_PUBLIC_KEY);
+
+      // Template parameters for rejection email
+      const templateParams = {
+        supplier_name: supplier.contactName || supplier.companyName,
+        company_name: supplier.companyName,
+        to_email: supplier.email,
+        rejection_date: new Date().toLocaleDateString(),
+        ref_no: supplier.refNo || `SUP-${supplier.id.slice(-6)}`,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "We appreciate your interest in partnering with Masshura. After careful review, we are unable to proceed with your application at this time."
+      };
+
+      console.log('Sending rejection email with params:', templateParams);
+
+      // Send rejection email
+      const emailResult = await emailjs.send(REJECTION_SERVICE_ID, REJECTION_TEMPLATE_ID, templateParams);
+      console.log('Rejection email sent successfully:', emailResult);
+
+      toast({ 
+        title: "Rejection Email Sent", 
+        description: "Rejection notification has been sent to the supplier." 
+      });
+
+    } catch (emailError) {
+      console.error("Rejection email sending failed:", emailError);
+      toast({
+        title: "Email Failed",
+        description: `Supplier rejected but email failed: ${emailError.text || emailError.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }

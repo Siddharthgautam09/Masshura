@@ -88,95 +88,6 @@ const SupplierList = () => {
     );
   };
 
-  // Test function to verify EmailJS is working
-  const testEmailJS = async () => {
-    try {
-      const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID = "template_h01qmqi";
-      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
-
-      const testParams = {
-        supplier_name: "Test Supplier",
-        to_email: "your-email@example.com", // CHANGE THIS TO YOUR EMAIL FOR TESTING
-        set_password_link: "http://localhost:8082/set-password?email=test@example.com",
-        company_name: "Test Company Ltd",
-        from_name: "Masshura Team",
-        message: "This is a test email to verify EmailJS integration."
-      };
-
-      console.log('Testing EmailJS with params:', testParams);
-      
-      // Initialize EmailJS
-      emailjs.init(YOUR_PUBLIC_KEY);
-      
-      const result = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, testParams);
-      console.log('Test email sent successfully:', result);
-      toast({ title: "Test Email Sent", description: "EmailJS is working properly! Check your email." });
-    } catch (error) {
-      console.error("EmailJS test failed:", error);
-      
-      let errorMessage = 'Unknown error';
-      if (error && typeof error === 'object' && 'status' in error) {
-        const emailError = error as any;
-        errorMessage = `EmailJS Error (${emailError.status}): ${emailError.text || emailError.message}`;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
-      toast({
-        title: "EmailJS Test Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Test function for the second email template
-  const testSecondTemplate = async () => {
-    try {
-      const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID_2 = "template_acceptance";
-      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
-
-      const testParams = {
-        supplier_name: "Test Supplier",
-        to_email: "your-email@example.com", // CHANGE THIS TO YOUR EMAIL FOR TESTING
-        company_name: "Test Company Ltd",
-        ref_no: "SUP-TEST-001",
-        acceptance_date: new Date().toLocaleDateString(),
-        portal_link: `${window.location.origin}/supplier-portal`,
-        support_email: "support@masshura.com",
-        from_name: "Masshura Team",
-        message: "Welcome to Masshura! Your supplier application has been approved."
-      };
-
-      console.log('Testing second template with params:', testParams);
-      
-      // Initialize EmailJS
-      emailjs.init(YOUR_PUBLIC_KEY);
-      
-      const result = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, testParams);
-      console.log('Second template test email sent successfully:', result);
-      toast({ title: "Template 2 Test Sent", description: "Second email template is working! Check your email." });
-    } catch (error) {
-      console.error("Second template test failed:", error);
-      
-      let errorMessage = 'Unknown error';
-      if (error && typeof error === 'object' && 'status' in error) {
-        const emailError = error as any;
-        errorMessage = `EmailJS Error (${emailError.status}): ${emailError.text || emailError.message}`;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
-      toast({
-        title: "Template 2 Test Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    }
-  };
-  
   const handleApprove = async (supplierId: string, supplierEmail: string, supplierName: string) => {
     try {
       console.log('Starting approval process for:', { supplierId, supplierEmail, supplierName });
@@ -294,9 +205,93 @@ const SupplierList = () => {
   };
 
   const handleReject = async (supplierId: string) => {
-    await updateDoc(doc(db, 'suppliers', supplierId), { status: 'rejected' });
-    updateSupplierStatusInState(supplierId, 'rejected');
-    toast({ title: "Success", description: "Supplier has been rejected.", variant: "destructive" });
+    try {
+      // Find the supplier data to get email and name
+      const supplier = suppliers.find(s => s.id === supplierId);
+      if (!supplier) {
+        throw new Error('Supplier not found');
+      }
+
+      console.log('Starting rejection process for:', { 
+        supplierId, 
+        supplierEmail: supplier.email, 
+        supplierName: supplier.contactPerson || supplier.companyName 
+      });
+
+      // Step 1: Update the supplier's status in Firestore
+      await updateDoc(doc(db, 'suppliers', supplierId), { 
+        status: 'rejected',
+        rejectedAt: new Date().toISOString()
+      });
+      console.log('Firestore update successful');
+      
+      updateSupplierStatusInState(supplierId, 'rejected');
+      toast({ title: "Success", description: "Supplier has been rejected." });
+
+      // Step 2: Send rejection email (if supplier has valid email)
+      if (supplier.email && supplier.email.includes('@')) {
+        await sendRejectionEmail(supplier);
+      } else {
+        console.warn('No valid email found for supplier, skipping rejection email');
+      }
+
+    } catch (error) {
+      console.error("Rejection process failed:", error);
+      toast({
+        title: "Error",
+        description: `Failed to reject supplier: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const sendRejectionEmail = async (supplier: any) => {
+    try {
+      // TODO: Replace with your actual rejection EmailJS configuration
+      const REJECTION_SERVICE_ID = "service_gcr919g";
+      const REJECTION_TEMPLATE_ID = "template_zhrmd5l";
+      const REJECTION_PUBLIC_KEY = "_r7BfwEM87Padmulp";
+
+      // Validate EmailJS configuration
+      if (!REJECTION_SERVICE_ID || !REJECTION_TEMPLATE_ID || !REJECTION_PUBLIC_KEY) {
+        console.warn('Rejection EmailJS configuration is missing, skipping email');
+        return;
+      }
+
+      // Initialize EmailJS
+      emailjs.init(REJECTION_PUBLIC_KEY);
+
+      // Template parameters for rejection email
+      const templateParams = {
+        supplier_name: supplier.contactPerson || supplier.companyName,
+        company_name: supplier.companyName,
+        to_email: supplier.email,
+        rejection_date: new Date().toLocaleDateString(),
+        ref_no: supplier.refNo || `SUP-${supplier.id.slice(-6)}`,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "We appreciate your interest in partnering with Masshura. After careful review, we are unable to proceed with your application at this time."
+      };
+
+      console.log('Sending rejection email with params:', templateParams);
+
+      // Send rejection email
+      const emailResult = await emailjs.send(REJECTION_SERVICE_ID, REJECTION_TEMPLATE_ID, templateParams);
+      console.log('Rejection email sent successfully:', emailResult);
+
+      toast({ 
+        title: "Rejection Email Sent", 
+        description: "Rejection notification has been sent to the supplier." 
+      });
+
+    } catch (emailError) {
+      console.error("Rejection email sending failed:", emailError);
+      toast({
+        title: "Email Failed",
+        description: `Supplier rejected but email failed: ${emailError.text || emailError.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
   };
 
   // New function to handle Accept status (different from approve)
@@ -456,22 +451,6 @@ const SupplierList = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            onClick={testEmailJS}
-            variant="outline"
-            size="sm"
-            className="border-blue-500 text-blue-300 hover:bg-blue-700/50 hover:text-blue-200"
-          >
-            Test EmailJS
-          </Button>
-          <Button
-            onClick={testSecondTemplate}
-            variant="outline"
-            size="sm"
-            className="border-green-500 text-green-300 hover:bg-green-700/50 hover:text-green-200"
-          >
-            Test Template 2
-          </Button>
           <Button
             onClick={refreshSuppliers}
             variant="outline"

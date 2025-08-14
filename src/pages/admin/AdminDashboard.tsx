@@ -139,6 +139,16 @@ const AdminDashboard = () => {
                   </Link>
                 </Button>
                 <Button 
+                  asChild 
+                  variant="outline" 
+                  className="bg-slate-700/50 border-slate-500 text-slate-200 hover:bg-slate-600/70 hover:text-white"
+                >
+                  <Link to="/admin/subscription-settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Subscription Settings
+                  </Link>
+                </Button>
+                <Button 
                   variant="destructive" 
                   onClick={handleLogout}
                   className="bg-red-600/90 hover:bg-red-600 text-white border-red-500"

@@ -108,10 +108,11 @@ const SetPasswordPage = () => {
 
       toast({
         title: "Account Created!",
-        description: "Welcome to your supplier dashboard.",
+        description: "Redirecting to payment setup...",
       });
 
-      navigate('/supplier-dashboard');
+      // Redirect to payment page after successful password creation
+      navigate(`/payment-required?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       console.error('Password setup error:', err);
       

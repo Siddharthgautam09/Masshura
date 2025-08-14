@@ -29,6 +29,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ProtectedRoute = lazy(() => import("./components/auth/ProtectedRoute.tsx"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
 const SupplierDetailPage = lazy(() => import("./pages/admin/SupplierDetailPage"));
+const SubscriptionSettings = lazy(() => import("./pages/admin/SubscriptionSettings"));
 // supplier -----------------------
 const SetPasswordPage = lazy(() => import("./pages/supplier/SetPasswordPage"));
 const SupplierLoginPage = lazy(() => import("./pages/supplier/SupplierLoginPage"));
@@ -127,6 +128,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <SupplierDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/subscription-settings"
+                element={
+                  <ProtectedRoute>
+                    <SubscriptionSettings />
                   </ProtectedRoute>
                 }
               />

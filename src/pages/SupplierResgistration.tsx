@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Upload, FileText, Check, User, Building, Globe, Phone, Mail, Shield, ArrowRight, Paperclip, CheckCircle, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../components/firebase';
 import { useToast } from "@/components/ui/use-toast";
 import { useAllCategories } from '../hooks/useAdminCategories';
@@ -32,6 +32,30 @@ const SupplierRegistration = () => {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState({ tradeLicense: false, catalog: false });
+  const [subscriptionPlans, setSubscriptionPlans] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState('');
+
+  // Fetch subscription plans
+  useEffect(() => {
+    const fetchSubscriptionPlans = async () => {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'subscriptions'));
+        if (settingsDoc.exists()) {
+          const data = settingsDoc.data();
+          const activePlans = (data.plans || []).filter(plan => plan.isActive);
+          setSubscriptionPlans(activePlans);
+          // Set default selection to first plan
+          if (activePlans.length > 0) {
+            setSelectedPlan(activePlans[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching subscription plans:', error);
+      }
+    };
+
+    fetchSubscriptionPlans();
+  }, []);
 
   const handleFileUpload = async (file, type) => {
     setUploading(prev => ({ ...prev, [type]: true }));
@@ -171,15 +195,32 @@ const SupplierRegistration = () => {
         return;
       }
 
+      if (!selectedPlan) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a subscription plan.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Generate a reference number
       const refNo = `SUP-${Date.now()}`;
+      
+      // Get selected plan data
+      const selectedPlanData = subscriptionPlans.find(plan => plan.id === selectedPlan);
       
       // Prepare data for Firestore
       const supplierData = {
         ...formData,
         refNo,
-        status: 'pending',
-        submittedAt: new Date(),
+        status: 'pending_approval',
+        selectedSubscriptionPlan: selectedPlanData,
+        subscriptionAmount: selectedPlanData?.price || 0,
+        subscriptionDuration: selectedPlanData?.duration || 1,
+        paymentStatus: 'pending',
+        createdAt: new Date().toISOString(),
+        submittedAt: new Date().toISOString(),
         tradeLicense: formData.tradeLicense || null,
         catalog: formData.catalog || null,
         isActive: true, // Default to active when first submitted
@@ -726,6 +767,58 @@ const SupplierRegistration = () => {
                 </div>
               </div>
 
+              {/* Subscription Plan Selection */}
+              <div className="bg-gradient-to-br from-[#6AAEFF]/10 to-slate-800/60 backdrop-blur-sm rounded-3xl p-8 border border-[#6AAEFF]/30">
+                <div className="flex items-center space-x-4 mb-6">
+                  <div className="p-3 bg-[#6AAEFF] rounded-xl">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold text-white">🔹 Select Subscription Plan</h2>
+                </div>
+
+                <div className="space-y-4">
+                  {subscriptionPlans.map((plan) => (
+                    <label
+                      key={plan.id}
+                      className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
+                        selectedPlan === plan.id
+                          ? 'border-blue-400 bg-blue-500/10'
+                          : 'border-slate-500 bg-slate-700/30 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          name="subscriptionPlan"
+                          value={plan.id}
+                          checked={selectedPlan === plan.id}
+                          onChange={(e) => setSelectedPlan(e.target.value)}
+                          className="text-blue-600"
+                          required
+                        />
+                        <div>
+                          <div className="text-white font-medium">{plan.label}</div>
+                          <div className="text-slate-400 text-sm">
+                            {plan.duration} year{plan.duration > 1 ? 's' : ''} subscription
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-green-400 font-bold text-lg">₹{plan.price}</div>
+                        <div className="text-slate-400 text-xs">
+                          ₹{Math.round(plan.price / plan.duration)} per year
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                  {subscriptionPlans.length === 0 && (
+                    <div className="text-slate-400 text-center py-4">
+                      Loading subscription plans...
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="bg-gradient-to-br from-[#6AAEFF]/10 to-slate-800/60 backdrop-blur-sm rounded-3xl p-8 border border-[#6AAEFF]/30">
                 <div className="flex items-center space-x-4 mb-6">
                   <div className="p-3 bg-[#6AAEFF] rounded-xl">
@@ -765,7 +858,7 @@ const SupplierRegistration = () => {
                 <motion.button
                   type="submit"
                   className="w-full mt-8 px-8 py-4 bg-[#6AAEFF] text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!formData.confirmAccuracy || !formData.agreeContact || isSubmitting}
+                  disabled={!formData.confirmAccuracy || !formData.agreeContact || !selectedPlan || isSubmitting}
                   whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                 >

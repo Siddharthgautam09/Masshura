@@ -45,6 +45,7 @@ interface SupplierData {
   emirate?: string;
   email?: string;
   status?: string;
+  paymentStatus?: string;
   phone?: string;
   website?: string;
   contactPerson?: string;
@@ -149,6 +150,13 @@ const SupplierDashboard = () => {
 
           if (docSnap.exists()) {
             const supplierData: SupplierData = { id: docSnap.id, ...docSnap.data() };
+            
+            // Check if payment is completed
+            if (supplierData.paymentStatus !== 'completed') {
+              navigate(`/payment-required?email=${encodeURIComponent(supplierData.email || '')}`);
+              return;
+            }
+            
             setSupplier(supplierData);
             
             // Initialize form data with all available fields

@@ -8,7 +8,8 @@ import { auth, db } from '../components/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, CreditCard, ArrowRight } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, CreditCard, ArrowRight, Clock, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
  import PaymentDialog from '@/components/PaymentDialog';
 
@@ -32,9 +33,38 @@ const PaymentRequired = () => {
   const [supplierData, setSupplierData] = useState<SupplierData | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
+  const [isExpired, setIsExpired] = useState(false);
   const navigate = useNavigate();
   
   const email = searchParams.get('email');
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (timeRemaining <= 0) {
+      setIsExpired(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          setIsExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeRemaining]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const fetchSupplierData = async (userId: string) => {
@@ -105,6 +135,31 @@ const PaymentRequired = () => {
               </p>
             </div>
 
+            {/* Timer Display */}
+            {!isExpired ? (
+              <Alert className="bg-orange-500/10 border-orange-500/20">
+                <Clock className="h-4 w-4 text-orange-400" />
+                <AlertDescription className="text-orange-200">
+                  <div className="flex items-center justify-between">
+                    <span>Payment link expires in:</span>
+                    <Badge variant="outline" className="text-orange-300 border-orange-300 font-mono text-lg">
+                      {formatTime(timeRemaining)}
+                    </Badge>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert className="bg-red-500/10 border-red-500/20">
+                <AlertTriangle className="h-4 w-4 text-red-400" />
+                <AlertDescription className="text-red-200">
+                  <div className="space-y-2">
+                    <div className="font-semibold">Payment link has expired</div>
+                    <div className="text-sm">Please contact support or go back to generate a new payment link.</div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {supplierData && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -125,12 +180,38 @@ const PaymentRequired = () => {
             )}
 
             <Button
-              onClick={() => setShowPaymentDialog(true)}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 text-base font-semibold"
+              onClick={() => !isExpired && setShowPaymentDialog(true)}
+              disabled={isExpired}
+              className={`w-full py-3 text-base font-semibold ${
+                isExpired 
+                  ? 'bg-gray-600 cursor-not-allowed opacity-50' 
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+              } text-white`}
             >
-              <ArrowRight className="w-5 h-5 mr-2" />
-              Proceed to Payment
+              {isExpired ? (
+                <>
+                  <AlertTriangle className="w-5 h-5 mr-2" />
+                  Payment Link Expired
+                </>
+              ) : (
+                <>
+                  <ArrowRight className="w-5 h-5 mr-2" />
+                  Proceed to Payment
+                </>
+              )}
             </Button>
+
+            {isExpired && (
+              <div className="text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.reload()}
+                  className="text-blue-400 border-blue-400 hover:bg-blue-400/10"
+                >
+                  Generate New Payment Link
+                </Button>
+              </div>
+            )}
 
             <div className="text-center">
               <p className="text-xs text-slate-400">

@@ -97,108 +97,65 @@ const SupplierList = () => {
         throw new Error('Invalid supplier email address');
       }
       
-      // Step 1: Update the supplier's status in Firestore
-      await updateDoc(doc(db, 'suppliers', supplierId), { status: 'approved' });
+      // Step 1: Update the supplier's status and activate them in Firestore
+      await updateDoc(doc(db, 'suppliers', supplierId), { 
+        status: 'approved',
+        isActive: true,
+        approvedAt: new Date().toISOString()
+      });
       console.log('Firestore update successful');
       
       // Update the state locally to reflect the change instantly
       updateSupplierStatusInState(supplierId, 'approved');
-      toast({ title: "Success", description: "Supplier has been approved." });
+      toast({ title: "Success", description: "Supplier has been approved and activated." });
 
-      // Step 2: Send TWO approval emails using EmailJS
+      // Step 2: Send approval welcome email using EmailJS
       const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";      // First template (Account Setup)
-      const YOUR_TEMPLATE_ID_2 = "template_4up1wxm";    // Second template (Welcome/Instructions)
+      const YOUR_TEMPLATE_ID = "template_4up1wxm";    // Welcome/Instructions template only
       const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
 
       // Validate EmailJS configuration
-      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID_1 || !YOUR_TEMPLATE_ID_2 || !YOUR_PUBLIC_KEY) {
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID || !YOUR_PUBLIC_KEY) {
         throw new Error('EmailJS configuration is missing');
       }
-
-      // Construct the password link
-      // IMPORTANT: Replace with your actual deployed website URL for production
-      const setPasswordLink = `http://localhost:8080/set-password?email=${encodeURIComponent(supplierEmail)}`;
-      // For production use: `https://yourdomain.com/set-password?email=${encodeURIComponent(supplierEmail)}`;
 
       // Initialize EmailJS with your public key first
       emailjs.init(YOUR_PUBLIC_KEY);
 
-      // Template parameters for first email (Account Setup)
-      const templateParams1 = {
-        supplier_name: supplierName,
-        to_email: supplierEmail,
-        set_password_link: setPasswordLink,
-        company_name: supplierName, // You may want to get actual company name from supplier data
-        from_name: "Masshura Team"
-      };
+      // Construct the password setup link
+      const setPasswordLink = `${window.location.origin}/set-password?email=${encodeURIComponent(supplierEmail)}`;
 
-      // Template parameters for second email (Welcome/Instructions)
-      const templateParams2 = {
+      // Template parameters for welcome email (Welcome/Instructions)
+      const templateParams = {
         supplier_name: supplierName,
         to_email: supplierEmail,
         company_name: supplierName, // You may want to get actual company name from supplier data
         ref_no: `SUP-${supplierId.slice(-6)}`,
         acceptance_date: new Date().toLocaleDateString(),
         portal_link: `${window.location.origin}/supplier-portal`,
+        set_password_link: setPasswordLink,
         support_email: "support@masshura.com",
         from_name: "Masshura Team",
         message: "Welcome to Masshura! Your supplier application has been approved."
       };
 
-      console.log('Sending approval emails with params:', { templateParams1, templateParams2 });
+      console.log('Sending approval welcome email with params:', templateParams);
 
-      // Send first email (Account Setup)
-      const emailResult1 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, templateParams1);
-      console.log('First approval email sent successfully:', emailResult1);
-      
-      // Send second email (Welcome Instructions)
-      const emailResult2 = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_2, templateParams2);
-      console.log('Second approval email sent successfully:', emailResult2);
+      // Send welcome email
+      const emailResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, templateParams);
+      console.log('Approval welcome email sent successfully:', emailResult);
 
       toast({ 
-        title: "Approval Emails Sent", 
-        description: "Both approval emails have been sent to the supplier." 
+        title: "Welcome Email Sent", 
+        description: "Approval welcome email has been sent to the supplier." 
       });
 
     } catch (error) {
       console.error("Approval process failed:", error);
       
-      // Try to send at least the first email if both failed
-      try {
-        if (error.message?.includes('template_4up1wxm') || error.message?.includes('second')) {
-          // If second template failed, try to send at least the first one
-          const YOUR_SERVICE_ID = "service_6qlid92";
-          const YOUR_TEMPLATE_ID_1 = "template_h01qmqi";
-          const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
-          
-          emailjs.init(YOUR_PUBLIC_KEY);
-          const setPasswordLink = `http://localhost:8080/set-password?email=${encodeURIComponent(supplierEmail)}`;
-          
-          const fallbackParams = {
-            supplier_name: supplierName,
-            to_email: supplierEmail,
-            set_password_link: setPasswordLink,
-            company_name: supplierName,
-            from_name: "Masshura Team"
-          };
-          
-          const fallbackResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID_1, fallbackParams);
-          console.log('Fallback approval email sent successfully:', fallbackResult);
-          
-          toast({ 
-            title: "Partial Success", 
-            description: "Supplier approved. Account setup email sent, but welcome email failed." 
-          });
-          return;
-        }
-      } catch (fallbackError) {
-        console.error('Fallback email also failed:', fallbackError);
-      }
-      
       toast({
         title: "Email Failed",
-        description: `Could not send approval emails. Error: ${error.text || error.message || 'Unknown error'}`,
+        description: `Supplier approved but could not send welcome email. Error: ${error.text || error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -382,6 +339,19 @@ const SupplierList = () => {
 
   // Function to toggle active status
   const handleToggleActive = async (supplierId: string, currentActive: boolean) => {
+    // Find the supplier to check their status
+    const supplier = suppliers.find(s => s.id === supplierId);
+    
+    // Only allow toggling active status for approved suppliers
+    if (supplier?.status !== 'approved') {
+      toast({
+        title: "Cannot Toggle Status",
+        description: "Only approved suppliers can be activated/deactivated.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newActiveStatus = !currentActive;
     await updateDoc(doc(db, 'suppliers', supplierId), { 
       isActive: newActiveStatus,

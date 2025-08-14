@@ -5,6 +5,7 @@ import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../components/firebase';
 import { useToast } from "@/components/ui/use-toast";
 import { useAllCategories } from '../hooks/useAdminCategories';
+import emailjs from '@emailjs/browser';
 
 const SupplierRegistration = () => {
   const { toast } = useToast();
@@ -229,7 +230,7 @@ const SupplierRegistration = () => {
         submittedAt: new Date().toISOString(),
         tradeLicense: formData.tradeLicense || null,
         catalog: formData.catalog || null,
-        isActive: true, // Default to active when first submitted
+        isActive: false, // Inactive until approved by admin
         expiryDate: null, // Will be set when accepted and payment is made
       };
 
@@ -240,6 +241,43 @@ const SupplierRegistration = () => {
         title: "Success!",
         description: `Registration submitted successfully. Reference: ${refNo}`,
       });
+
+      // Send confirmation email to supplier
+      try {
+        const YOUR_SERVICE_ID = "service_6qlid92";
+        const YOUR_TEMPLATE_ID = "template_h01qmqi";      // Account Setup template
+        const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+        // Initialize EmailJS
+        emailjs.init(YOUR_PUBLIC_KEY);
+
+        // Template parameters for registration confirmation email
+        const templateParams = {
+          supplier_name: formData.contactPerson,
+          to_email: formData.email,
+          company_name: formData.companyName,
+          ref_no: refNo,
+          submission_date: new Date().toLocaleDateString(),
+          from_name: "Masshura Team"
+        };
+
+        // Send confirmation email
+        await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, templateParams);
+        console.log('Registration confirmation email sent successfully');
+        
+        toast({
+          title: "Email Sent",
+          description: "A confirmation email has been sent to your registered email address.",
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the registration if email fails
+        toast({
+          title: "Registration Successful",
+          description: "Registration submitted successfully, but confirmation email could not be sent.",
+          variant: "default",
+        });
+      }
 
       setSubmitted(true);
       

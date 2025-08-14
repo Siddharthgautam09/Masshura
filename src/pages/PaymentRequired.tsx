@@ -123,13 +123,13 @@ const PaymentRequired = () => {
             </CardTitle>
             <p className="text-slate-300 text-base">
               Your password has been successfully created for{' '}
-              <strong className="text-blue-400">{email}</strong>
+              <strong className="text-slate-100">{email}</strong>
             </p>
           </CardHeader>
           
           <CardContent className="space-y-6">
             <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600/30">
-              <h3 className="font-semibold text-white mb-2">Next Step (Step 3):</h3>
+              <h3 className="font-semibold text-white mb-2">Registration Payment</h3>
               <p className="text-slate-300 text-sm">
                 Complete a small one-time registration payment to finish your sign-up and unlock portal access.
               </p>
@@ -137,21 +137,21 @@ const PaymentRequired = () => {
 
             {/* Timer Display */}
             {!isExpired ? (
-              <Alert className="bg-orange-500/10 border-orange-500/20">
-                <Clock className="h-4 w-4 text-orange-400" />
-                <AlertDescription className="text-orange-200">
+              <Alert className="bg-slate-600/20 border-slate-500/30">
+                <Clock className="h-4 w-4 text-slate-300" />
+                <AlertDescription className="text-slate-200">
                   <div className="flex items-center justify-between">
                     <span>Payment link expires in:</span>
-                    <Badge variant="outline" className="text-orange-300 border-orange-300 font-mono text-lg">
+                    <Badge variant="outline" className="text-slate-200 border-slate-400 font-mono text-lg bg-slate-700/50">
                       {formatTime(timeRemaining)}
                     </Badge>
                   </div>
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert className="bg-red-500/10 border-red-500/20">
-                <AlertTriangle className="h-4 w-4 text-red-400" />
-                <AlertDescription className="text-red-200">
+              <Alert className="bg-slate-700/30 border-slate-500/50">
+                <AlertTriangle className="h-4 w-4 text-slate-300" />
+                <AlertDescription className="text-slate-200">
                   <div className="space-y-2">
                     <div className="font-semibold">Payment link has expired</div>
                     <div className="text-sm">Please contact support or go back to generate a new payment link.</div>
@@ -184,9 +184,9 @@ const PaymentRequired = () => {
               disabled={isExpired}
               className={`w-full py-3 text-base font-semibold ${
                 isExpired 
-                  ? 'bg-gray-600 cursor-not-allowed opacity-50' 
-                  : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-              } text-white`}
+                  ? 'bg-slate-600 cursor-not-allowed opacity-50' 
+                  : 'bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800'
+              } text-white border-0`}
             >
               {isExpired ? (
                 <>
@@ -206,7 +206,7 @@ const PaymentRequired = () => {
                 <Button
                   variant="outline"
                   onClick={() => window.location.reload()}
-                  className="text-blue-400 border-blue-400 hover:bg-blue-400/10"
+                  className="text-slate-300 border-slate-400 hover:bg-slate-700/30 hover:text-white"
                 >
                   Generate New Payment Link
                 </Button>
@@ -216,7 +216,7 @@ const PaymentRequired = () => {
             <div className="text-center">
               <p className="text-xs text-slate-400">
                 Need help? Contact us at{' '}
-                <a href="mailto:support@maashura.com" className="text-blue-400 hover:text-blue-300">
+                <a href="mailto:support@maashura.com" className="text-slate-300 hover:text-white underline">
                   support@maashura.com
                 </a>
               </p>

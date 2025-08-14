@@ -46,6 +46,14 @@ interface SupplierData {
   email?: string;
   status?: string;
   paymentStatus?: string;
+  selectedSubscriptionPlan?: {
+    id: string;
+    label: string;
+    price: number;
+    duration: number;
+  };
+  subscriptionDuration?: number;
+  subscriptionExpiryDate?: string;
   phone?: string;
   website?: string;
   contactPerson?: string;
@@ -72,6 +80,14 @@ const SupplierDashboard = () => {
   // State for file uploads
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Add this function to calculate expiry date
+  const calculateExpiryDate = (createdAt: string, duration: number) => {
+    const startDate = new Date(createdAt);
+    const expiryDate = new Date(startDate);
+    expiryDate.setFullYear(expiryDate.getFullYear() + duration);
+    return expiryDate;
+  };
 
   // Enhanced form data state
   const [formData, setFormData] = useState({
@@ -490,6 +506,54 @@ const SupplierDashboard = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Subscription Status Card */}
+              <motion.div 
+                className="mt-8"
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.35 }}
+              >
+                <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl hover:shadow-blue-500/10 transition-all duration-300">
+                  <CardHeader>
+                    <CardTitle className="text-white text-xl font-bold flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                        <Shield className="w-4 h-4 text-white" />
+                      </div>
+                      Subscription Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400 text-sm">Plan:</span>
+                      <span className="text-white font-medium">
+                        {supplier.selectedSubscriptionPlan?.label || 'Standard'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400 text-sm">Duration:</span>
+                      <span className="text-white">
+                        {supplier.subscriptionDuration || 1} year{(supplier.subscriptionDuration && supplier.subscriptionDuration > 1) ? 's' : ''}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400 text-sm">Expires On:</span>
+                      <span className="text-white font-medium">
+                        {supplier.subscriptionExpiryDate ? 
+                          new Date(supplier.subscriptionExpiryDate).toLocaleDateString() 
+                          : 'N/A'
+                        }
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400 text-sm">Status:</span>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-400/30">
+                        Active
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </motion.div>
 
             {/* Profile Details Card */}

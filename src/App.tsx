@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
+import PaymentRequired from "./pages/PaymentRequired";
 
 // Lazy load components for better performance
 const Home = lazy(() => import("./pages/Home"));
@@ -15,8 +16,12 @@ const ProductsPage = lazy(() => import("./pages/ProductsPage"));
 const HardwarePage = lazy(() => import("./pages/HardwarePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const SupplierRegistration = lazy(() => import("./pages/SupplierResgistration"));
-const SupplierRegistrationPage = lazy(() => import("./pages/SupplierRegistrationPage"));
+const SupplierRegistration = lazy(
+  () => import("./pages/SupplierResgistration")
+);
+const SupplierRegistrationPage = lazy(
+  () => import("./pages/SupplierRegistrationPage")
+);
 const ItConsulting = lazy(() => import("./pages/ItConsulting"));
 const Services = lazy(() => import("./components/Services"));
 const WhyUs = lazy(() => import("./components/WhyUs"));
@@ -26,15 +31,24 @@ const ItHardware = lazy(() => import("./pages/ItHardware"));
 // --- ADDED: Lazy load admin components ---
 const LoginPage = lazy(() => import("./pages/admin/LoginPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const ProtectedRoute = lazy(() => import("./components/auth/ProtectedRoute.tsx"));
+const ProtectedRoute = lazy(
+  () => import("./components/auth/ProtectedRoute.tsx")
+);
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
-const SupplierDetailPage = lazy(() => import("./pages/admin/SupplierDetailPage"));
-const SubscriptionSettings = lazy(() => import("./pages/admin/SubscriptionSettings"));
+const SupplierDetailPage = lazy(
+  () => import("./pages/admin/SupplierDetailPage")
+);
+const SubscriptionSettings = lazy(
+  () => import("./pages/admin/SubscriptionSettings")
+);
 // supplier -----------------------
 const SetPasswordPage = lazy(() => import("./pages/supplier/SetPasswordPage"));
-const SupplierLoginPage = lazy(() => import("./pages/supplier/SupplierLoginPage"));
-const SupplierDashboard = lazy(() => import("./pages/supplier/SupplierDashboard"));
-
+const SupplierLoginPage = lazy(
+  () => import("./pages/supplier/SupplierLoginPage")
+);
+const SupplierDashboard = lazy(
+  () => import("./pages/supplier/SupplierDashboard")
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,9 +56,9 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 5, // 5 minutes
       retry: (failureCount, error) => {
         // Don't retry on mobile if network is slow
-        if (typeof navigator !== 'undefined' && 'connection' in navigator) {
+        if (typeof navigator !== "undefined" && "connection" in navigator) {
           const connection = (navigator as any).connection;
-          if (connection && connection.effectiveType === 'slow-2g') {
+          if (connection && connection.effectiveType === "slow-2g") {
             return false;
           }
         }
@@ -67,10 +81,17 @@ const RouteLoader = () => (
 const App = () => {
   // Mobile optimization: Disable animations on slow devices
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && 'connection' in navigator) {
+    if (typeof navigator !== "undefined" && "connection" in navigator) {
       const connection = (navigator as any).connection;
-      if (connection && (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g')) {
-        document.documentElement.style.setProperty('--animation-duration', '0ms');
+      if (
+        connection &&
+        (connection.effectiveType === "slow-2g" ||
+          connection.effectiveType === "2g")
+      ) {
+        document.documentElement.style.setProperty(
+          "--animation-duration",
+          "0ms"
+        );
       }
     }
   }, []);
@@ -90,9 +111,17 @@ const App = () => {
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/hardware" element={<HardwarePage />} />
               <Route path="/contact" element={<ContactPage />} />
+              // Add this route
+              <Route path="/payment-required" element={<PaymentRequired />} />
               <Route path="*" element={<NotFound />} />
-              <Route path="/supplier-registration" element={<SupplierRegistrationPage />} />
-              <Route path="/SupplierRegistration" element={<SupplierRegistration />} />
+              <Route
+                path="/supplier-registration"
+                element={<SupplierRegistrationPage />}
+              />
+              <Route
+                path="/SupplierRegistration"
+                element={<SupplierRegistration />}
+              />
               <Route path="/ItConsulting" element={<ItConsulting />} />
               <Route path="/Services" element={<Services />} />
               <Route path="/WhyUs" element={<WhyUs />} />
@@ -100,12 +129,13 @@ const App = () => {
               <Route path="/ItHardware" element={<ItHardware />} />
               <Route path="/set-password" element={<SetPasswordPage />} />
               <Route path="/supplier-login" element={<SupplierLoginPage />} />
-              <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
-              
+              <Route
+                path="/supplier-dashboard"
+                element={<SupplierDashboard />}
+              />
               {/* --- ADDED: Admin and Login Routes --- */}
               {/* This is the public route for the admin login page */}
               <Route path="/login" element={<LoginPage />} />
-
               {/* This is the protected route for the admin dashboard */}
               <Route
                 path="/admin"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../components/firebase';
@@ -14,7 +14,8 @@ import { Lock, Eye, EyeOff, Shield, ArrowLeft } from 'lucide-react';
 const SetPasswordPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const email = params.get('email') || '';
+  const urlEmail = params.get('email') || '';
+  const [email, setEmail] = useState(urlEmail);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +23,16 @@ const SetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { toast } = useToast();
+
+  // Debug log to check email parameter
+  useEffect(() => {
+    console.log('Email from URL params:', urlEmail);
+    console.log('All URL params:', Object.fromEntries(params.entries()));
+    
+    if (urlEmail) {
+      setEmail(urlEmail);
+    }
+  }, [urlEmail, params]);
 
   // Password validation
   const validatePassword = (pwd: string) => {
@@ -58,8 +69,23 @@ const SetPasswordPage = () => {
       return;
     }
 
-    if (!email) {
+    if (!email || !email.trim()) {
       setError('Email is required');
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      setError('Please enter a valid email address');
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -67,13 +93,46 @@ const SetPasswordPage = () => {
 
     try {
       toast({
-        title: "Creating Account",
+        title: "Setting Up Account",
         description: "Setting up your supplier account...",
       });
 
-      // Create Auth user with better error handling
-      const userCred = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCred.user;
+      let user;
+      let userCreated = false;
+
+      try {
+        // Try to create new Auth user
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        user = userCred.user;
+        userCreated = true;
+      } catch (createError: any) {
+        if (createError.code === 'auth/email-already-in-use') {
+          // User already exists, try to sign in with the new password
+          try {
+            const signInCred = await signInWithEmailAndPassword(auth, email, password);
+            user = signInCred.user;
+            toast({
+              title: "Account Found",
+              description: "Signed in with existing account.",
+            });
+          } catch (signInError: any) {
+            // If sign in fails, the user exists but password is different
+            setError('Account already exists with a different password. Please use the correct password or contact support.');
+            toast({
+              title: "Password Mismatch",
+              description: "Account exists but password is incorrect. Please try the correct password.",
+              variant: "destructive",
+            });
+            return;
+          }
+        } else {
+          throw createError; // Re-throw other errors
+        }
+      }
+
+      if (!user) {
+        throw new Error('Failed to authenticate user');
+      }
 
       // Find and migrate their supplier Firestore doc
       const q = query(collection(db, 'suppliers'), where('email', '==', email));
@@ -85,14 +144,23 @@ const SetPasswordPage = () => {
           ...prevDoc.data(),
           authUid: user.uid,
           accountCreatedAt: new Date().toISOString(),
-          status: 'active'
+          status: 'active',
+          passwordSetAt: new Date().toISOString()
         };
         
-        // Copy their data into a new doc, named by user.uid
-        await setDoc(doc(db, 'suppliers', user.uid), supplierData);
+        // Check if user document with this UID already exists
+        const existingUserDoc = doc(db, 'suppliers', user.uid);
         
-        // Delete the old doc to avoid duplicates
-        await deleteDoc(prevDoc.ref);
+        if (prevDoc.id !== user.uid) {
+          // Copy their data into a new doc, named by user.uid
+          await setDoc(existingUserDoc, supplierData);
+          
+          // Delete the old doc to avoid duplicates
+          await deleteDoc(prevDoc.ref);
+        } else {
+          // Update existing document
+          await setDoc(existingUserDoc, supplierData, { merge: true });
+        }
       } else {
         // Create new supplier document if none exists
         await setDoc(doc(db, 'suppliers', user.uid), {
@@ -107,7 +175,7 @@ const SetPasswordPage = () => {
       await signInWithEmailAndPassword(auth, email, password);
 
       toast({
-        title: "Account Created!",
+        title: "Account Setup Complete!",
         description: "Redirecting to payment setup...",
       });
 
@@ -117,17 +185,9 @@ const SetPasswordPage = () => {
       console.error('Password setup error:', err);
       
       // Handle specific Firebase auth errors
-      let errorMessage = 'Error creating account. Please try again.';
+      let errorMessage = 'Error setting up account. Please try again.';
       
       switch (err.code) {
-        case 'auth/email-already-in-use':
-          errorMessage = 'Account already exists. Redirecting to login...';
-          toast({
-            title: "Account Exists",
-            description: "Redirecting to login page...",
-          });
-          setTimeout(() => navigate(`/supplier-login?email=${email}`), 2000);
-          break;
         case 'auth/weak-password':
           errorMessage = 'Password is too weak. Please choose a stronger password.';
           break;
@@ -182,13 +242,63 @@ const SetPasswordPage = () => {
               Set Your Password
             </CardTitle>
             <p className="text-slate-300 text-sm">
-              Complete your supplier account setup for
+              Complete your supplier account setup
             </p>
-            <p className="text-blue-400 font-semibold mt-1">{email}</p>
+            {email ? (
+              <p className="text-blue-400 font-semibold mt-1">{email}</p>
+            ) : (
+              <p className="text-yellow-400 text-xs mt-1">Please enter your email address below</p>
+            )}
           </CardHeader>
 
           <CardContent className="space-y-6">
+            {/* Debug Information */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-600/30">
+                <p className="text-xs text-slate-400 mb-2">Debug Info:</p>
+                <p className="text-xs text-slate-300">URL Email: {urlEmail || 'None'}</p>
+                <p className="text-xs text-slate-300">Current Email: {email || 'None'}</p>
+                <p className="text-xs text-slate-300">URL: {window.location.href}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSetPassword} className="space-y-6">
+              {/* Email Field (if not provided in URL) */}
+              {!urlEmail && (
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-300 font-medium">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="Enter your email address"
+                    className="bg-slate-700/60 border-slate-600/50 text-white placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-400/20"
+                  />
+                </div>
+              )}
+
+              {/* Test email functionality */}
+              {process.env.NODE_ENV === 'development' && !email && (
+                <div className="bg-yellow-900/20 p-3 rounded-lg border border-yellow-400/30">
+                  <p className="text-yellow-400 text-sm font-medium mb-2">Testing Mode</p>
+                  <p className="text-xs text-slate-300 mb-2">
+                    To test this page, add ?email=test@example.com to the URL or enter email below.
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setEmail('test@supplier.com')}
+                    className="bg-yellow-600/20 text-yellow-400 border-yellow-400/30 hover:bg-yellow-600/30"
+                  >
+                    Use Test Email
+                  </Button>
+                </div>
+              )}
+
               {/* Password Field */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-slate-300 font-medium">

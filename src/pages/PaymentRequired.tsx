@@ -76,30 +76,13 @@ const PaymentRequired = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 pt-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="w-full max-w-md"
       >
-        {/* Progress Bar */}
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center space-x-4 mb-4">
-            <div className="flex items-center">
-              <CheckCircle className="w-6 h-6 text-green-400 mr-2" />
-              <span className="text-green-400 font-medium">Step 1: Verification</span>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400" />
-            <div className="flex items-center">
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-2">
-                <span className="text-white text-xs font-bold">3</span>
-              </div>
-              <span className="text-blue-400 font-medium">Step 3: Payment</span>
-            </div>
-          </div>
-        </div>
-
         <Card className="bg-slate-800/90 border-slate-600/50 shadow-2xl backdrop-blur-sm">
           <CardHeader className="text-center pb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -166,19 +149,12 @@ const PaymentRequired = () => {
       </motion.div>
 
       {/* Payment Dialog */}
-      {/* TODO: Implement PaymentDialog component */}
       {showPaymentDialog && supplierData && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-white mb-4">Payment Processing</h3>
-            <p className="text-slate-300 mb-4">
-              Payment functionality will be implemented here.
-            </p>
-            <Button onClick={() => setShowPaymentDialog(false)}>
-              Close
-            </Button>
-          </div>
-        </div>
+        <PaymentDialog
+          isOpen={showPaymentDialog}
+          onClose={() => setShowPaymentDialog(false)}
+          supplierData={supplierData}
+        />
       )}
     </div>
   );

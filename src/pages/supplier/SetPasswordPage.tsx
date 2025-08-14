@@ -94,33 +94,84 @@ const SetPasswordPage = () => {
     try {
       toast({
         title: "Setting Up Account",
-        description: "Setting up your supplier account...",
+        description: "Checking supplier registration and setting up account...",
       });
+
+      // First, check if this email exists in the suppliers collection
+      const supplierQuery = query(collection(db, 'suppliers'), where('email', '==', email));
+      const supplierSnapshot = await getDocs(supplierQuery);
+      
+      if (supplierSnapshot.empty) {
+        setError('No supplier registration found for this email. Please contact support.');
+        toast({
+          title: "Registration Not Found",
+          description: "No supplier registration found for this email address.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const supplierDoc = supplierSnapshot.docs[0];
+      const supplierData = supplierDoc.data();
+      
+      // Check if supplier is approved
+      if (supplierData.status !== 'approved') {
+        setError('Your supplier application is not yet approved. Please wait for approval.');
+        toast({
+          title: "Not Approved",
+          description: "Your supplier application is pending approval.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       let user;
       let userCreated = false;
 
       try {
-        // Try to create new Auth user
+        // Try to create new Firebase Auth user
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         user = userCred.user;
         userCreated = true;
+        
+        toast({
+          title: "Account Created",
+          description: "Firebase Auth account created successfully.",
+        });
       } catch (createError: any) {
         if (createError.code === 'auth/email-already-in-use') {
-          // User already exists, try to sign in with the new password
-          try {
-            const signInCred = await signInWithEmailAndPassword(auth, email, password);
-            user = signInCred.user;
+          // There's a conflicting Firebase Auth account - try to handle it
+          console.log('Firebase Auth account already exists for:', email);
+          
+          // For development/testing: provide a way to proceed
+          if (window.confirm('A Firebase Auth account already exists for this email. This might be a test account.\n\nClick OK to try signing in with this email (you can then reset the password), or Cancel to contact support.')) {
+            try {
+              // Try to sign in and then immediately reset password
+              toast({
+                title: "Attempting Sign-in",
+                description: "Trying to access existing account...",
+              });
+              
+              // For now, we'll redirect to password reset
+              const resetUrl = `${window.location.origin}/reset-password?email=${encodeURIComponent(email)}`;
+              window.location.href = resetUrl;
+              return;
+              
+            } catch (signInError: any) {
+              console.error('Sign-in failed:', signInError);
+              setError('Could not access existing account. Please contact support to resolve this conflict.');
+              toast({
+                title: "Access Failed",
+                description: "Could not access the existing account. Please contact support.",
+                variant: "destructive",
+              });
+              return;
+            }
+          } else {
+            setError('Please contact support to resolve the account conflict, or try using a different email address.');
             toast({
-              title: "Account Found",
-              description: "Signed in with existing account.",
-            });
-          } catch (signInError: any) {
-            // If sign in fails, the user exists but password is different
-            setError('Account already exists with a different password. Please use the correct password or contact support.');
-            toast({
-              title: "Password Mismatch",
-              description: "Account exists but password is incorrect. Please try the correct password.",
+              title: "Account Conflict",
+              description: "Please contact support to resolve this account conflict.",
               variant: "destructive",
             });
             return;

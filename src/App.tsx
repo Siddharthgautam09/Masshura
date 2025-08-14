@@ -10,6 +10,11 @@ import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import PaymentRequired from "./pages/PaymentRequired";
 
+// Development helpers
+if (process.env.NODE_ENV === 'development') {
+  import('./utils/devHelpers');
+}
+
 // Lazy load components for better performance
 const Home = lazy(() => import("./pages/Home"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage"));
@@ -43,6 +48,7 @@ const SubscriptionSettings = lazy(
 );
 // supplier -----------------------
 const SetPasswordPage = lazy(() => import("./pages/supplier/SetPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/supplier/ResetPasswordPage"));
 const SupplierLoginPage = lazy(
   () => import("./pages/supplier/SupplierLoginPage")
 );
@@ -128,6 +134,7 @@ const App = () => {
               <Route path="/AreaWeServe" element={<AreasWeServe />} />
               <Route path="/ItHardware" element={<ItHardware />} />
               <Route path="/set-password" element={<SetPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/supplier-login" element={<SupplierLoginPage />} />
               <Route
                 path="/supplier-dashboard"

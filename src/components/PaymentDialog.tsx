@@ -12,8 +12,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { CheckCircle, XCircle, ArrowLeft, CreditCard } from 'lucide-react';
 
-// Initialize Stripe (replace with your publishable key)
-const stripePromise = loadStripe('pk_test_your_stripe_publishable_key_here');
+// Initialize Stripe with your test publishable key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 interface PaymentDialogProps {
   isOpen: boolean;
@@ -104,17 +104,22 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
         to_email: supplierData.email,
         payment_amount: `₹${totalAmount}`,
         company_name: supplierData.companyName,
-        payment_date: new Date().toLocaleDateString(),
+        payment_date: new Date().toLocaleDateString('en-IN'),
+        subscription_plan: supplierData.selectedSubscriptionPlan?.label || 'Standard',
+        subscription_duration: `${supplierData.subscriptionDuration || 1} year${(supplierData.subscriptionDuration > 1) ? 's' : ''}`,
+        expiry_date: new Date(Date.now() + (supplierData.subscriptionDuration || 1) * 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
         dashboard_link: `${window.location.origin}/supplier-dashboard`,
       };
 
-      // Use your existing EmailJS configuration
+      // Use your actual service ID, template ID, and public key
       await emailjs.send(
-        'your_service_id', // Replace with your service ID
-        'payment_success_template_id', // Create this template in EmailJS
+        'service_gcr919g', // Replace with your actual service ID
+        'template_6tej786', // Replace with the Template ID you just copied
         templateParams,
-        'your_public_key' // Replace with your public key
+        '_r7BfwEM87Padmulp' // Replace with your actual public key
       );
+      
+      console.log('Payment success email sent successfully');
     } catch (error) {
       console.error('Failed to send payment success email:', error);
     }

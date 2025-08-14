@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import axios from 'axios'; // For making the upload request
+// import emailjs from 'emailjs-com'; // For sending emails - needs to be installed: npm install emailjs-com
 import { auth, db } from '../../components/firebase';
 import { useToast } from "@/hooks/use-toast";
 import { motion } from 'framer-motion';
@@ -87,6 +88,49 @@ const SupplierDashboard = () => {
     const expiryDate = new Date(startDate);
     expiryDate.setFullYear(expiryDate.getFullYear() + duration);
     return expiryDate;
+  };
+
+  // Function to send payment success email
+  const sendPaymentSuccessEmail = async (amount: number) => {
+    if (!supplier) return;
+    
+    try {
+      const templateParams = {
+        supplier_name: supplier.companyName,
+        to_email: supplier.email,
+        payment_amount: `₹${amount}`,
+        company_name: supplier.companyName,
+        payment_date: new Date().toLocaleDateString('en-IN'),
+        subscription_plan: supplier.selectedSubscriptionPlan?.label || 'Standard',
+        subscription_duration: `${supplier.subscriptionDuration || 1} year${(supplier.subscriptionDuration && supplier.subscriptionDuration > 1) ? 's' : ''}`,
+        expiry_date: new Date(Date.now() + (supplier.subscriptionDuration || 1) * 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
+        dashboard_link: `${window.location.origin}/supplier-dashboard`,
+      };
+
+      // Note: Requires emailjs-com package installation and proper configuration
+      // Uncomment the lines below after installing: npm install emailjs-com
+      // await emailjs.send(
+      //   'your_service_id', // Replace with your actual service ID
+      //   'template_abc123d', // Replace with the Template ID you just copied
+      //   templateParams,
+      //   'your_public_key' // Replace with your actual public key
+      // );
+      
+      console.log('Payment success email would be sent with params:', templateParams);
+      
+      toast({
+        title: "Email Notification",
+        description: "Payment confirmation email functionality is ready to be configured.",
+      });
+      
+    } catch (error) {
+      console.error('Failed to send payment success email:', error);
+      toast({
+        title: "Email Error",
+        description: "Failed to send payment confirmation email.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Enhanced form data state

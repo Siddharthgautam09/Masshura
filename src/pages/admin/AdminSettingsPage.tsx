@@ -2,7 +2,7 @@
 
 import React from 'react';
 import CategoryManager from '../../components/admin/CategoryManager';
-import { Settings, Database, Users, Globe, RefreshCw, Plus, CheckCircle, Phone } from 'lucide-react';
+import { Settings, Database, Users, Globe, RefreshCw, Plus, CheckCircle, Phone, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +10,7 @@ import { collection } from 'firebase/firestore';
 import { db } from '../../components/firebase';
 import { populateDefaultCategories } from '../../utils/populateDefaultCategories';
 import { useAllCategories } from '../../hooks/useAdminCategories';
+import { Link } from 'react-router-dom';
 
 const AdminSettingsPage = () => {
   const { toast } = useToast();
@@ -201,6 +202,38 @@ const AdminSettingsPage = () => {
                 title=""
                 categoryName="countryCodes"
               />
+            </div>
+
+            {/* Subscription Settings */}
+            <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-slate-600/30">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-green-500/20 rounded-lg border border-green-400/30">
+                    <CreditCard className="h-6 w-6 text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Subscription Settings</h3>
+                    <p className="text-slate-300 text-sm">Manage subscription plans and renewal amounts</p>
+                  </div>
+                </div>
+                <Link to="/admin/subscription-settings">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Manage Plans
+                  </Button>
+                </Link>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-slate-700/40 rounded-lg border border-slate-600/30">
+                  <div>
+                    <span className="text-white font-medium">Renewal Amounts</span>
+                    <p className="text-slate-400 text-xs">Different pricing for 1, 2, 3, 5+ year renewals</p>
+                  </div>
+                  <div className="text-sm text-purple-400 font-medium">
+                    Configure →
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* System Statistics */}

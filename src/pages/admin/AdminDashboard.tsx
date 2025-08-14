@@ -135,17 +135,7 @@ const AdminDashboard = () => {
                 >
                   <Link to="/admin/settings">
                     <Settings className="mr-2 h-4 w-4" />
-                    Manage Categories
-                  </Link>
-                </Button>
-                <Button 
-                  asChild 
-                  variant="outline" 
-                  className="bg-slate-700/50 border-slate-500 text-slate-200 hover:bg-slate-600/70 hover:text-white"
-                >
-                  <Link to="/admin/subscription-settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Subscription Settings
+                    Admin Settings
                   </Link>
                 </Button>
                 <Button 

@@ -32,29 +32,34 @@ const SupplierRegistration = () => {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState({ tradeLicense: false, catalog: false });
-  const [subscriptionPlans, setSubscriptionPlans] = useState([]);
-  const [selectedPlan, setSelectedPlan] = useState('');
+  const [renewalPlans, setRenewalPlans] = useState([]);
+  const [selectedRenewalPlan, setSelectedRenewalPlan] = useState('');
+  const [registrationAmount, setRegistrationAmount] = useState(500); // Default value
 
-  // Fetch subscription plans
+  // Fetch renewal plans and registration amount
   useEffect(() => {
-    const fetchSubscriptionPlans = async () => {
+    const fetchRenewalPlans = async () => {
       try {
         const settingsDoc = await getDoc(doc(db, 'settings', 'subscriptions'));
         if (settingsDoc.exists()) {
           const data = settingsDoc.data();
-          const activePlans = (data.plans || []).filter(plan => plan.isActive);
-          setSubscriptionPlans(activePlans);
-          // Set default selection to first plan
-          if (activePlans.length > 0) {
-            setSelectedPlan(activePlans[0].id);
+          const activeRenewalPlans = (data.renewalAmounts || []).filter(renewal => renewal.isActive);
+          setRenewalPlans(activeRenewalPlans);
+          // Set default selection to first renewal plan
+          if (activeRenewalPlans.length > 0) {
+            setSelectedRenewalPlan(activeRenewalPlans[0].id);
+          }
+          // Fetch registration amount (keeping this as default)
+          if (data.registrationAmount) {
+            setRegistrationAmount(data.registrationAmount);
           }
         }
       } catch (error) {
-        console.error('Error fetching subscription plans:', error);
+        console.error('Error fetching renewal plans:', error);
       }
     };
 
-    fetchSubscriptionPlans();
+    fetchRenewalPlans();
   }, []);
 
   const handleFileUpload = async (file, type) => {
@@ -195,10 +200,10 @@ const SupplierRegistration = () => {
         return;
       }
 
-      if (!selectedPlan) {
+      if (!selectedRenewalPlan) {
         toast({
           title: "Validation Error",
-          description: "Please select a subscription plan.",
+          description: "Please select a renewal plan.",
           variant: "destructive",
         });
         return;
@@ -207,17 +212,18 @@ const SupplierRegistration = () => {
       // Generate a reference number
       const refNo = `SUP-${Date.now()}`;
       
-      // Get selected plan data
-      const selectedPlanData = subscriptionPlans.find(plan => plan.id === selectedPlan);
+      // Get selected renewal plan data
+      const selectedPlanData = renewalPlans.find(plan => plan.id === selectedRenewalPlan);
       
       // Prepare data for Firestore
       const supplierData = {
         ...formData,
         refNo,
         status: 'pending_approval',
-        selectedSubscriptionPlan: selectedPlanData,
-        subscriptionAmount: selectedPlanData?.price || 0,
-        subscriptionDuration: selectedPlanData?.duration || 1,
+        selectedRenewalPlan: selectedPlanData,
+        renewalAmount: selectedPlanData?.amount || 0,
+        renewalDuration: selectedPlanData?.years || 1,
+        registrationAmount: registrationAmount,
         paymentStatus: 'pending',
         createdAt: new Date().toISOString(),
         submittedAt: new Date().toISOString(),
@@ -767,21 +773,21 @@ const SupplierRegistration = () => {
                 </div>
               </div>
 
-              {/* Subscription Plan Selection */}
+              {/* Renewal Plan Selection */}
               <div className="bg-gradient-to-br from-[#6AAEFF]/10 to-slate-800/60 backdrop-blur-sm rounded-3xl p-8 border border-[#6AAEFF]/30">
                 <div className="flex items-center space-x-4 mb-6">
                   <div className="p-3 bg-[#6AAEFF] rounded-xl">
                     <Shield className="w-6 h-6 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">🔹 Select Subscription Plan</h2>
+                  <h2 className="text-xl font-bold text-white">🔹 Select Renewal Plan</h2>
                 </div>
 
                 <div className="space-y-4">
-                  {subscriptionPlans.map((plan) => (
+                  {renewalPlans.map((plan) => (
                     <label
                       key={plan.id}
                       className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                        selectedPlan === plan.id
+                        selectedRenewalPlan === plan.id
                           ? 'border-blue-400 bg-blue-500/10'
                           : 'border-slate-500 bg-slate-700/30 hover:bg-slate-700/50'
                       }`}
@@ -789,31 +795,31 @@ const SupplierRegistration = () => {
                       <div className="flex items-center space-x-3">
                         <input
                           type="radio"
-                          name="subscriptionPlan"
+                          name="renewalPlan"
                           value={plan.id}
-                          checked={selectedPlan === plan.id}
-                          onChange={(e) => setSelectedPlan(e.target.value)}
+                          checked={selectedRenewalPlan === plan.id}
+                          onChange={(e) => setSelectedRenewalPlan(e.target.value)}
                           className="text-blue-600"
                           required
                         />
                         <div>
                           <div className="text-white font-medium">{plan.label}</div>
                           <div className="text-slate-400 text-sm">
-                            {plan.duration} year{plan.duration > 1 ? 's' : ''} subscription
+                            {plan.years} year{plan.years > 1 ? 's' : ''} renewal plan
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-green-400 font-bold text-lg">₹{plan.price}</div>
+                        <div className="text-blue-400 font-bold text-lg">₹{plan.amount}</div>
                         <div className="text-slate-400 text-xs">
-                          ₹{Math.round(plan.price / plan.duration)} per year
+                          ₹{Math.round(plan.amount / plan.years)} per year
                         </div>
                       </div>
                     </label>
                   ))}
-                  {subscriptionPlans.length === 0 && (
+                  {renewalPlans.length === 0 && (
                     <div className="text-slate-400 text-center py-4">
-                      Loading subscription plans...
+                      Loading renewal plans...
                     </div>
                   )}
                 </div>
@@ -858,7 +864,7 @@ const SupplierRegistration = () => {
                 <motion.button
                   type="submit"
                   className="w-full mt-8 px-8 py-4 bg-[#6AAEFF] text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!formData.confirmAccuracy || !formData.agreeContact || !selectedPlan || isSubmitting}
+                  disabled={!formData.confirmAccuracy || !formData.agreeContact || !selectedRenewalPlan || isSubmitting}
                   whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                 >

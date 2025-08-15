@@ -69,7 +69,7 @@ const AdminSettingsPage = () => {
               Admin <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>
             </h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-              Manage supplier registration categories and system configuration
+              Manage company registration categories and system configuration
             </p>
           </motion.div>
 
@@ -113,7 +113,7 @@ const AdminSettingsPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white">Countries</h3>
-                  <p className="text-slate-300 text-sm">Manage available countries for supplier registration</p>
+                  <p className="text-slate-300 text-sm">Manage available countries for company registration</p>
                 </div>
               </div>
               <CategoryManager
@@ -130,7 +130,7 @@ const AdminSettingsPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white">UAE Emirates</h3>
-                  <p className="text-slate-300 text-sm">Manage available emirates for supplier location</p>
+                  <p className="text-slate-300 text-sm">Manage available emirates for company location</p>
                 </div>
               </div>
               <CategoryManager

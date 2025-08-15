@@ -399,7 +399,7 @@ const SupplierDetailPage = () => {
                 transition={{ delay: 0.5 }}
                 className="text-white font-medium"
               >
-                Loading supplier details...
+                Loading company details...
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}

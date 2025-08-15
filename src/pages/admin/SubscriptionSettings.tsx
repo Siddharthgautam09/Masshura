@@ -157,7 +157,7 @@ const SubscriptionSettings = () => {
             <CardContent>
               <div className="mb-4">
                 <p className="text-slate-300 text-sm mb-4">
-                  Set different renewal amounts for different subscription periods. These rates apply when suppliers renew their existing subscriptions.
+                  Set different renewal amounts for different subscription periods. These rates apply when companies renew their existing subscriptions.
                 </p>
                 <div className="bg-slate-900/50 rounded-lg border border-slate-600/30 overflow-hidden">
                   <table className="w-full">

@@ -123,11 +123,21 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-                    <p className="text-sm text-slate-300">Manage suppliers and system operations</p>
+                    <p className="text-sm text-slate-300">Manage companies and system operations</p>
                   </div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="bg-slate-700/50 border-slate-500 text-slate-200 hover:bg-slate-600/70 hover:text-white"
+                >
+                  <Link to="/admin/payments">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Payment Dashboard
+                  </Link>
+                </Button>
                 <Button 
                   asChild 
                   variant="outline" 
@@ -164,11 +174,11 @@ const AdminDashboard = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatCard
-                title="Total Suppliers"
+                title="Total Companies"
                 value={totalSuppliers}
                 icon={Users}
                 color="from-blue-500 to-blue-600"
-                description="Registered suppliers"
+                description="Registered companies"
               />
               <StatCard
                 title="Pending Approvals"
@@ -178,11 +188,11 @@ const AdminDashboard = () => {
                 description="Awaiting review"
               />
               <StatCard
-                title="Approved Suppliers"
+                title="Approved Companies"
                 value={approvedSuppliers}
                 icon={CheckCircle}
                 color="from-green-500 to-green-600"
-                description="Active suppliers"
+                description="Active companies"
               />
               <StatCard
                 title="Rejected Applications"
@@ -194,7 +204,73 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Supplier Management Section */}
+          {/* Quick Actions Section */}
+          <div className="mb-8">
+            <div className="flex items-center mb-6">
+              <div className="p-2 bg-purple-500/20 rounded-lg border border-purple-400/30 mr-3">
+                <TrendingUp className="h-5 w-5 text-purple-400" />
+              </div>
+              <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="bg-slate-800/60 border-slate-600/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300 cursor-pointer">
+                <Link to="/admin/payments">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-green-500/20 rounded-lg border border-green-400/30">
+                        <TrendingUp className="h-5 w-5 text-green-400" />
+                      </div>
+                      <CardTitle className="text-white text-lg">Payment Dashboard</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-slate-300">
+                      Monitor payment history, subscription status, and revenue analytics
+                    </CardDescription>
+                  </CardContent>
+                </Link>
+              </Card>
+
+              <Card className="bg-slate-800/60 border-slate-600/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300 cursor-pointer">
+                <Link to="/admin/settings">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg border border-blue-400/30">
+                        <Settings className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <CardTitle className="text-white text-lg">Admin Settings</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-slate-300">
+                      Configure system settings, user management, and platform preferences
+                    </CardDescription>
+                  </CardContent>
+                </Link>
+              </Card>
+
+              <Card className="bg-slate-800/60 border-slate-600/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300 cursor-pointer">
+                <Link to="/admin/subscription-settings">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-purple-500/20 rounded-lg border border-purple-400/30">
+                        <Settings className="h-5 w-5 text-purple-400" />
+                      </div>
+                      <CardTitle className="text-white text-lg">Subscription Plans</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-slate-300">
+                      Manage subscription pricing, renewal rates, and plan configurations
+                    </CardDescription>
+                  </CardContent>
+                </Link>
+              </Card>
+            </div>
+          </div>
+
+          {/* Company Management Section */}
           <Card className="bg-slate-800/60 border-slate-600/50 backdrop-blur-sm shadow-lg">
             <CardHeader className="border-b border-slate-600/30 bg-slate-700/30">
               <div className="flex items-center justify-between">
@@ -203,9 +279,9 @@ const AdminDashboard = () => {
                     <Activity className="h-5 w-5 text-blue-400" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl text-white">Supplier Management</CardTitle>
+                    <CardTitle className="text-xl text-white">Company Management</CardTitle>
                     <CardDescription className="text-slate-300">
-                      Review and manage supplier applications
+                      Review and manage company applications
                     </CardDescription>
                   </div>
                 </div>

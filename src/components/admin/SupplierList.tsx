@@ -36,7 +36,7 @@ const SupplierList = () => {
         const supplierList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setSuppliers(supplierList);
       } catch (error) {
-        toast({ title: "Error", description: "Could not fetch supplier data.", variant: "destructive" });
+        toast({ title: "Error", description: "Could not fetch company data.", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }
@@ -51,9 +51,9 @@ const SupplierList = () => {
       const querySnapshot = await getDocs(collection(db, 'suppliers'));
       const supplierList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setSuppliers(supplierList);
-      toast({ title: "Success", description: "Supplier data refreshed." });
+      toast({ title: "Success", description: "Company data refreshed." });
     } catch (error) {
-      toast({ title: "Error", description: "Could not refresh supplier data.", variant: "destructive" });
+      toast({ title: "Error", description: "Could not refresh company data.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +94,7 @@ const SupplierList = () => {
       
       // Validate email before proceeding
       if (!supplierEmail || !supplierEmail.includes('@')) {
-        throw new Error('Invalid supplier email address');
+        throw new Error('Invalid company email address');
       }
       
       // Step 1: Update the supplier's status and activate them in Firestore
@@ -107,7 +107,7 @@ const SupplierList = () => {
       
       // Update the state locally to reflect the change instantly
       updateSupplierStatusInState(supplierId, 'approved');
-      toast({ title: "Success", description: "Supplier has been approved and activated." });
+      toast({ title: "Success", description: "Company has been approved and activated." });
 
       // Step 2: Send approval welcome email using EmailJS
       const YOUR_SERVICE_ID = "service_6qlid92";
@@ -147,7 +147,7 @@ const SupplierList = () => {
 
       toast({ 
         title: "Welcome Email Sent", 
-        description: "Approval welcome email has been sent to the supplier." 
+        description: "Approval welcome email has been sent to the company." 
       });
 
     } catch (error) {
@@ -155,7 +155,7 @@ const SupplierList = () => {
       
       toast({
         title: "Email Failed",
-        description: `Supplier approved but could not send welcome email. Error: ${error.text || error.message || 'Unknown error'}`,
+        description: `Company approved but could not send welcome email. Error: ${error.text || error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -166,7 +166,7 @@ const SupplierList = () => {
       // Find the supplier data to get email and name
       const supplier = suppliers.find(s => s.id === supplierId);
       if (!supplier) {
-        throw new Error('Supplier not found');
+        throw new Error('Company not found');
       }
 
       console.log('Starting rejection process for:', { 
@@ -183,20 +183,20 @@ const SupplierList = () => {
       console.log('Firestore update successful');
       
       updateSupplierStatusInState(supplierId, 'rejected');
-      toast({ title: "Success", description: "Supplier has been rejected." });
+      toast({ title: "Success", description: "Company has been rejected." });
 
       // Step 2: Send rejection email (if supplier has valid email)
       if (supplier.email && supplier.email.includes('@')) {
         await sendRejectionEmail(supplier);
       } else {
-        console.warn('No valid email found for supplier, skipping rejection email');
+        console.warn('No valid email found for company, skipping rejection email');
       }
 
     } catch (error) {
       console.error("Rejection process failed:", error);
       toast({
         title: "Error",
-        description: `Failed to reject supplier: ${error.message || 'Unknown error'}`,
+        description: `Failed to reject company: ${error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -238,14 +238,14 @@ const SupplierList = () => {
 
       toast({ 
         title: "Rejection Email Sent", 
-        description: "Rejection notification has been sent to the supplier." 
+        description: "Rejection notification has been sent to the company." 
       });
 
     } catch (emailError) {
       console.error("Rejection email sending failed:", emailError);
       toast({
         title: "Email Failed",
-        description: `Supplier rejected but email failed: ${emailError.text || emailError.message || 'Unknown error'}`,
+        description: `Company rejected but email failed: ${emailError.text || emailError.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -346,7 +346,7 @@ const SupplierList = () => {
     if (supplier?.status !== 'approved') {
       toast({
         title: "Cannot Toggle Status",
-        description: "Only approved suppliers can be activated/deactivated.",
+        description: "Only approved companies can be activated/deactivated.",
         variant: "destructive"
       });
       return;
@@ -383,7 +383,7 @@ const SupplierList = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-        <span className="ml-3 text-slate-300">Loading suppliers...</span>
+        <span className="ml-3 text-slate-300">Loading companies...</span>
       </div>
     );
   }
@@ -432,12 +432,12 @@ const SupplierList = () => {
             Refresh
           </Button>
           <div className="text-sm text-slate-400">
-            Showing {filteredSuppliers.length} of {suppliers.length} suppliers
+            Showing {filteredSuppliers.length} of {suppliers.length} companies
           </div>
         </div>
       </div>
 
-      {/* Suppliers Table */}
+      {/* Companies Table */}
       <div className="bg-slate-800/60 rounded-lg border border-slate-600/50 shadow-sm overflow-hidden backdrop-blur-sm">
         <div className="overflow-x-auto min-w-full">
           <Table className="min-w-[1200px]">
@@ -668,7 +668,7 @@ const SupplierList = () => {
             <div className="text-slate-400 mb-4">
               <Search className="h-12 w-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-slate-200 mb-2">No suppliers found</h3>
+            <h3 className="text-lg font-medium text-slate-200 mb-2">No companies found</h3>
             <p className="text-slate-400">Try adjusting your search or filter criteria.</p>
           </div>
         )}

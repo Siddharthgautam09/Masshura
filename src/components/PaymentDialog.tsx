@@ -140,6 +140,7 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
                   },
                 },
               },
+              hidePostalCode: true,
             }}
           />
         </CardContent>

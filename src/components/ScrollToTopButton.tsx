@@ -22,7 +22,7 @@ const ScrollToTopButton = () => {
     <AnimatePresence>
       {isVisible && (
         <motion.button
-          className="fixed bottom-8 right-8 bg-gradient-primary text-primary-foreground p-3 rounded-full shadow-glow z-40"
+          className="fixed bottom-8 right-8 bg-blue-700 hover:bg-blue-800 text-white p-3 rounded-xl shadow-lg z-40 transition-colors duration-200"
           onClick={scrollToTop}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -31,7 +31,7 @@ const ScrollToTopButton = () => {
           whileTap={{ scale: 0.9 }}
           transition={{ duration: 0.3 }}
         >
-          <ArrowUp size={24} />
+          <ArrowUp size={24} className="text-white" />
         </motion.button>
       )}
     </AnimatePresence>

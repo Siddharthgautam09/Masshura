@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAllCategories } from '@/hooks/useAdminCategories';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from './firebase';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -82,8 +82,36 @@ const SupplierForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
+      // Check for recent rejection for this email
+      const suppliersRef = collection(db, 'suppliers');
+      const q = query(
+        suppliersRef,
+        where('email', '==', formData.email.trim().toLowerCase()),
+        where('status', '==', 'rejected'),
+        orderBy('rejectedAt', 'desc'),
+        limit(1)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const rejectedDoc = snapshot.docs[0].data();
+        if (rejectedDoc.rejectedAt) {
+          const rejectedTime = new Date(rejectedDoc.rejectedAt).getTime();
+          const now = Date.now();
+          const diffHours = (now - rejectedTime) / (1000 * 60 * 60);
+          if (diffHours < 48) {
+            toast({
+              title: "Submission Blocked",
+              description: "You cannot submit a new application with this email within 48 hours of rejection.",
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+
       // Add supplier to Firebase
       const docRef = await addDoc(collection(db, 'suppliers'), {
         ...formData,
@@ -93,12 +121,10 @@ const SupplierForm = () => {
       });
 
       console.log('Supplier registered with ID: ', docRef.id);
-      
       toast({
         title: "Application Submitted!",
         description: "Your supplier registration has been submitted successfully.",
       });
-      
       setIsSubmitted(true);
     } catch (error: any) {
       console.error('Error submitting form:', error);

@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Code2, 
   Users, 
@@ -11,12 +10,28 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-// import { Boxes } from '@/components/ui/background-boxes';
-import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
+
+// Mock 3D Card Components for demonstration
+const CardContainer = ({ children, className, containerClassName }) => (
+  <div className={`${containerClassName} perspective-1000`}>
+    <div className={className}>{children}</div>
+  </div>
+);
+
+const CardBody = ({ children, className }) => (
+  <div className={`${className} transform-gpu transition-transform duration-300 hover:rotateX-5 hover:rotateY-5`}>
+    {children}
+  </div>
+);
+
+const CardItem = ({ children, className, translateZ, as: Component = 'div', ...props }) => (
+  <Component className={className} {...props}>
+    {children}
+  </Component>
+);
 
 const Services = () => {
   const [expandedService, setExpandedService] = useState(null);
-  const navigate = useNavigate();
 
   const services = [
     {
@@ -82,16 +97,32 @@ const Services = () => {
   ];
 
   const toggleExpand = (serviceId) => {
+    console.log('Toggle expand called for service:', serviceId);
     setExpandedService(expandedService === serviceId ? null : serviceId);
   };
 
+  const handleGetStarted = () => {
+    console.log('Get started clicked');
+    // Replace with your navigation logic
+    alert('Navigate to contact page');
+  };
+
   return (
-    <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden navbar-content-spacing">
-      {/* Background Layer 
-      <div className="absolute inset-0 w-full h-full z-0">
-        <Boxes />
-        <div className="absolute inset-0 bg-slate-900/70 z-10" />
-      </div>*/}
+    <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .transform-gpu {
+          transform-style: preserve-3d;
+        }
+        .hover\\:rotateX-5:hover {
+          transform: rotateX(5deg);
+        }
+        .hover\\:rotateY-5:hover {
+          transform: rotateY(5deg);
+        }
+      `}</style>
 
       {/* Content Layer */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20" style={{ paddingTop: '20px' }}>
@@ -205,12 +236,16 @@ const Services = () => {
                           </AnimatePresence>
                         </CardItem>
 
-                        <div className="flex justify-between items-center flex-shrink-0">
-                          <CardItem
-                            translateZ="20"
-                            as="button"
-                            onClick={() => toggleExpand(service.id)}
-                            className="flex items-center text-[#6AAEFF] hover:text-white transition-colors duration-300 font-medium text-sm px-3 py-2 rounded-lg border border-[#6AAEFF]/30 hover:border-[#6AAEFF] hover:bg-[#6AAEFF]/10 backdrop-blur-sm"
+                        {/* Button Section - Fixed with proper event handling */}
+                        <div className="flex justify-between items-center flex-shrink-0 relative z-50">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleExpand(service.id);
+                            }}
+                            className="flex items-center text-[#6AAEFF] hover:text-white transition-colors duration-300 font-medium text-sm px-3 py-2 rounded-lg border border-[#6AAEFF]/30 hover:border-[#6AAEFF] hover:bg-[#6AAEFF]/10 backdrop-blur-sm cursor-pointer select-none"
+                            type="button"
                           >
                             {isExpanded ? (
                               <>
@@ -221,17 +256,20 @@ const Services = () => {
                                 Learn More <ChevronDown className="ml-1" size={14} />
                               </>
                             )}
-                          </CardItem>
+                          </button>
                           
-                          <CardItem
-                            translateZ="20"
-                            as="button"
-                            className="relative px-4 py-2 rounded-lg bg-[#6AAEFF] text-white text-sm font-bold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-lg hover:shadow-[#6AAEFF]/25 overflow-hidden group"
-                            onClick={() => navigate('/contact')}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleGetStarted();
+                            }}
+                            className="relative px-4 py-2 rounded-lg bg-[#6AAEFF] text-white text-sm font-bold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-lg hover:shadow-[#6AAEFF]/25 overflow-hidden group cursor-pointer select-none"
+                            type="button"
                           >
                             <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <span className="relative z-10">Get Started</span>
-                          </CardItem>
+                          </button>
                         </div>
                       </div>
 

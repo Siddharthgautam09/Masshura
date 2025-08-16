@@ -109,19 +109,11 @@ const Services = () => {
 
   return (
     <section id="services" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-gpu {
-          transform-style: preserve-3d;
-        }
-        .hover\\:rotateX-5:hover {
-          transform: rotateX(5deg);
-        }
-        .hover\\:rotateY-5:hover {
-          transform: rotateY(5deg);
-        }
+      <style>{`
+        .perspective-1000 { perspective: 1000px; }
+        .transform-gpu { transform-style: preserve-3d; }
+        .hover\\:rotateX-5:hover { transform: rotateX(5deg); }
+        .hover\\:rotateY-5:hover { transform: rotateY(5deg); }
       `}</style>
 
       {/* Content Layer */}
@@ -276,11 +268,15 @@ const Services = () => {
                       <CardItem
                         translateZ={80}
                         className="absolute top-3 right-3 w-1.5 h-1.5 bg-[#6AAEFF] rounded-full opacity-60 pointer-events-none"
-                      />
+                      >
+                        <span />
+                      </CardItem>
                       <CardItem
                         translateZ={85}
                         className="absolute bottom-3 right-3 w-1 h-1 bg-white rounded-full opacity-40 pointer-events-none"
-                      />
+                      >
+                        <span />
+                      </CardItem>
 
                       <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/5 via-transparent to-[#6ECCAF]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 pointer-events-none" />
 

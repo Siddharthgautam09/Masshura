@@ -27,6 +27,15 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
+  // Debug Stripe loading
+  useEffect(() => {
+    console.log('Stripe loaded:', !!stripe);
+    console.log('Elements loaded:', !!elements);
+    if (!stripe) {
+      console.error('Stripe failed to load. Check your publishable key.');
+    }
+  }, [stripe, elements]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -125,28 +134,58 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card className="bg-slate-700/50 border-slate-600">
-        <CardContent className="p-4">
-          <CardElement
-            options={{
-              style: {
-                base: {
-                  fontSize: '16px',
-                  color: '#ffffff',
-                  '::placeholder': {
-                    color: '#94a3b8',
+    // If Stripe hasn't loaded yet, show loading state
+    if (!stripe || !elements) {
+      return (
+        <div className="space-y-4">
+          <div className="bg-slate-800/50 p-4 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+              <span className="text-slate-300">Loading payment form...</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="text-sm text-slate-400 bg-slate-800/50 p-3 rounded-lg">
+          <p className="font-medium text-slate-300 mb-1">💳 For Testing - Use These Test Cards:</p>
+          <p>• Success: <code className="bg-slate-700 px-1 rounded">4242 4242 4242 4242</code></p>
+          <p>• Any future expiry date and any 3-digit CVC</p>
+        </div>
+
+        <Card className="bg-slate-700/50 border-slate-600">
+          <CardContent className="p-6">
+            <div className="mb-2">
+              <label className="text-sm font-medium text-slate-300 mb-2 block">
+                Card Information
+              </label>
+            </div>
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: '16px',
+                    color: '#ffffff',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    '::placeholder': {
+                      color: '#94a3b8',
+                    },
+                    iconColor: '#94a3b8',
+                  },
+                  invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a',
                   },
                 },
-              },
-              hidePostalCode: true,
-            }}
-          />
-        </CardContent>
-      </Card>
-
-      <Button
+                hidePostalCode: false,
+              }}
+            />
+          </CardContent>
+        </Card>      <Button
         type="submit"
         disabled={!stripe || isProcessing}
         className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 text-base font-semibold"

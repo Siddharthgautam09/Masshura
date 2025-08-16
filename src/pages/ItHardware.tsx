@@ -49,6 +49,8 @@ const ItHardware = () => {
       <meta name="description" content="Discover reliable IT hardware supply in UAE with Maashura. We serve clinics, schools, trading companies, and SMEs with affordable networking devices, computers, printers, and IT accessories." />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
+        {/* Spacer for desktop view only to prevent badge/header overlap */}
+        <div className="hidden md:block" style={{ height: '32px' }} />
         {/* Header Section with Different Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           {/* Left Side - Content */}

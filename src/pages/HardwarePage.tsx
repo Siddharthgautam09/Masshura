@@ -2,7 +2,7 @@ import Hardware from '@/components/Hardware';
 
 const HardwarePage = () => {
   return (
-    <div className="pt-20">
+    <div className="navbar-content-spacing">
       <Hardware />
     </div>
   );

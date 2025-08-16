@@ -32,7 +32,7 @@ const ItConsulting = () => {
   ];
 
   return (
-    <section className="relative bg-slate-900 overflow-hidden">
+    <section className="relative bg-slate-900 overflow-hidden navbar-content-spacing">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-10 left-10 w-64 h-64 bg-[#6AAEFF]/5 rounded-full blur-3xl animate-pulse" />

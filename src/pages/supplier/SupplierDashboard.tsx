@@ -493,7 +493,7 @@ const SupplierDashboard = () => {
       transition={{ duration: 0.6 }}
     >
       {/* Add proper spacing from navbar */}
-      <div className="pt-20 pb-8">
+      <div className="navbar-content-spacing pb-8">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Header Section */}
           <motion.div 

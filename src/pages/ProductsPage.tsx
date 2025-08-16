@@ -2,7 +2,7 @@ import Products from '@/components/Products';
 
 const ProductsPage = () => {
   return (
-    <div className="pt-20">
+    <div className="navbar-content-spacing">
       <Products />
     </div>
   );

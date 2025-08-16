@@ -55,7 +55,7 @@ const ContactPage = () => {
   ];
 
   return (
-    <section className="relative bg-slate-900 min-h-screen overflow-hidden">
+    <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
       {/* SEO Meta Tags */}
       <title>Start Your IT Transformation | Contact Maashura Experts</title>
       <meta name="description" content="Connect with Maashura for scalable IT hardware supply, consulting, AMC, and software development in Dubai, UAE, Saudi Arabia & the GCC. Reliable support for growing businesses." />

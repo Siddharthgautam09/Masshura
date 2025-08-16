@@ -39,7 +39,14 @@ body::before {
   
   /* Add spacing between navbar and first content */
   .navbar-content-spacing {
-    padding-top: 20px;
+    padding-top: 6rem; /* 96px - consistent with pt-24 */
+  }
+  
+  /* For mobile devices */
+  @media (max-width: 768px) {
+    .navbar-content-spacing {
+      padding-top: 5rem; /* 80px - consistent with pt-20 */
+    }
   }
 }
 

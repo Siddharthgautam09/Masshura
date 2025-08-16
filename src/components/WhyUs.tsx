@@ -67,7 +67,7 @@ const WhyUs = () => {
   ];
 
   return (
-    <section id="why-us" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
+    <section id="why-us" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden navbar-content-spacing">
       {/* Properly Contained Background Layer 
       <div className="absolute inset-0 w-full h-full z-0">
         <div className="absolute inset-0 w-full h-full">

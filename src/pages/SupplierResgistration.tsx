@@ -357,7 +357,7 @@ const SupplierRegistration = () => {
   }
 
   return (
-    <section className="relative bg-slate-900 min-h-screen overflow-hidden">
+    <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
       {/* SEO Meta Tags */}
       <title>Supplier Registration – Partner with Maashura Digital Clarity & IT Consultancy in UAE & GCC</title>
       <meta name="description" content="Join Maashura as a supplier or development partner. Fill out the supplier registration form to work with clients across UAE, Saudi Arabia, and the GCC." />

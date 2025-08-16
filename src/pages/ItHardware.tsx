@@ -43,7 +43,7 @@ const ItHardware = () => {
   ];
 
   return (
-    <section className="relative bg-slate-900 min-h-screen overflow-hidden pt-20 md:pt-24">
+    <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
       {/* Meta tags for SEO */}
       <meta name="title" content="Affordable IT Hardware Supply in UAE for Clinics, Schools, Retail & SMEs – Maashura" />
       <meta name="description" content="Discover reliable IT hardware supply in UAE with Maashura. We serve clinics, schools, trading companies, and SMEs with affordable networking devices, computers, printers, and IT accessories." />

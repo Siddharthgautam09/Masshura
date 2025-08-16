@@ -68,7 +68,7 @@ const AreasWeServe = () => {
   ];
 
   return (
-    <section className="relative bg-slate-900 min-h-screen overflow-hidden">
+    <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
       {/* SEO Meta Tags */}
       <title>Areas We Serve | IT Consulting in Dubai, Abu Dhabi, Sharjah & GCC – Maashura</title>
       <meta name="description" content="Maashura provides IT consultancy, ERP, CRM, and software development across Dubai, Abu Dhabi, Sharjah, and the UAE. We also serve GCC countries like Saudi Arabia, Oman, and Qatar." />

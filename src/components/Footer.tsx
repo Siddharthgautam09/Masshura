@@ -1,33 +1,34 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Building, Users, Settings, Globe, ArrowRight, Shield, Star, Award, CheckCircle, FileText } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const itServices = [
-    { name: 'IT Consultancy Services', href: '/it-consulting', icon: Settings },
-    { name: 'IT Hardware Supply in UAE', href: '/hardware-supply', icon: Building },
-    { name: 'IT AMC Services', href: '/amc-services', icon: Shield },
+    { name: 'IT Consultancy Services', href: '/ItConsulting', icon: Settings },
+    { name: 'IT Hardware Supply in UAE', href: '/ItHardware', icon: Building },
+    { name: 'IT AMC Services', href: '/Services', icon: Shield },
     { name: 'Start Your IT Transformation – Contact Us', href: '/contact', icon: ArrowRight }
   ];
 
   const whyMaashura = [
-    { name: 'Why Choose Maashura as Your IT Consultant', href: '/why-choose-us' },
-    { name: 'Industries We Serve', href: '/industries' },
-    { name: 'Areas We Serve – Across the GCC', href: '/coverage-areas' },
-    { name: 'Already Using a System? Still Worth Talking', href: '/existing-systems' }
+    { name: 'Why Choose Maashura as Your IT Consultant', href: '/WhyUs' },
+    { name: 'Industries We Serve', href: '/AreaWeServe' },
+    { name: 'Areas We Serve – Across the GCC', href: '/AreaWeServe' },
+    { name: 'Already Using a System? Still Worth Talking', href: '/contact' }
   ];
 
   const quickAccess = [
     { name: 'Home', href: '/' },
-    { name: 'About Us', href: '/about' },
-    { name: 'Services Overview', href: '/services' },
+    { name: 'About Us', href: '/' },
+    { name: 'Services Overview', href: '/Services' },
     { name: 'Contact Us', href: '/contact' }
   ];
 
   const partnerLinks = [
-    { name: 'Become a Supplier or Partner', href: '/become-supplier' },
-    { name: 'Vendor / Supplier Registration', href: '/supplier-registration' }
+    { name: 'Become a Supplier or Partner', href: '/SupplierRegistration' },
+    { name: 'Vendor / Supplier Registration', href: '/SupplierRegistration' }
   ];
 
   const resources = [
@@ -177,28 +178,32 @@ const Footer = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {itServices.map((service, index) => (
-                <motion.a
+                <motion.div
                   key={index}
-                  href={service.href}
-                  className="group block"
+                  className="group"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ y: -5 }}
                 >
-                  <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 group-hover:border-[#6AAEFF]/50 transition-all duration-300 h-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-[#6AAEFF] rounded-lg group-hover:scale-110 transition-transform duration-300">
-                        <service.icon className="w-5 h-5 text-white" />
+                  <Link
+                    to={service.href}
+                    className="block"
+                  >
+                    <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 group-hover:border-[#6AAEFF]/50 transition-all duration-300 h-full">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-[#6AAEFF] rounded-lg group-hover:scale-110 transition-transform duration-300">
+                          <service.icon className="w-5 h-5 text-white" />
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#6AAEFF] group-hover:translate-x-1 transition-all duration-300" />
                       </div>
-                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#6AAEFF] group-hover:translate-x-1 transition-all duration-300" />
+                      <h4 className="text-white font-semibold text-sm group-hover:text-[#6AAEFF] transition-colors">
+                        {service.name}
+                      </h4>
                     </div>
-                    <h4 className="text-white font-semibold text-sm group-hover:text-[#6AAEFF] transition-colors">
-                      {service.name}
-                    </h4>
-                  </div>
-                </motion.a>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -227,13 +232,16 @@ const Footer = () => {
                 <ul className="space-y-3">
                   {whyMaashura.map((item, index) => (
                     <li key={index}>
-                      <motion.a
-                        href={item.href}
-                        className="text-slate-300 hover:text-[#6AAEFF] transition-colors text-sm leading-relaxed block"
+                      <motion.div
                         whileHover={{ x: 5 }}
                       >
-                        {item.name}
-                      </motion.a>
+                        <Link
+                          to={item.href}
+                          className="text-slate-300 hover:text-[#6AAEFF] transition-colors text-sm leading-relaxed block"
+                        >
+                          {item.name}
+                        </Link>
+                      </motion.div>
                     </li>
                   ))}
                 </ul>
@@ -253,13 +261,16 @@ const Footer = () => {
                 <ul className="space-y-3">
                   {quickAccess.map((link, index) => (
                     <li key={index}>
-                      <motion.a
-                        href={link.href}
-                        className="text-slate-300 hover:text-[#6AAEFF] transition-colors text-sm leading-relaxed block"
+                      <motion.div
                         whileHover={{ x: 5 }}
                       >
-                        {link.name}
-                      </motion.a>
+                        <Link
+                          to={link.href}
+                          className="text-slate-300 hover:text-[#6AAEFF] transition-colors text-sm leading-relaxed block"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
                     </li>
                   ))}
                 </ul>
@@ -306,13 +317,16 @@ const Footer = () => {
                 <ul className="space-y-3">
                   {partnerLinks.map((link, index) => (
                     <li key={index}>
-                      <motion.a
-                        href={link.href}
-                        className="text-slate-300 hover:text-[#6AAEFF] transition-colors text-sm leading-relaxed block"
+                      <motion.div
                         whileHover={{ x: 5 }}
                       >
-                        {link.name}
-                      </motion.a>
+                        <Link
+                          to={link.href}
+                          className="text-slate-300 hover:text-[#6AAEFF] transition-colors text-sm leading-relaxed block"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
                     </li>
                   ))}
                 </ul>
@@ -394,14 +408,17 @@ const Footer = () => {
                     </p>
 
                     {/* CTA Button */}
-                    <motion.a
-                      href="/contact"
-                      className="inline-block bg-[#6AAEFF] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 mb-6"
+                    <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      Free Consultation
-                    </motion.a>
+                      <Link
+                        to="/contact"
+                        className="inline-block bg-[#6AAEFF] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 mb-6"
+                      >
+                        Free Consultation
+                      </Link>
+                    </motion.div>
 
                     {/* Social Links */}
                     <div className="flex justify-center lg:justify-end space-x-3">

@@ -468,18 +468,6 @@ const BecomeSupplier = () => {
             </div>
           </motion.div>
         </motion.div>
-
-        {/* Image Placeholder */}
-        <motion.div
-          className="mt-16 bg-slate-800/60 backdrop-blur-sm rounded-2xl p-8 text-center border border-slate-700/50"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <p className="text-slate-300 mb-2">Partnership Success Image</p>
-          <p className="text-slate-400 text-sm">Alt: Partner with Maashura – Software developers and hardware suppliers in UAE, Saudi Arabia, and GCC</p>
-        </motion.div>
       </div>
     </section>
   );

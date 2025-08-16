@@ -625,20 +625,12 @@ const SupplierDetailPage = () => {
                           <p className="text-white">{supplier.businessType || 'N/A'}</p>
                         </motion.div>
                         <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
-                          <label className="text-sm font-medium text-slate-400">Year Established</label>
-                          <p className="text-white">{supplier.yearEstablished || 'N/A'}</p>
-                        </motion.div>
-                        <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
                           <label className="text-sm font-medium text-slate-400">Employee Count</label>
                           <p className="text-white">{supplier.employeeCount || 'N/A'}</p>
                         </motion.div>
                         <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
                           <label className="text-sm font-medium text-slate-400">Business Registration</label>
                           <p className="text-white">{supplier.businessRegistration || 'N/A'}</p>
-                        </motion.div>
-                        <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
-                          <label className="text-sm font-medium text-slate-400">Tax ID</label>
-                          <p className="text-white">{supplier.taxId || 'N/A'}</p>
                         </motion.div>
                       </div>
                       

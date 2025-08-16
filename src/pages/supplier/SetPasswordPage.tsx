@@ -315,14 +315,6 @@ const SetPasswordPage = () => {
 
           <CardContent className="space-y-6">
             {/* Debug Information */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-600/30">
-                <p className="text-xs text-slate-400 mb-2">Debug Info:</p>
-                <p className="text-xs text-slate-300">URL Email: {urlEmail || 'None'}</p>
-                <p className="text-xs text-slate-300">Current Email: {email || 'None'}</p>
-                <p className="text-xs text-slate-300">URL: {window.location.href}</p>
-              </div>
-            )}
 
             <form onSubmit={handleSetPassword} className="space-y-6">
               {/* Email Field (if not provided in URL) */}

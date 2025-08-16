@@ -31,9 +31,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { auth, db } from '@/components/firebase';
+import { useAuth } from '@/hooks/useAuth';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/components/firebase';
 import { toast } from 'sonner';
 
 interface SupplierData {
@@ -77,7 +77,7 @@ interface FormData {
 }
 
 const SupplierDashboard: React.FC = () => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const { user } = useAuth();
   const [supplier, setSupplier] = useState<SupplierData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -93,14 +93,6 @@ const SupplierDashboard: React.FC = () => {
     yearsOfOperation: '',
     employeeCount: ''
   });
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     const fetchSupplierData = async () => {

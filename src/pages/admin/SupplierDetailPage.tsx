@@ -43,11 +43,11 @@ import {
 interface Supplier {
   id: string;
   companyName: string;
-  businessRegistration: string;
+  tradeNumber: string;
   taxId: string;
   yearEstablished: string;
   employeeCount: string;
-  contactName: string;
+  contactPerson: string;
   position: string;
   email: string;
   phone: string;
@@ -217,7 +217,7 @@ const SupplierDetailPage = () => {
 
       // Template parameters for welcome email (Welcome/Instructions)
       const templateParams = {
-        supplier_name: supplier.contactName || supplier.companyName,
+        supplier_name: supplier.contactPerson || supplier.companyName,
         to_email: supplier.email,
         company_name: supplier.companyName,
         ref_no: supplier.refNo || `SUP-${supplier.id.slice(-6)}`,
@@ -231,7 +231,7 @@ const SupplierDetailPage = () => {
 
       // Template parameters for second email (Welcome/Instructions)
       const templateParams2 = {
-        supplier_name: supplier.contactName || supplier.companyName,
+        supplier_name: supplier.contactPerson || supplier.companyName,
         to_email: supplier.email,
         company_name: supplier.companyName,
         ref_no: supplier.refNo || `SUP-${supplier.id.slice(-6)}`,
@@ -288,7 +288,7 @@ const SupplierDetailPage = () => {
 
       // Template parameters for rejection email
       const templateParams = {
-        supplier_name: supplier.contactName || supplier.companyName,
+        supplier_name: supplier.contactPerson || supplier.companyName,
         company_name: supplier.companyName,
         to_email: supplier.email,
         rejection_date: new Date().toLocaleDateString(),
@@ -537,16 +537,6 @@ const SupplierDetailPage = () => {
             </motion.div>
           )}
           
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              onClick={exportToPDF}
-              variant="outline"
-              className="bg-slate-800/50 border-slate-600 text-white hover:bg-slate-700/50 shadow-lg"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export PDF
-            </Button>
-          </motion.div>
           
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
@@ -630,7 +620,7 @@ const SupplierDetailPage = () => {
                         </motion.div>
                         <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
                           <label className="text-sm font-medium text-slate-400">Business Registration</label>
-                          <p className="text-white">{supplier.businessRegistration || 'N/A'}</p>
+                          <p className="text-white">{supplier.tradeNumber || 'N/A'}</p>
                         </motion.div>
                       </div>
                       
@@ -823,11 +813,7 @@ const SupplierDetailPage = () => {
                       <div className="space-y-4">
                         <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
                           <label className="text-sm font-medium text-slate-400">Contact Person</label>
-                          <p className="text-white font-medium">{supplier.contactName || 'N/A'}</p>
-                        </motion.div>
-                        <motion.div whileHover={{ scale: 1.02 }} className="p-3 bg-slate-700/20 rounded-lg">
-                          <label className="text-sm font-medium text-slate-400">Position</label>
-                          <p className="text-white">{supplier.position || 'N/A'}</p>
+                          <p className="text-white font-medium">{supplier.contactPerson|| 'N/A'}</p>
                         </motion.div>
                         <motion.div whileHover={{ scale: 1.02 }} className="flex items-center gap-3 p-3 bg-slate-700/20 rounded-lg">
                           <Mail className="w-4 h-4 text-blue-400" />

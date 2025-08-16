@@ -270,11 +270,22 @@ const SetPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div 
-        className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-20"
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative">
+      {/* Enhanced Background Pattern with Blur */}
+      <div className="absolute inset-0 opacity-30">
+        <div 
+          className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] animate-pulse"
+        />
+        {/* Additional blur overlay for better visual effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-indigo-500/5 backdrop-blur-[1px]" />
+      </div>
+      
+      {/* Floating Elements for Visual Interest */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl animate-pulse" />
+        <div className="absolute top-3/4 right-1/4 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-1/4 left-1/3 w-28 h-28 bg-indigo-500/10 rounded-full blur-xl animate-pulse delay-500" />
+      </div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -282,10 +293,10 @@ const SetPasswordPage = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md relative z-10"
       >
-        <Card className="bg-slate-800/60 backdrop-blur-sm border-slate-600/30 shadow-2xl">
+        <Card className="bg-slate-800/80 backdrop-blur-xl border-slate-600/50 shadow-2xl shadow-black/20">
           <CardHeader className="text-center pb-6">
             <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-400/30">
+              <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-400/30 backdrop-blur-sm">
                 <Shield className="h-8 w-8 text-blue-400" />
               </div>
             </div>

@@ -17,6 +17,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Lazy load components for better performance
 const Home = lazy(() => import("./pages/Home"));
+const AboutUsPage = lazy(() => import("./pages/AboutUsPage"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage"));
 const HardwarePage = lazy(() => import("./pages/HardwarePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
@@ -117,6 +118,7 @@ const App = () => {
             <Routes>
               {/* Your existing public routes */}
               <Route path="/" element={<Home />} />
+              <Route path="/about" element={<AboutUsPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/hardware" element={<HardwarePage />} />
               <Route path="/contact" element={<ContactPage />} />

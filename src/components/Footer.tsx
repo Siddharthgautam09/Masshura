@@ -21,7 +21,7 @@ const Footer = () => {
 
   const quickAccess = [
     { name: 'Home', href: '/' },
-    { name: 'About Us', href: '/' },
+    { name: 'About Us', href: '/about' },
     { name: 'Services Overview', href: '/Services' },
     { name: 'Contact Us', href: '/contact' }
   ];

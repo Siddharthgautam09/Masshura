@@ -251,6 +251,7 @@ const SupplierList = () => {
     }
   };
 
+  
   // New function to handle Accept status (different from approve)
   const handleAccept = async (supplierId: string) => {
     try {

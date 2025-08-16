@@ -36,6 +36,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/components/firebase';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import PaymentDialog from '@/components/PaymentDialog';
 
 interface SupplierData {
   id: string;
@@ -172,6 +173,15 @@ const SupplierDashboard: React.FC = () => {
         <div className="text-center">
           <p className="text-white">No supplier data found</p>
         </div>
+      </div>
+    );
+  }
+
+  // Block dashboard and show payment dialog if payment is not completed
+  if (supplier.paymentStatus !== 'completed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <PaymentDialog isOpen={true} onClose={() => {}} supplierData={supplier} />
       </div>
     );
   }

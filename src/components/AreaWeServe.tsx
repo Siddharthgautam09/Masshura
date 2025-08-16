@@ -74,7 +74,8 @@ const AreasWeServe = () => {
       <meta name="description" content="Maashura provides IT consultancy, ERP, CRM, and software development across Dubai, Abu Dhabi, Sharjah, and the UAE. We also serve GCC countries like Saudi Arabia, Oman, and Qatar." />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
-        
+        {/* Spacer for desktop view only to prevent badge/header overlap */}
+        <div className="hidden md:block" style={{ height: '32px' }} />
         {/* Hero Section - Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
           {/* Left Content */}

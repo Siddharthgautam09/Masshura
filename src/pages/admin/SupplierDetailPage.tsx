@@ -226,7 +226,8 @@ const SupplierDetailPage = () => {
         set_password_link: setPasswordLink,
         support_email: "support@masshura.com",
         from_name: "Masshura Team",
-        message: "Welcome to Masshura! Your supplier application has been approved."
+        message: "Welcome to Masshura! Your supplier application has been approved.",
+        image_url: 'https://yourdomain.com/images/image.png'
       };
 
       // Template parameters for second email (Welcome/Instructions)

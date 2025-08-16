@@ -5,7 +5,7 @@ import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase.ts';
 import emailjs from '@emailjs/browser';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, FileText, Download, ExternalLink, Shield, ShieldOff, Power, PowerOff } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, FileText, Download, ExternalLink, Shield, ShieldOff, Power, PowerOff, MessageSquare, Send, Mail } from 'lucide-react';
 
 // Import UI components from shadcn/ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,26 +15,50 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const ITEMS_PER_PAGE = 10;
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>([]);
   const { toast } = useToast();
 
   // State for search, filter, and pagination
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // This useEffect fetches ALL suppliers from Firestore
+  // Remarks functionality
+  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+  const [remark, setRemark] = useState('');
+  const [isRemarkDialogOpen, setIsRemarkDialogOpen] = useState(false);
+
+  // Send login link functionality
+  const [isLoginLinkDialogOpen, setIsLoginLinkDialogOpen] = useState(false);
+  const [loginLinkSupplier, setLoginLinkSupplier] = useState<any>(null);
+
+  // This useEffect fetches ALL suppliers from Firestore and extracts categories
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'suppliers'));
         const supplierList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setSuppliers(supplierList);
+        
+        // Extract unique categories from all suppliers
+        const allCategories = new Set<string>();
+        supplierList.forEach(supplier => {
+          if (supplier.categories && Array.isArray(supplier.categories)) {
+            supplier.categories.forEach(category => allCategories.add(category));
+          }
+        });
+        setCategories(Array.from(allCategories).sort());
+        
       } catch (error) {
         toast({ title: "Error", description: "Could not fetch company data.", variant: "destructive" });
       } finally {
@@ -51,6 +75,16 @@ const SupplierList = () => {
       const querySnapshot = await getDocs(collection(db, 'suppliers'));
       const supplierList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setSuppliers(supplierList);
+      
+      // Update categories
+      const allCategories = new Set<string>();
+      supplierList.forEach(supplier => {
+        if (supplier.categories && Array.isArray(supplier.categories)) {
+          supplier.categories.forEach(category => allCategories.add(category));
+        }
+      });
+      setCategories(Array.from(allCategories).sort());
+      
       toast({ title: "Success", description: "Company data refreshed." });
     } catch (error) {
       toast({ title: "Error", description: "Could not refresh company data.", variant: "destructive" });
@@ -59,7 +93,7 @@ const SupplierList = () => {
     }
   };
 
-  // Memoized logic to filter suppliers based on search and status
+  // Memoized logic to filter suppliers based on search, status, and category
   const filteredSuppliers = useMemo(() => {
     return suppliers
       .filter(supplier => {
@@ -71,8 +105,13 @@ const SupplierList = () => {
       .filter(supplier => {
         if (statusFilter === 'all') return true;
         return supplier.status === statusFilter;
+      })
+      .filter(supplier => {
+        if (categoryFilter === 'all') return true;
+        return supplier.categories && Array.isArray(supplier.categories) && 
+               supplier.categories.includes(categoryFilter);
       });
-  }, [suppliers, searchTerm, statusFilter]);
+  }, [suppliers, searchTerm, statusFilter, categoryFilter]);
 
   // Memoized logic to paginate the filtered list
   const paginatedSuppliers = useMemo(() => {
@@ -379,6 +418,103 @@ const SupplierList = () => {
     }
     return 'N/A';
   };
+
+  // New function to handle adding remarks
+  const handleAddRemark = async () => {
+    if (!selectedSupplier || !remark.trim()) {
+      toast({ title: "Error", description: "Please enter a remark.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const currentRemarks = selectedSupplier.remarks || [];
+      const newRemark = {
+        text: remark.trim(),
+        addedBy: 'Admin', // You can get actual admin name from auth context
+        addedAt: new Date().toISOString(),
+        id: Date.now() // Simple ID generation
+      };
+      
+      const updatedRemarks = [...currentRemarks, newRemark];
+      
+      await updateDoc(doc(db, 'suppliers', selectedSupplier.id), { 
+        remarks: updatedRemarks,
+        lastRemarkAt: new Date().toISOString()
+      });
+      
+      // Update local state
+      setSuppliers(currentSuppliers =>
+        currentSuppliers.map(s => 
+          s.id === selectedSupplier.id 
+            ? { ...s, remarks: updatedRemarks } 
+            : s
+        )
+      );
+      
+      setRemark('');
+      setIsRemarkDialogOpen(false);
+      setSelectedSupplier(null);
+      
+      toast({ title: "Success", description: "Remark added successfully." });
+    } catch (error) {
+      console.error('Error adding remark:', error);
+      toast({ title: "Error", description: "Failed to add remark.", variant: "destructive" });
+    }
+  };
+
+  // New function to send login link
+  const sendLoginLink = async () => {
+    if (!loginLinkSupplier) return;
+
+    try {
+      const YOUR_SERVICE_ID = "service_6qlid92";
+      const YOUR_TEMPLATE_ID = "template_h01qmqi"; // Using account setup template for login link
+      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+
+      // Validate EmailJS configuration
+      if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID || !YOUR_PUBLIC_KEY) {
+        throw new Error('EmailJS configuration is missing');
+      }
+
+      // Initialize EmailJS
+      emailjs.init(YOUR_PUBLIC_KEY);
+
+      // Construct the login/password setup link
+      const loginLink = `${window.location.origin}/set-password?email=${encodeURIComponent(loginLinkSupplier.email)}`;
+
+      // Template parameters for login link email
+      const templateParams = {
+        supplier_name: loginLinkSupplier.contactPerson || loginLinkSupplier.companyName,
+        to_email: loginLinkSupplier.email,
+        set_password_link: loginLink,
+        company_name: loginLinkSupplier.companyName,
+        from_name: "Masshura Admin Team",
+        message: "Please use the link below to access your supplier portal and set up your password."
+      };
+
+      console.log('Sending login link email with params:', templateParams);
+
+      // Send login link email
+      const emailResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, templateParams);
+      console.log('Login link email sent successfully:', emailResult);
+
+      setIsLoginLinkDialogOpen(false);
+      setLoginLinkSupplier(null);
+
+      toast({ 
+        title: "Login Link Sent", 
+        description: "Login link has been sent to the supplier's email." 
+      });
+
+    } catch (error) {
+      console.error("Login link email sending failed:", error);
+      toast({
+        title: "Email Failed",
+        description: `Failed to send login link: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  };
   
   if (isLoading) {
     return (
@@ -450,12 +586,14 @@ const SupplierList = () => {
                 <TableHead className="font-semibold text-slate-200 w-28 whitespace-nowrap">Country</TableHead>
                 <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Country Code</TableHead>
                 <TableHead className="font-semibold text-slate-200 min-w-52 whitespace-nowrap">Email</TableHead>
+                <TableHead className="font-semibold text-slate-200 min-w-40 whitespace-nowrap">Category</TableHead>
                 <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Files</TableHead>
                 <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Expiry Date</TableHead>
                 <TableHead className="font-semibold text-slate-200 w-20 text-center whitespace-nowrap">Status</TableHead>
                 <TableHead className="font-semibold text-slate-200 w-20 text-center whitespace-nowrap">Active</TableHead>
                 <TableHead className="font-semibold text-slate-200 w-20 text-center whitespace-nowrap">Block</TableHead>
-                <TableHead className="font-semibold text-slate-200 w-28 text-center whitespace-nowrap">Actions</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-24 text-center whitespace-nowrap">Remarks</TableHead>
+                <TableHead className="font-semibold text-slate-200 w-32 text-center whitespace-nowrap">Actions</TableHead>
               </TableRow>
             </TableHeader>
           <TableBody>
@@ -475,6 +613,15 @@ const SupplierList = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-slate-300 whitespace-nowrap max-w-52 truncate" title={supplier.email}>{supplier.email}</TableCell>
+                <TableCell className="text-slate-300 whitespace-nowrap">
+                  <div className="flex flex-wrap gap-1 max-w-40">
+                    {supplier.categories?.map((category, catIndex) => (
+                      <Badge key={catIndex} variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-400/30 text-xs">
+                        {category}
+                      </Badge>
+                    )) || <span className="text-slate-500 text-xs">No categories</span>}
+                  </div>
+                </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <div className="flex gap-1">
                     {supplier.tradeLicense && (
@@ -617,6 +764,25 @@ const SupplierList = () => {
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 text-xs">
+                      {supplier.remarks?.length || 0} remarks
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedSupplier(supplier);
+                        setIsRemarkDialogOpen(true);
+                      }}
+                      className="h-7 w-7 p-0 border-slate-500 text-slate-300 hover:bg-slate-700/50"
+                      title="Add/View Remarks"
+                    >
+                      <MessageSquare className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
                   <div className="flex items-center justify-center gap-1">
                     {supplier.status === 'pending' && (
                       <>
@@ -647,6 +813,19 @@ const SupplierList = () => {
                         </Button>
                       </>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setLoginLinkSupplier(supplier);
+                        setIsLoginLinkDialogOpen(true);
+                      }}
+                      className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200 transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
+                      title="Send Login Link"
+                    >
+                      <Mail className="h-3 w-3 mr-1" />
+                      Login
+                    </Button>
                     <Button asChild variant="outline" size="sm" 
                       className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200 transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
                     >
@@ -679,6 +858,107 @@ const SupplierList = () => {
       <div className="flex items-center justify-between mt-4">
         {/* ... Pagination UI code ... */}
       </div>
+
+      {/* Remarks Dialog */}
+      <Dialog open={isRemarkDialogOpen} onOpenChange={setIsRemarkDialogOpen}>
+        <DialogContent className="bg-slate-800 border-slate-600 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-slate-100">
+              Add Remark for {selectedSupplier?.companyName}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Display existing remarks */}
+            {selectedSupplier?.remarks && selectedSupplier.remarks.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-slate-300">Previous Remarks:</h4>
+                <div className="max-h-32 overflow-y-auto space-y-2">
+                  {selectedSupplier.remarks.map((remarkItem, index) => (
+                    <div key={remarkItem.id || index} className="bg-slate-700/50 p-2 rounded text-xs">
+                      <p className="text-slate-200">{remarkItem.text}</p>
+                      <p className="text-slate-400 mt-1">
+                        By {remarkItem.addedBy} on {new Date(remarkItem.addedAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Add new remark */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300">Add New Remark:</label>
+              <Textarea
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                placeholder="Enter your remark here..."
+                className="bg-slate-700 border-slate-600 text-slate-100"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsRemarkDialogOpen(false);
+                setRemark('');
+                setSelectedSupplier(null);
+              }}
+              className="border-slate-600 text-slate-300"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleAddRemark}
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={!remark.trim()}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Add Remark
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Login Link Dialog */}
+      <Dialog open={isLoginLinkDialogOpen} onOpenChange={setIsLoginLinkDialogOpen}>
+        <DialogContent className="bg-slate-800 border-slate-600 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-slate-100">
+              Send Login Link
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-slate-300">
+              Send a login link to <strong>{loginLinkSupplier?.companyName}</strong> at{' '}
+              <strong>{loginLinkSupplier?.email}</strong>?
+            </p>
+            <p className="text-sm text-slate-400">
+              This will send an email with a link to set up their password and access the supplier portal.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsLoginLinkDialogOpen(false);
+                setLoginLinkSupplier(null);
+              }}
+              className="border-slate-600 text-slate-300"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={sendLoginLink}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Send Login Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

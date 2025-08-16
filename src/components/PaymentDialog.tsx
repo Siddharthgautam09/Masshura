@@ -149,13 +149,7 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
     }
 
     return (
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="text-sm text-slate-400 bg-slate-800/50 p-3 rounded-lg">
-          <p className="font-medium text-slate-300 mb-1">💳 For Testing - Use These Test Cards:</p>
-          <p>• Success: <code className="bg-slate-700 px-1 rounded">4242 4242 4242 4242</code></p>
-          <p>• Any future expiry date and any 3-digit CVC</p>
-        </div>
-
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Card className="bg-slate-700/50 border-slate-600">
           <CardContent className="p-6">
             <div className="mb-2">
@@ -181,7 +175,7 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
                     iconColor: '#fa755a',
                   },
                 },
-                hidePostalCode: false,
+                hidePostalCode: true,
               }}
             />
           </CardContent>
@@ -256,7 +250,7 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-800 border-slate-600 text-white max-w-md">
+      <DialogContent className="bg-slate-800 border-slate-600 text-white max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-center">
             Complete Registration Payment
@@ -264,14 +258,14 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
         </DialogHeader>
 
         {paymentStatus === 'form' && (
-          <div className="space-y-6">
-            <p className="text-slate-300 text-center">
+          <div className="space-y-4">
+            <p className="text-slate-300 text-center text-sm">
               Your account has been verified and your password has been set. To activate your Maashura Supplier Portal, please complete the one-time registration payment.
             </p>
 
-            <div className="bg-slate-700/50 p-4 rounded-lg space-y-2">
-              <h3 className="font-semibold text-white mb-3">Payment Summary</h3>
-              <div className="space-y-2 text-sm">
+            <div className="bg-slate-700/50 p-3 rounded-lg space-y-2">
+              <h3 className="font-semibold text-white mb-2">Payment Summary</h3>
+              <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Email:</span>
                   <span className="text-white">{supplierData.email}</span>
@@ -304,11 +298,6 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
             </div>
 
             <div>
-              <h4 className="font-medium text-white mb-3 flex items-center">
-                <CreditCard className="w-5 h-5 mr-2" />
-                Payment Method: Stripe Payment Gateway
-              </h4>
-              
               <Elements stripe={stripePromise}>
                 <PaymentForm
                   supplierData={supplierData}

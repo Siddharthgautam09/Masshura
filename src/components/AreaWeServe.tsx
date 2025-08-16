@@ -451,26 +451,6 @@ const AreasWeServe = () => {
         </motion.div>
 
         {/* Image Placeholders - Horizontal Layout */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50">
-            <p className="text-slate-300 text-sm mb-2">UAE & GCC Map</p>
-            <p className="text-xs text-slate-400">Alt: Map showing IT consultancy coverage across Dubai, Abu Dhabi, Sharjah, and GCC countries – Maashura</p>
-          </div>
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50">
-            <p className="text-slate-300 text-sm mb-2">Dubai Office</p>
-            <p className="text-xs text-slate-400">Alt: IT consultants discussing project with Dubai skyline – Maashura UAE-based services</p>
-          </div>
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50">
-            <p className="text-slate-300 text-sm mb-2">Industry Icons</p>
-            <p className="text-xs text-slate-400">Alt: Icons representing UAE business sectors served by Maashura – healthcare, retail, real estate</p>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

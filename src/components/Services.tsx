@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Code2, 
   Users, 
@@ -15,6 +16,7 @@ import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 
 const Services = () => {
   const [expandedService, setExpandedService] = useState(null);
+  const navigate = useNavigate();
 
   const services = [
     {
@@ -225,6 +227,7 @@ const Services = () => {
                             translateZ="20"
                             as="button"
                             className="relative px-4 py-2 rounded-lg bg-[#6AAEFF] text-white text-sm font-bold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 hover:scale-105 border border-transparent hover:border-[#6AAEFF] shadow-lg hover:shadow-[#6AAEFF]/25 overflow-hidden group"
+                            onClick={() => navigate('/contact')}
                           >
                             <div className="absolute inset-0 bg-gradient-to-br from-[#6AAEFF]/10 to-[#6ECCAF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <span className="relative z-10">Get Started</span>

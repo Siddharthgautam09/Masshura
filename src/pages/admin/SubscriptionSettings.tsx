@@ -26,7 +26,7 @@ const SubscriptionSettings = () => {
     { id: 'renewal_3year', years: 3, amount: 800, label: '3 Years Renewal', isActive: true },
     { id: 'renewal_5year', years: 5, amount: 1200, label: '5 Years Renewal', isActive: true },
   ]);
-  
+  const [registrationAmount, setRegistrationAmount] = useState<number>(500);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -38,11 +38,13 @@ const SubscriptionSettings = () => {
   const fetchSubscriptionSettings = async () => {
     try {
       const settingsDoc = await getDoc(doc(db, 'settings', 'subscriptions'));
-      
       if (settingsDoc.exists()) {
         const data = settingsDoc.data();
         if (data.renewalAmounts) {
           setRenewalAmounts(data.renewalAmounts);
+        }
+        if (typeof data.registrationAmount === 'number') {
+          setRegistrationAmount(data.registrationAmount);
         }
       }
     } catch (error) {
@@ -62,12 +64,11 @@ const SubscriptionSettings = () => {
     try {
       const settingsData = {
         renewalAmounts: renewalAmounts,
+        registrationAmount: registrationAmount,
         lastUpdated: new Date().toISOString(),
         updatedBy: 'admin'
       };
-
       await setDoc(doc(db, 'settings', 'subscriptions'), settingsData, { merge: true });
-      
       toast({
         title: "Settings Saved",
         description: "Subscription settings have been updated successfully."
@@ -126,18 +127,45 @@ const SubscriptionSettings = () => {
   }
 
   return (
-  <div className="container mx-auto p-6 max-w-4xl pt-4">
+    <div className="container mx-auto p-6 max-w-4xl pt-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-  <div className="mb-4">
-          <h1 className="text-3xl font-bold text-white mb-2">Renewal Settings</h1>
-          <p className="text-slate-400">Manage renewal amounts for different subscription periods</p>
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold text-white mb-2">Subscription Settings</h1>
+          <p className="text-slate-400">Manage registration fee and renewal amounts for different subscription periods</p>
         </div>
 
         <div className="space-y-6">
+          {/* Registration Fee */}
+          <Card className="bg-slate-800/70 border-slate-600/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Settings className="w-5 h-5 mr-2" />
+                Registration Fee
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <Label htmlFor="registrationAmount" className="text-slate-200 mb-2 block">Registration Fee (₹)</Label>
+                <div className="flex items-center max-w-xs">
+                  <span className="text-slate-400 mr-1">₹</span>
+                  <Input
+                    id="registrationAmount"
+                    type="number"
+                    min="0"
+                    value={registrationAmount}
+                    onChange={e => setRegistrationAmount(Number(e.target.value))}
+                    className="bg-slate-600/50 border-slate-500 text-white"
+                  />
+                </div>
+                <p className="text-slate-400 text-xs mt-2">This fee is charged during new supplier registration.</p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Renewal Amounts */}
           <Card className="bg-slate-800/70 border-slate-600/50">
             <CardHeader className="flex flex-row items-center justify-between">

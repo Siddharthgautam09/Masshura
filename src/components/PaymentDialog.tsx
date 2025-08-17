@@ -205,15 +205,32 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
   const [paymentStatus, setPaymentStatus] = useState<'form' | 'success' | 'error'>('form');
   const [errorMessage, setErrorMessage] = useState('');
   const [totalAmount, setTotalAmount] = useState(500);
-  const [registrationAmount, setRegistrationAmount] = useState(0);
+  const [registrationAmount, setRegistrationAmount] = useState<number | null>(null);
   const [selectedRenewalPlan, setSelectedRenewalPlan] = useState<string>("");
   const [selectedPlanData, setSelectedPlanData] = useState<any>(null);
 
   useEffect(() => {
-    const regAmount = supplierData && supplierData.registrationAmount ? supplierData.registrationAmount : 500;
-    setRegistrationAmount(regAmount);
-    const planAmount = supplierData.selectedRenewalPlan?.amount || 0;
-    setTotalAmount(regAmount + planAmount);
+    // Always fetch the latest registrationAmount from Firestore settings
+    const fetchRegistrationAmount = async () => {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'subscriptions'));
+        let regAmount = 500;
+        if (settingsDoc.exists()) {
+          const data = settingsDoc.data();
+          if (typeof data.registrationAmount === 'number') {
+            regAmount = data.registrationAmount;
+          }
+        }
+        setRegistrationAmount(regAmount);
+        const planAmount = supplierData.selectedRenewalPlan?.amount || 0;
+        setTotalAmount(regAmount + planAmount);
+      } catch (err) {
+        setRegistrationAmount(500);
+        const planAmount = supplierData.selectedRenewalPlan?.amount || 0;
+        setTotalAmount(500 + planAmount);
+      }
+    };
+    fetchRegistrationAmount();
   }, [supplierData]);
 
   const handlePaymentSuccess = () => {
@@ -273,7 +290,7 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                 <hr className="border-slate-600 my-2" />
                 <div className="flex justify-between">
                   <span className="text-slate-400">Registration Fee:</span>
-                  <span className="text-white">₹{registrationAmount}</span>
+                  <span className="text-white">₹{registrationAmount !== null ? registrationAmount : '...'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Subscription ({supplierData.selectedRenewalPlan?.years || 1} year{supplierData.selectedRenewalPlan?.years > 1 ? 's' : ''}):</span>

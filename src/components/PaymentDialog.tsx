@@ -115,7 +115,7 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
         payment_amount: `₹${totalAmount}`,
         company_name: supplierData.companyName,
         payment_date: new Date().toLocaleDateString('en-IN'),
-        subscription_plan: supplierData.selectedSubscriptionPlan?.label || 'Standard',
+        subscription_plan: supplierData.selectedRenewalPlan?.label || 'Standard',
         subscription_duration: `${supplierData.subscriptionDuration || 1} year${(supplierData.subscriptionDuration > 1) ? 's' : ''}`,
         expiry_date: new Date(Date.now() + (supplierData.subscriptionDuration || 1) * 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
         dashboard_link: `${window.location.origin}/supplier-dashboard`,
@@ -210,30 +210,11 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
   const [selectedPlanData, setSelectedPlanData] = useState<any>(null);
 
   useEffect(() => {
-    const fetchPaymentAmount = async () => {
-      try {
-        const settingsDoc = await getDoc(doc(db, 'settings', 'subscriptions'));
-        let regAmount = 500;
-        if (settingsDoc.exists()) {
-          regAmount = settingsDoc.data().registrationAmount || 500;
-        }
-        setRegistrationAmount(regAmount);
-        // If a plan is selected, find its data
-        let planData = null;
-        if (selectedRenewalPlan && settingsDoc.exists()) {
-          const plans = settingsDoc.data().renewalAmounts || [];
-          planData = plans.find((p: any) => p.id === selectedRenewalPlan);
-        }
-        setSelectedPlanData(planData);
-        const subscriptionAmount = planData ? planData.amount : 0;
-        setTotalAmount(regAmount + subscriptionAmount);
-      } catch (error) {
-        console.error('Error fetching payment amount:', error);
-        setTotalAmount(500);
-      }
-    };
-    fetchPaymentAmount();
-  }, [supplierData, selectedRenewalPlan]);
+    const regAmount = supplierData && supplierData.registrationAmount ? supplierData.registrationAmount : 500;
+    setRegistrationAmount(regAmount);
+    const planAmount = supplierData.selectedRenewalPlan?.amount || 0;
+    setTotalAmount(regAmount + planAmount);
+  }, [supplierData]);
 
   const handlePaymentSuccess = () => {
     setPaymentStatus('success');
@@ -262,11 +243,18 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
             <p className="text-slate-300 text-center text-sm">
               Your account has been verified and your password has been set. To activate your Maashura Supplier Portal, please complete the one-time registration payment.
             </p>
-            {/* Renewal Plan Selector */}
-            <RenewalPlanSelector
-              selectedRenewalPlan={selectedRenewalPlan}
-              setSelectedRenewalPlan={setSelectedRenewalPlan}
-            />
+            {/* Show only the selected plan, no selection allowed */}
+            <div className="bg-slate-700/50 p-3 rounded-lg space-y-2">
+              <h3 className="font-semibold text-white mb-2">Selected Plan</h3>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Plan:</span>
+                <span className="text-white">{supplierData.selectedRenewalPlan?.label || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Duration:</span>
+                <span className="text-white">{supplierData.selectedRenewalPlan?.years || 1} year{supplierData.selectedRenewalPlan?.years > 1 ? 's' : ''}</span>
+              </div>
+            </div>
             <div className="bg-slate-700/50 p-3 rounded-lg space-y-2">
               <h3 className="font-semibold text-white mb-2">Payment Summary</h3>
               <div className="space-y-1 text-sm">
@@ -280,9 +268,7 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Selected Plan:</span>
-                  <span className="text-white">
-                    {selectedPlanData ? selectedPlanData.label : 'Select a plan'}
-                  </span>
+                  <span className="text-white">{supplierData.selectedRenewalPlan?.label || '-'}</span>
                 </div>
                 <hr className="border-slate-600 my-2" />
                 <div className="flex justify-between">
@@ -290,8 +276,8 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                   <span className="text-white">₹{registrationAmount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Subscription ({selectedPlanData ? selectedPlanData.years : '-'} year{selectedPlanData && selectedPlanData.years > 1 ? 's' : ''}):</span>
-                  <span className="text-white">₹{selectedPlanData ? selectedPlanData.amount : 0}</span>
+                  <span className="text-slate-400">Subscription ({supplierData.selectedRenewalPlan?.years || 1} year{supplierData.selectedRenewalPlan?.years > 1 ? 's' : ''}):</span>
+                  <span className="text-white">₹{supplierData.selectedRenewalPlan?.amount || 0}</span>
                 </div>
                 <hr className="border-slate-600 my-2" />
                 <div className="flex justify-between font-semibold">
@@ -303,7 +289,12 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
             <div>
               <Elements stripe={stripePromise}>
                 <PaymentForm
-                  supplierData={{ ...supplierData, selectedSubscriptionPlan: selectedPlanData, subscriptionAmount: selectedPlanData ? selectedPlanData.amount : 0, subscriptionDuration: selectedPlanData ? selectedPlanData.years : 1 }}
+                  supplierData={{
+                    ...supplierData,
+                    selectedRenewalPlan: supplierData.selectedRenewalPlan,
+                    subscriptionAmount: supplierData.selectedRenewalPlan?.amount || 0,
+                    subscriptionDuration: supplierData.selectedRenewalPlan?.years || 1,
+                  }}
                   totalAmount={totalAmount}
                   onSuccess={handlePaymentSuccess}
                   onError={handlePaymentError}

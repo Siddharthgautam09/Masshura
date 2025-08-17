@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useState as useReactState } from 'react';
 import { navbarVariant } from '@/animations/variants';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const [showSupplierLogin, setShowSupplierLogin] = useReactState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -115,7 +117,6 @@ const Navbar = () => {
                       whileTap={{ scale: 0.98 }}
                     >
                       {link.name}
-                      
                       {/* Enhanced hover underline */}
                       <motion.div
                         className="absolute -bottom-1.5 left-0 h-0.5 bg-gradient-to-r from-[#6AAEFF] to-blue-400 rounded-full"
@@ -123,7 +124,6 @@ const Navbar = () => {
                         whileHover={{ width: "100%" }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                       />
-                      
                       {/* Subtle glow effect on hover */}
                       <motion.div
                         className="absolute inset-0 bg-[#6AAEFF]/5 rounded-xl -z-10"
@@ -135,6 +135,25 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+              {/* Supplier Login button */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: navLinks.length * 0.08 }}
+              >
+                <Link
+                  to="/supplier-login"
+                  className={`group relative px-2.5 py-2 xl:py-2.5 rounded-xl transition-all duration-300 text-[#6AAEFF] font-semibold bg-slate-800/50 shadow-lg border border-[#6AAEFF]/20`}
+                >
+                  <motion.span
+                    className="relative text-xs xl:text-sm font-medium whitespace-nowrap"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Login
+                  </motion.span>
+                </Link>
+              </motion.div>
             </div>
           </div>
 

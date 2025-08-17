@@ -32,7 +32,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 import { auth, db } from '@/components/firebase';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
@@ -80,6 +81,16 @@ interface FormData {
 }
 
 const SupplierDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      toast.error('Logout failed');
+    }
+  };
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [supplier, setSupplier] = useState<SupplierData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -224,6 +235,13 @@ const SupplierDashboard: React.FC = () => {
                     <Shield className="w-4 h-4 mr-1" />
                     Active
                   </Badge>
+                  <Button
+                    className="ml-2 px-5 py-2 rounded-full bg-gradient-to-r text-white font-bold shadow-lg border-2 border-transparent  hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 flex items-center gap-2 transition-all duration-200"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Log Out
+                  </Button>
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { toast } from 'sonner';
 
 interface DocumentUploaderProps {
-  onUpload?: (url: string) => void;
+  onUpload?: (cloudinaryData: any) => void;
 }
 
 const CLOUDINARY_UPLOAD_PRESET = 'masshura_docs';
@@ -147,7 +147,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
           file: null // Clear file after successful upload
         } : s));
         
-        onUpload?.(data.secure_url);
+        onUpload?.(data);
         toast.success(`Document "${slot.file.name}" uploaded successfully!`);
         
         // Add a new slot if this is the last slot and all slots are filled

@@ -1,4 +1,5 @@
 import DocumentUploader from '@/components/DocumentUploader';
+import { arrayUnion } from 'firebase/firestore';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
@@ -78,6 +79,19 @@ interface SupplierData {
   createdAt?: any;
   updatedAt?: any;
   remarks?: any[];
+  uploadedDocuments?: Array<{
+    url: string;
+    name: string;
+    asset_id?: string;
+    public_id?: string;
+    secure_url?: string;
+    resource_type?: string;
+    format?: string;
+    uploaded_at?: string;
+    file_size?: number;
+    url_fallback?: string;
+    [key: string]: any;
+  }>;
 }
 
 interface FormData {
@@ -597,7 +611,38 @@ const SupplierDashboard: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <DocumentUploader />
+                    <DocumentUploader
+                      onUpload={async (data: any) => {
+                        if (!user?.uid) return;
+                        // Extract all relevant fields from Cloudinary response
+                        const docMeta = {
+                          url: data.url || data.secure_url,
+                          name: data.original_filename || data.public_id || 'document',
+                          asset_id: data.asset_id,
+                          public_id: data.public_id,
+                          secure_url: data.secure_url,
+                          resource_type: data.resource_type,
+                          format: data.format,
+                          uploaded_at: data.created_at || data.uploaded_at || new Date().toISOString(),
+                          file_size: data.bytes,
+                          url_fallback: data.url,
+                        };
+                        try {
+                          await updateDoc(doc(db, 'suppliers', user.uid), {
+                            uploadedDocuments: arrayUnion(docMeta)
+                          });
+                          setSupplier(prev => prev ? {
+                            ...prev,
+                            uploadedDocuments: [
+                              ...(prev.uploadedDocuments || []),
+                              docMeta
+                            ]
+                          } : prev);
+                        } catch (err) {
+                          toast.error('Failed to save document info to Firestore');
+                        }
+                      }}
+                    />
                   </CardContent>
 
                 <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl">

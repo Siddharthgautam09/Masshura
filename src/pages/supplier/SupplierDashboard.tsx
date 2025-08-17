@@ -207,25 +207,50 @@ const SupplierDashboard: React.FC = () => {
     }));
   };
 
+  // Populate formData with current supplier data when entering edit mode
+  useEffect(() => {
+    if (isEditing && supplier) {
+      setFormData({
+        companyName: supplier.companyName || '',
+        contactPerson: supplier.contactPerson || '',
+        phone: supplier.phone || '',
+        website: supplier.website || '',
+        country: supplier.country || '',
+        emirate: supplier.emirate || '',
+        businessType: supplier.businessType || '',
+        yearsOfOperation: supplier.yearsOperation || '',
+        employeeCount: supplier.employeeCount || ''
+      });
+    }
+  }, [isEditing, supplier]);
+
   const handleSaveChanges = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.uid || !supplier) return;
 
     setIsSaving(true);
     try {
+      // Save changes as pending, require admin approval
       const updateData = {
-        ...formData,
-        updatedAt: new Date()
+        pendingProfile: {
+          ...formData,
+          updatedAt: new Date()
+        },
+        profileUpdateRequested: true
       };
 
       await updateDoc(doc(db, 'suppliers', user.uid), updateData);
-      
-      setSupplier(prev => prev ? { ...prev, ...updateData } : null);
+
+      setSupplier(prev => prev ? {
+        ...prev,
+        pendingProfile: { ...formData, updatedAt: new Date() },
+        profileUpdateRequested: true
+      } : null);
       setIsEditing(false);
-      toast.success('Profile updated successfully');
+      toast.success('Profile update submitted for admin approval');
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      toast.error('Failed to submit profile update');
     } finally {
       setIsSaving(false);
     }
@@ -269,13 +294,11 @@ const SupplierDashboard: React.FC = () => {
       transition={{ duration: 0.5 }}
     >
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
-      
       <div className="relative z-10 flex">
         {/* Sidebar */}
         <div className="hidden md:block w-64 flex-shrink-0">
           <SupplierSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         </div>
-
         {/* Main Content */}
         <div className="flex-1 px-4 sm:px-6 lg:px-8 pb-8" style={{ paddingTop: '8rem' }}>
           {activeSection === 'profile' && (
@@ -319,6 +342,61 @@ const SupplierDashboard: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
+
+              {/* Edit Profile Form */}
+              {isEditing && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mb-6"
+                >
+                  <form onSubmit={handleSaveChanges} className="bg-slate-900/90 border border-blue-700/40 rounded-xl p-6 shadow-2xl space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="companyName" className="text-blue-300">Company Name</Label>
+                        <Input id="companyName" name="companyName" value={formData.companyName} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter company name" />
+                      </div>
+                      <div>
+                        <Label htmlFor="contactPerson" className="text-blue-300">Contact Person</Label>
+                        <Input id="contactPerson" name="contactPerson" value={formData.contactPerson} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter contact person" />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone" className="text-blue-300">Phone</Label>
+                        <Input id="phone" name="phone" value={formData.phone} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter phone number" />
+                      </div>
+                      <div>
+                        <Label htmlFor="website" className="text-blue-300">Website</Label>
+                        <Input id="website" name="website" value={formData.website} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter website" />
+                      </div>
+                      <div>
+                        <Label htmlFor="country" className="text-blue-300">Country</Label>
+                        <Input id="country" name="country" value={formData.country} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter country" />
+                      </div>
+                      <div>
+                        <Label htmlFor="emirate" className="text-blue-300">Emirate</Label>
+                        <Input id="emirate" name="emirate" value={formData.emirate} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter emirate" />
+                      </div>
+                      <div>
+                        <Label htmlFor="businessType" className="text-blue-300">Business Type</Label>
+                        <Input id="businessType" name="businessType" value={formData.businessType} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter business type" />
+                      </div>
+                      <div>
+                        <Label htmlFor="yearsOfOperation" className="text-blue-300">Years of Operation</Label>
+                        <Input id="yearsOfOperation" name="yearsOfOperation" value={formData.yearsOfOperation} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter years of operation" />
+                      </div>
+                      <div>
+                        <Label htmlFor="employeeCount" className="text-blue-300">Employee Count</Label>
+                        <Input id="employeeCount" name="employeeCount" value={formData.employeeCount} onChange={handleInputChange} className="mt-1 bg-slate-800 border-blue-700 text-blue-100 placeholder:text-blue-400 focus:border-blue-400" placeholder="Enter employee count" />
+                      </div>
+                    </div>
+                    <div className="flex gap-3 justify-end mt-4">
+                      <Button type="button" variant="outline" className="border-blue-700 text-blue-300 hover:bg-blue-800/30" onClick={() => setIsEditing(false)} disabled={isSaving}>Cancel</Button>
+                      <Button type="submit" className="bg-blue-700 hover:bg-blue-800 text-white" disabled={isSaving}>{isSaving ? 'Saving...' : 'Save Changes'}</Button>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
 
               {/* Admin Remarks Section */}
               {Array.isArray(supplier.remarks) && supplier.remarks.length > 0 && (

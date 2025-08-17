@@ -92,6 +92,9 @@ interface Supplier {
     file_size?: number; // File size in bytes
     url_fallback?: string; // Fallback URL
   }>; // Added for file management
+  pendingProfile?: {
+    [key: string]: any;
+  };
 }
 
 const SupplierDetailPage = () => {
@@ -101,6 +104,38 @@ const SupplierDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [accepting, setAccepting] = useState(false);
+  // Handler for accepting supplier changes (profile or documents)
+  const handleAcceptChanges = async () => {
+    if (!supplier) return;
+    setAccepting(true);
+    try {
+      const supplierRef = doc(db, 'suppliers', supplier.id);
+      let updateData: any = {
+        status: 'approved',
+        profileUpdateRequested: false,
+        profileReapprovedAt: new Date().toISOString(),
+      };
+      // If there are pending profile changes, merge them into the main profile
+      if (supplier.pendingProfile) {
+        updateData = { ...updateData, ...supplier.pendingProfile, pendingProfile: null };
+      }
+      await updateDoc(supplierRef, updateData as any);
+      setSupplier(prev => prev ? {
+        ...prev,
+        ...((prev.pendingProfile) ? { ...prev.pendingProfile } : {}),
+        status: 'approved',
+        profileUpdateRequested: false,
+        profileReapprovedAt: new Date().toISOString(),
+        pendingProfile: null
+      } : prev);
+      toast({ title: 'Changes accepted', description: 'Supplier changes have been approved.', variant: 'default' });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to accept changes.', variant: 'destructive' });
+    } finally {
+      setAccepting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchSupplier = async () => {
@@ -1234,7 +1269,37 @@ const SupplierDetailPage = () => {
             )}
           </motion.div>
 
+          {/* Pending Profile Changes Section */}
+          {supplier?.pendingProfile && (
+            <Card className="bg-yellow-900/40 border-yellow-500/40 mb-6">
+              <CardHeader>
+                <CardTitle className="text-yellow-200">Pending Profile Changes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(supplier.pendingProfile).map(([key, value]) => (
+                    <div key={key} className="text-yellow-100">
+                      <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>: {String(value)}
+                    </div>
+                  ))}
+                </div>
+                <div className="text-yellow-300 text-xs mt-2">These changes are pending admin approval.</div>
+              </CardContent>
+            </Card>
+          )}
           {/* Uploaded Documents Section */}
+          {/* Accept Changes Button for Admin */}
+          {supplier && (supplier.profileUpdateRequested || (supplier.uploadedDocuments && supplier.uploadedDocuments.length > 0)) && (
+            <div className="flex justify-end mb-4">
+              <Button
+                onClick={handleAcceptChanges}
+                disabled={accepting}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg"
+              >
+                {accepting ? 'Accepting...' : 'Accept Changes'}
+              </Button>
+            </div>
+          )}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

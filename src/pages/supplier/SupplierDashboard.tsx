@@ -92,6 +92,21 @@ interface SupplierData {
     url_fallback?: string;
     [key: string]: any;
   }>;
+  pendingDocuments?: Array<{
+    url: string;
+    name: string;
+    asset_id?: string;
+    public_id?: string;
+    secure_url?: string;
+    resource_type?: string;
+    format?: string;
+    uploaded_at?: string;
+    file_size?: number;
+    url_fallback?: string;
+    [key: string]: any;
+  }>;
+  documentsUpdateRequested?: boolean;
+// End of SupplierData interface
 }
 
 interface FormData {
@@ -690,27 +705,40 @@ const SupplierDashboard: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <DocumentUploader
-                      initialDocuments={supplier.uploadedDocuments || []}
+                      initialDocuments={supplier.pendingDocuments || supplier.uploadedDocuments || []}
                       onUpload={async (allDocs: any[]) => {
                         if (!user?.uid) return;
                         try {
                           await updateDoc(doc(db, 'suppliers', user.uid), {
                             pendingDocuments: allDocs,
+<<<<<<< HEAD
+                            documentsUpdateRequested: true
+=======
                             documentsUpdateRequested: true,
                             status: 'pending'
+>>>>>>> 17a1575ff77318aa01d66a1552245c3f742664be
                           });
                           setSupplier(prev => prev ? {
                             ...prev,
                             pendingDocuments: allDocs,
+<<<<<<< HEAD
+                            documentsUpdateRequested: true
+                          } : prev);
+                          toast.success('Documents submitted for admin approval');
+=======
                             documentsUpdateRequested: true,
                             status: 'pending'
                           } : prev);
                           toast.success('Document replacement submitted for admin approval');
+>>>>>>> 17a1575ff77318aa01d66a1552245c3f742664be
                         } catch (err) {
                           toast.error('Failed to submit document replacement for approval');
                         }
                       }}
                     />
+                    {supplier.documentsUpdateRequested && (
+                      <div className="mt-2 text-yellow-400 text-sm">Document changes are pending admin approval.</div>
+                    )}
                   </CardContent>
 
 

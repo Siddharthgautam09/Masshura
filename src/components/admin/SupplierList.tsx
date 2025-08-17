@@ -36,15 +36,15 @@ interface Supplier {
 interface SupplierListProps {
   suppliers?: Supplier[];
   isLoading?: boolean;
-  statusFilter?: string;
-  categoryFilter?: string;
+  statusFilter?: string[];
+  categoryFilter?: string[];
 }
 
 const SupplierList: React.FC<SupplierListProps> = ({ 
   suppliers: propSuppliers = [], 
   isLoading: propIsLoading = false,
-  statusFilter = 'all',
-  categoryFilter = 'all',
+  statusFilter = [],
+  categoryFilter = [],
 }) => {
   const [suppliers, setSuppliers] = useState<Supplier[]>(propSuppliers);
   const [isLoading, setIsLoading] = useState(propIsLoading);
@@ -149,21 +149,21 @@ const SupplierList: React.FC<SupplierListProps> = ({
         return companyName.includes(term) || email.includes(term);
       })
       .filter(supplier => {
-        if (statusFilter === 'all') return true;
+        if (!statusFilter || statusFilter.length === 0) return true;
         const supplierStatus = supplier.status?.trim().toLowerCase();
-        const filterStatus = statusFilter.trim().toLowerCase();
-        return supplierStatus === filterStatus;
+        return statusFilter.includes(supplierStatus);
       })
       .filter(supplier => {
-        if (categoryFilter === 'all') return true;
-        
+        if (!categoryFilter || categoryFilter.length === 0) return true;
         // Check both single category and categories array
-        const hasCategory = 
-          (supplier.category?.trim() === categoryFilter.trim()) ||
-          (supplier.categories && Array.isArray(supplier.categories) && 
-           supplier.categories.some(cat => cat?.trim() === categoryFilter.trim()));
-        
-        return hasCategory;
+        const supplierCategories: string[] = [];
+        if (typeof supplier.category === 'string' && supplier.category.trim()) {
+          supplierCategories.push(supplier.category.trim());
+        }
+        if (Array.isArray(supplier.categories)) {
+          supplierCategories.push(...supplier.categories.map(c => c.trim()).filter(Boolean));
+        }
+        return categoryFilter.some(cat => supplierCategories.includes(cat));
       });
   }, [suppliers, searchTerm, statusFilter, categoryFilter]);
 

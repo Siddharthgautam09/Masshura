@@ -9,6 +9,7 @@ import SupplierList from '../../components/admin/SupplierList';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   LogOut, 
   Users, 
@@ -45,8 +46,8 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   // Filter states
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]); // Multi-select
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]); // Multi-select
   const [categories, setCategories] = useState<string[]>([]);
   const [filteredSuppliers, setFilteredSuppliers] = useState<Supplier[]>([]);
   const [allSuppliers, setAllSuppliers] = useState<Supplier[]>([]);
@@ -106,29 +107,27 @@ const AdminDashboard = () => {
   // Filter suppliers based on selected filters
   useEffect(() => {
     console.log('Applying filters:', { statusFilter, categoryFilter }); // Debug log
-    
     let filtered = [...allSuppliers];
 
-    // Apply status filter (robust)
-    if (statusFilter !== 'all') {
-      const filterStatus = statusFilter.trim().toLowerCase();
+    // Multi-status filter
+    if (statusFilter.length > 0) {
       filtered = filtered.filter(supplier => {
         const supplierStatus = (supplier.status || '').toString().trim().toLowerCase();
-        return supplierStatus === filterStatus;
+        return statusFilter.includes(supplierStatus);
       });
     }
 
-    // Apply category filter (supports string or array)
-    if (categoryFilter !== 'all') {
-      const filterCategory = categoryFilter.trim();
+    // Multi-category filter
+    if (categoryFilter.length > 0) {
       filtered = filtered.filter(supplier => {
-        if (typeof supplier.category === 'string' && supplier.category.trim() === filterCategory) {
-          return true;
+        const supplierCategories = [];
+        if (typeof supplier.category === 'string' && supplier.category.trim()) {
+          supplierCategories.push(supplier.category.trim());
         }
-        if (Array.isArray(supplier.categories) && supplier.categories.map(c => c.trim()).includes(filterCategory)) {
-          return true;
+        if (Array.isArray(supplier.categories)) {
+          supplierCategories.push(...supplier.categories.map(c => c.trim()).filter(Boolean));
         }
-        return false;
+        return categoryFilter.some(cat => supplierCategories.includes(cat));
       });
     }
 
@@ -146,11 +145,11 @@ const AdminDashboard = () => {
   };
 
   const clearFilters = () => {
-    setStatusFilter('all');
-    setCategoryFilter('all');
+    setStatusFilter([]);
+    setCategoryFilter([]);
   };
 
-  const hasActiveFilters = statusFilter !== 'all' || categoryFilter !== 'all';
+  const hasActiveFilters = statusFilter.length > 0 || categoryFilter.length > 0;
 
   // Helper function to get display text for status
   const getStatusDisplayText = (status: string) => {
@@ -412,57 +411,123 @@ const AdminDashboard = () => {
                   {/* Status Filter */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-300">Filter by Status</label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="bg-slate-700/50 border-slate-600 text-slate-200">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-white">
-                        <SelectItem value="all" className="text-white border-white">All Statuses</SelectItem>
-                        <SelectItem value="pending_approval" className="text-white border-white">Pending Approval</SelectItem>
-                        <SelectItem value="approved" className="text-white border-white">Approved</SelectItem>
-                        <SelectItem value="rejected" className="text-white border-white">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="relative">
+                      <Select open={undefined}>
+                        <SelectTrigger className="bg-slate-700/50 border-slate-600 text-slate-200">
+                          <span>{statusFilter.length === 0 ? 'All Statuses' : statusFilter.map(getStatusDisplayText).join(', ')}</span>
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-white">
+                          <div className="flex flex-col gap-1 p-2">
+                            <label className="flex items-center gap-2 cursor-pointer text-white border-white">
+                              <Checkbox
+                                checked={statusFilter.length === 0}
+                                onCheckedChange={() => setStatusFilter([])}
+                              />
+                              All Statuses
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer text-white border-white">
+                              <Checkbox
+                                checked={statusFilter.includes('pending_approval')}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setStatusFilter([...statusFilter, 'pending_approval']);
+                                  } else {
+                                    setStatusFilter(statusFilter.filter((s) => s !== 'pending_approval'));
+                                  }
+                                }}
+                              />
+                              Pending Approval
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer text-white border-white">
+                              <Checkbox
+                                checked={statusFilter.includes('approved')}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setStatusFilter([...statusFilter, 'approved']);
+                                  } else {
+                                    setStatusFilter(statusFilter.filter((s) => s !== 'approved'));
+                                  }
+                                }}
+                              />
+                              Approved
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer text-white border-white">
+                              <Checkbox
+                                checked={statusFilter.includes('rejected')}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setStatusFilter([...statusFilter, 'rejected']);
+                                  } else {
+                                    setStatusFilter(statusFilter.filter((s) => s !== 'rejected'));
+                                  }
+                                }}
+                              />
+                              Rejected
+                            </label>
+                          </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   {/* Category Filter */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-300">Filter by Category</label>
-                    <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                      <SelectTrigger className="bg-slate-700/50 border-slate-600 text-slate-200">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-white">
-                        <SelectItem value="all" className="text-white border-white">All Categories</SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category} className="text-white border-white">
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="relative">
+                      <Select open={undefined}>
+                        <SelectTrigger className="bg-slate-700/50 border-slate-600 text-slate-200">
+                          <span>{categoryFilter.length === 0 ? 'All Categories' : categoryFilter.join(', ')}</span>
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-white">
+                          <div className="flex flex-col gap-1 p-2">
+                            <label className="flex items-center gap-2 cursor-pointer text-white border-white">
+                              <Checkbox
+                                checked={categoryFilter.length === 0}
+                                onCheckedChange={() => setCategoryFilter([])}
+                              />
+                              All Categories
+                            </label>
+                            {categories.map((category) => (
+                              <label key={category} className="flex items-center gap-2 cursor-pointer text-white border-white">
+                                <Checkbox
+                                  checked={categoryFilter.includes(category)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setCategoryFilter([...categoryFilter, category]);
+                                    } else {
+                                      setCategoryFilter(categoryFilter.filter((c) => c !== category));
+                                    }
+                                  }}
+                                />
+                                {category}
+                              </label>
+                            ))}
+                          </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
                 {/* Active Filters Display */}
                 {hasActiveFilters && (
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {statusFilter !== 'all' && (
+                    {statusFilter.length > 0 && (
                       <div className="flex items-center bg-blue-500/20 border border-blue-400/30 rounded-full px-3 py-1 text-sm text-blue-300">
-                        <span className="mr-2">Status: {getStatusDisplayText(statusFilter)}</span>
+                        <span className="mr-2">Status: {statusFilter.map(getStatusDisplayText).join(', ')}</span>
                         <button
-                          onClick={() => setStatusFilter('all')}
+                          onClick={() => setStatusFilter([])}
                           className="hover:text-blue-200"
                         >
                           <X className="h-3 w-3" />
                         </button>
                       </div>
                     )}
-                    {categoryFilter !== 'all' && (
+                    {categoryFilter.length > 0 && (
                       <div className="flex items-center bg-purple-500/20 border border-purple-400/30 rounded-full px-3 py-1 text-sm text-purple-300">
-                        <span className="mr-2">Category: {categoryFilter}</span>
+                        <span className="mr-2">Category: {categoryFilter.join(', ')}</span>
                         <button
-                          onClick={() => setCategoryFilter('all')}
+                          onClick={() => setCategoryFilter([])}
                           className="hover:text-purple-200"
                         >
                           <X className="h-3 w-3" />
@@ -478,8 +543,8 @@ const AdminDashboard = () => {
                 <div className="mb-4 p-3 bg-slate-700/30 rounded-lg border border-slate-600/30">
                   <p className="text-xs text-slate-400">
                     Debug: Showing {filteredSuppliers.length} of {allSuppliers.length} suppliers
-                    {statusFilter !== 'all' && ` | Status: ${statusFilter}`}
-                    {categoryFilter !== 'all' && ` | Category: ${categoryFilter}`}
+                    {statusFilter.length > 0 && ` | Status: ${statusFilter.map(getStatusDisplayText).join(', ')}`}
+                    {categoryFilter.length > 0 && ` | Category: ${categoryFilter.join(', ')}`}
                   </p>
                 </div>
               )}

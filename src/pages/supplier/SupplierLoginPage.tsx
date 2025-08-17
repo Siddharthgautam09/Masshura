@@ -26,7 +26,23 @@ const SupplierLoginPage = () => {
     setIsLoading(true);
     
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Fetch supplier data from Firestore
+      const { getDoc, doc } = await import('firebase/firestore');
+      const { db } = await import('../../components/firebase');
+      const supplierDoc = await getDoc(doc(db, 'suppliers', userCredential.user.uid));
+      if (supplierDoc.exists()) {
+        const supplierData = supplierDoc.data();
+        if (supplierData.paymentStatus !== 'completed') {
+          toast({
+            title: "Payment Required",
+            description: "Please complete your payment to access the dashboard.",
+            variant: "destructive",
+          });
+          navigate('/supplier-dashboard'); // This page will show the payment dialog if not paid
+          return;
+        }
+      }
       toast({
         title: "Welcome back!",
         description: "Successfully logged in to your supplier dashboard.",

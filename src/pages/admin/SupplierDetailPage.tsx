@@ -1356,7 +1356,7 @@ const SupplierDetailPage = () => {
             </Card>
           )}
           {/* Accept Changes Button for Admin */}
-          {supplier && (supplier.profileUpdateRequested || (supplier.uploadedDocuments && supplier.uploadedDocuments.length > 0)) && (
+          {supplier && (supplier.profileUpdateRequested || supplier.documentsUpdateRequested) && (
             <div className="flex justify-end mb-4">
               <Button
                 onClick={handleAcceptChanges}

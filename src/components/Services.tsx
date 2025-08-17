@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Code2, 
   Users, 
@@ -32,6 +33,7 @@ const CardItem = ({ children, className, translateZ, as: Component = 'div', ...p
 
 const Services = () => {
   const [expandedService, setExpandedService] = useState(null);
+  const navigate = useNavigate();
 
   const services = [
     {
@@ -124,9 +126,7 @@ const Services = () => {
   };
 
   const handleGetStarted = () => {
-    console.log('Get started clicked');
-    // Replace with your navigation logic
-    alert('Navigate to contact page');
+    navigate('/contact');
   };
 
   return (

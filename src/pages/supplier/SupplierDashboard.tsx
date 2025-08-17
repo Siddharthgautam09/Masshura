@@ -709,20 +709,39 @@ const SupplierDashboard: React.FC = () => {
                       onUpload={async (allDocs: any[]) => {
                         if (!user?.uid) return;
                         try {
-                          await updateDoc(doc(db, 'suppliers', user.uid), {
-                            pendingDocuments: allDocs,
-                            documentsUpdateRequested: true,
-                            status: 'pending'
-                          });
-                          setSupplier(prev => prev ? {
-                            ...prev,
-                            pendingDocuments: allDocs,
-                            documentsUpdateRequested: true,
-                            status: 'pending'
-                          } : prev);
-                          toast.success('Document replacement submitted for admin approval');
+                          if (!supplier.uploadedDocuments || supplier.uploadedDocuments.length === 0) {
+                            // First time upload: save directly, no admin approval needed
+                            await updateDoc(doc(db, 'suppliers', user.uid), {
+                              uploadedDocuments: allDocs,
+                              documentsUpdateRequested: false,
+                              pendingDocuments: [],
+                              status: 'approved'
+                            });
+                            setSupplier(prev => prev ? {
+                              ...prev,
+                              uploadedDocuments: allDocs,
+                              documentsUpdateRequested: false,
+                              pendingDocuments: [],
+                              status: 'approved'
+                            } : prev);
+                            toast.success('Documents uploaded successfully');
+                          } else {
+                            // Replacement: require admin approval
+                            await updateDoc(doc(db, 'suppliers', user.uid), {
+                              pendingDocuments: allDocs,
+                              documentsUpdateRequested: true,
+                              status: 'pending'
+                            });
+                            setSupplier(prev => prev ? {
+                              ...prev,
+                              pendingDocuments: allDocs,
+                              documentsUpdateRequested: true,
+                              status: 'pending'
+                            } : prev);
+                            toast.success('Document replacement submitted for admin approval');
+                          }
                         } catch (err) {
-                          toast.error('Failed to submit document replacement for approval');
+                          toast.error('Failed to upload documents');
                         }
                       }}
                     />

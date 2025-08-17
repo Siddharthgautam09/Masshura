@@ -819,7 +819,7 @@ const SupplierList: React.FC<SupplierListProps> = ({
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <div className="flex items-center justify-center gap-1">
-                    {supplier.status === 'pending' && (
+                    {supplier.status === 'pending' && !supplier.documentsUpdateRequested && (
                       <>
                         <Button 
                           size="sm" 

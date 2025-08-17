@@ -251,7 +251,8 @@ const SupplierDashboard: React.FC = () => {
           ...formData,
           updatedAt: new Date()
         },
-        profileUpdateRequested: true
+        profileUpdateRequested: true,
+        status: 'pending'
       };
 
       await updateDoc(doc(db, 'suppliers', user.uid), updateData);
@@ -259,7 +260,8 @@ const SupplierDashboard: React.FC = () => {
       setSupplier(prev => prev ? {
         ...prev,
         pendingProfile: { ...formData, updatedAt: new Date() },
-        profileUpdateRequested: true
+        profileUpdateRequested: true,
+        status: 'pending'
       } : null);
       setIsEditing(false);
       toast.success('Profile update submitted for admin approval');
@@ -709,16 +711,28 @@ const SupplierDashboard: React.FC = () => {
                         try {
                           await updateDoc(doc(db, 'suppliers', user.uid), {
                             pendingDocuments: allDocs,
+<<<<<<< HEAD
                             documentsUpdateRequested: true
+=======
+                            documentsUpdateRequested: true,
+                            status: 'pending'
+>>>>>>> 17a1575ff77318aa01d66a1552245c3f742664be
                           });
                           setSupplier(prev => prev ? {
                             ...prev,
                             pendingDocuments: allDocs,
+<<<<<<< HEAD
                             documentsUpdateRequested: true
                           } : prev);
                           toast.success('Documents submitted for admin approval');
+=======
+                            documentsUpdateRequested: true,
+                            status: 'pending'
+                          } : prev);
+                          toast.success('Document replacement submitted for admin approval');
+>>>>>>> 17a1575ff77318aa01d66a1552245c3f742664be
                         } catch (err) {
-                          toast.error('Failed to save document info to Firestore');
+                          toast.error('Failed to submit document replacement for approval');
                         }
                       }}
                     />

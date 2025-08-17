@@ -69,9 +69,36 @@ const Products = () => {
     }
   ];
 
+  // Navigation function - Choose one of these options based on your setup
+  const navigateToContact = () => {
+    // Option 1: For React Router (most common)
+    // If using React Router, uncomment the import and use this:
+    // import { useNavigate } from 'react-router-dom';
+    // const navigate = useNavigate();
+    // navigate('/contact');
+
+    // Option 2: For Next.js Router
+    // If using Next.js, uncomment the import and use this:
+    // import { useRouter } from 'next/router';
+    // const router = useRouter();
+    // router.push('/contact');
+
+    // Option 3: For Next.js App Router (Next.js 13+)
+    // If using Next.js App Router, uncomment the import and use this:
+    // import { useRouter } from 'next/navigation';
+    // const router = useRouter();
+    // router.push('/contact');
+
+    // Option 4: Simple window.location (works with any setup)
+    window.location.href = '/contact';
+
+    // Option 5: For external contact page
+    // window.open('https://yourwebsite.com/contact', '_self');
+  };
+
   return (
     <section id="products" className="relative py-12 md:py-20 bg-slate-900 overflow-hidden">
-      {/* Background Layer with Boxes 
+      {/* Background Layer with Boxes
       <div className="absolute inset-0 w-full h-full z-0">
         <div className="absolute inset-0 w-full h-full">
           <Boxes />
@@ -82,7 +109,7 @@ const Products = () => {
       {/* Meta tags for SEO */}
       <meta name="keywords" content="UAE ERP Software, Facilities Management Software Dubai, CRM UAE, Real Estate ERP, Custom Software UAE, Dubai IT Solutions, GCC Enterprise Tools, Maashura" />
       <meta name="description" content="Explore Maashura – a proven suite of ERP, CRM, and Facilities Management tools developed in Dubai for UAE & GCC businesses. Ready-to-use, customizable, and cost-effective software solutions." />
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <motion.div
           className="text-center mb-12 md:mb-16"
@@ -92,7 +119,7 @@ const Products = () => {
           viewport={{ once: true }}
         >
           {/* Clickable H2 heading that links to JoonMS */}
-          <motion.h2 
+          <motion.h2
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 text-[#f8fafc] leading-tight cursor-pointer hover:text-[#6AAEFF] transition-colors duration-300"
             onClick={() => window.open('https://www.Joonms.com/', '_blank')}
             whileHover={{ scale: 1.02 }}
@@ -100,7 +127,7 @@ const Products = () => {
           >
             Explore Our <span className="text-[#6AAEFF]">In-house Software Products</span>
           </motion.h2>
-          
+
           {/* Quick button link */}
           <motion.button
             className="inline-flex items-center space-x-2 bg-[#6AAEFF] text-white px-6 py-3 rounded-full font-semibold mb-8 hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 border border-transparent hover:border-[#6AAEFF] shadow-xl hover:shadow-[#6AAEFF]/30"
@@ -124,11 +151,9 @@ const Products = () => {
               <p className="text-base md:text-lg text-[#f8fafc] leading-relaxed mb-6">
                 In addition to our consultancy services, <strong className="text-[#6AAEFF]">Maashura</strong> proudly develops and maintains its own suite of enterprise tools, built specifically for businesses in the UAE, Dubai, and the wider GCC. These are currently used by leading companies across Dubai and the UAE.
               </p>
-              
               <p className="text-base md:text-lg text-[#f8fafc] leading-relaxed mb-4 text-center">
                 🔹 <a href="https://www.joonms.com/" target="_blank" rel="noopener noreferrer" className="text-[#6AAEFF] hover:text-white transition-colors duration-300 font-semibold">Click here to explore our JoonMS Product Portfolio</a>
               </p>
-
             </motion.div>
           </div>
         </motion.div>
@@ -162,10 +187,7 @@ const Products = () => {
             className="bg-[#6AAEFF] text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF] overflow-hidden group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              const element = document.getElementById('contact');
-              if (element) element.scrollIntoView({ behavior: 'smooth' });
-            }}
+            onClick={navigateToContact}
             aria-label="Get Custom Pricing Quote"
             title="Get Custom Pricing Quote"
           >

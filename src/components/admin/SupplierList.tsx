@@ -21,76 +21,122 @@ import { Label } from "@/components/ui/label";
 
 const ITEMS_PER_PAGE = 10;
 
-const SupplierList = () => {
-  const [suppliers, setSuppliers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface Supplier {
+  id: string;
+  status: string;
+  category?: string;
+  categories?: string[];
+  companyName: string;
+  email: string;
+  isActive?: boolean;
+  remarks?: any[];
+  [key: string]: any;
+}
+
+interface SupplierListProps {
+  suppliers?: Supplier[];
+  isLoading?: boolean;
+  statusFilter?: string;
+  categoryFilter?: string;
+}
+
+const SupplierList: React.FC<SupplierListProps> = ({ 
+  suppliers: propSuppliers = [], 
+  isLoading: propIsLoading = false,
+  statusFilter = 'all',
+  categoryFilter = 'all',
+}) => {
+  const [suppliers, setSuppliers] = useState<Supplier[]>(propSuppliers);
+  const [isLoading, setIsLoading] = useState(propIsLoading);
   const [categories, setCategories] = useState<string[]>([]);
   const { toast } = useToast();
 
-  // State for search, filter, and pagination
+  // State for search and pagination only
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Remarks functionality
-  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [remark, setRemark] = useState('');
   const [isRemarkDialogOpen, setIsRemarkDialogOpen] = useState(false);
 
   // Send login link functionality
   const [isLoginLinkDialogOpen, setIsLoginLinkDialogOpen] = useState(false);
-  const [loginLinkSupplier, setLoginLinkSupplier] = useState<any>(null);
+  const [loginLinkSupplier, setLoginLinkSupplier] = useState<Supplier | null>(null);
 
-  // This useEffect fetches ALL suppliers from Firestore and extracts categories
+  // Update suppliers when props change
   useEffect(() => {
-    const fetchSuppliers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'suppliers'));
-        const supplierList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setSuppliers(supplierList);
-        
-        // Extract unique categories from all suppliers
-        const allCategories = new Set<string>();
-        supplierList.forEach(supplier => {
-          if (supplier.categories && Array.isArray(supplier.categories)) {
-            supplier.categories.forEach(category => allCategories.add(category));
+    setSuppliers(propSuppliers);
+    setIsLoading(propIsLoading);
+    
+    // Extract categories from suppliers
+    const allCategories = new Set<string>();
+    propSuppliers.forEach(supplier => {
+      // Handle both single category and categories array
+      if (supplier.category && typeof supplier.category === 'string') {
+        allCategories.add(supplier.category.trim());
+      }
+      if (supplier.categories && Array.isArray(supplier.categories)) {
+        supplier.categories.forEach(cat => {
+          if (typeof cat === 'string' && cat.trim()) {
+            allCategories.add(cat.trim());
           }
         });
-        setCategories(Array.from(allCategories).sort());
-        
-      } catch (error) {
-        toast({ title: "Error", description: "Could not fetch company data.", variant: "destructive" });
-      } finally {
-        setIsLoading(false);
       }
-    };
-    fetchSuppliers();
-  }, [toast]);
+    });
+    setCategories(Array.from(allCategories).sort());
+  }, [propSuppliers, propIsLoading]);
 
-  // Function to refresh supplier data
-  const refreshSuppliers = async () => {
-    setIsLoading(true);
+  // Fallback: fetch suppliers if no props provided (for standalone usage)
+  useEffect(() => {
+    if (propSuppliers.length === 0 && !propIsLoading) {
+      fetchSuppliers();
+    }
+  }, [propSuppliers.length, propIsLoading]);
+
+  const fetchSuppliers = async () => {
     try {
+      setIsLoading(true);
       const querySnapshot = await getDocs(collection(db, 'suppliers'));
-      const supplierList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const supplierList = querySnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      } as Supplier));
       setSuppliers(supplierList);
       
-      // Update categories
+      // Extract unique categories from all suppliers
       const allCategories = new Set<string>();
       supplierList.forEach(supplier => {
+        // Handle both single category and categories array
+        if (supplier.category && typeof supplier.category === 'string') {
+          allCategories.add(supplier.category.trim());
+        }
         if (supplier.categories && Array.isArray(supplier.categories)) {
-          supplier.categories.forEach(category => allCategories.add(category));
+          supplier.categories.forEach(cat => {
+            if (typeof cat === 'string' && cat.trim()) {
+              allCategories.add(cat.trim());
+            }
+          });
         }
       });
       setCategories(Array.from(allCategories).sort());
       
-      toast({ title: "Success", description: "Company data refreshed." });
     } catch (error) {
-      toast({ title: "Error", description: "Could not refresh company data.", variant: "destructive" });
+      console.error('Error fetching suppliers:', error);
+      toast({ title: "Error", description: "Could not fetch company data.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to refresh supplier data (only if not using props)
+  const refreshSuppliers = async () => {
+    if (propSuppliers.length > 0) {
+      toast({ title: "Info", description: "Data is managed by parent component.", variant: "default" });
+      return;
+    }
+    await fetchSuppliers();
+    toast({ title: "Success", description: "Company data refreshed." });
   };
 
   // Memoized logic to filter suppliers based on search, status, and category
@@ -104,12 +150,20 @@ const SupplierList = () => {
       })
       .filter(supplier => {
         if (statusFilter === 'all') return true;
-        return supplier.status === statusFilter;
+        const supplierStatus = supplier.status?.trim().toLowerCase();
+        const filterStatus = statusFilter.trim().toLowerCase();
+        return supplierStatus === filterStatus;
       })
       .filter(supplier => {
         if (categoryFilter === 'all') return true;
-        return supplier.categories && Array.isArray(supplier.categories) && 
-               supplier.categories.includes(categoryFilter);
+        
+        // Check both single category and categories array
+        const hasCategory = 
+          (supplier.category?.trim() === categoryFilter.trim()) ||
+          (supplier.categories && Array.isArray(supplier.categories) && 
+           supplier.categories.some(cat => cat?.trim() === categoryFilter.trim()));
+        
+        return hasCategory;
       });
   }, [suppliers, searchTerm, statusFilter, categoryFilter]);
 
@@ -121,9 +175,9 @@ const SupplierList = () => {
 
   const totalPages = Math.ceil(filteredSuppliers.length / ITEMS_PER_PAGE);
 
-  const updateSupplierStatusInState = (supplierId: string, newStatus: string) => {
+  const updateSupplierStatusInState = (supplierId: string, newStatus: string, additionalData: any = {}) => {
     setSuppliers(currentSuppliers =>
-      currentSuppliers.map(s => (s.id === supplierId ? { ...s, status: newStatus } : s))
+      currentSuppliers.map(s => (s.id === supplierId ? { ...s, status: newStatus, ...additionalData } : s))
     );
   };
 
@@ -145,7 +199,7 @@ const SupplierList = () => {
       console.log('Firestore update successful');
       
       // Update the state locally to reflect the change instantly
-      updateSupplierStatusInState(supplierId, 'approved');
+      updateSupplierStatusInState(supplierId, 'approved', { isActive: true, approvedAt: new Date().toISOString() });
       toast({ title: "Success", description: "Company has been approved and activated." });
 
       // Step 2: Send approval welcome email using EmailJS
@@ -221,7 +275,7 @@ const SupplierList = () => {
       });
       console.log('Firestore update successful');
       
-      updateSupplierStatusInState(supplierId, 'rejected');
+      updateSupplierStatusInState(supplierId, 'rejected', { rejectedAt: new Date().toISOString() });
       toast({ title: "Success", description: "Company has been rejected." });
 
       // Step 2: Send rejection email (if supplier has valid email)
@@ -241,7 +295,7 @@ const SupplierList = () => {
     }
   };
 
-  const sendRejectionEmail = async (supplier: any) => {
+  const sendRejectionEmail = async (supplier: Supplier) => {
     try {
       // TODO: Replace with your actual rejection EmailJS configuration
       const REJECTION_SERVICE_ID = "service_gcr919g";
@@ -318,7 +372,7 @@ const SupplierList = () => {
       });
       console.log('Firestore update successful');
       
-      updateSupplierStatusInState(supplierId, 'accepted');
+      updateSupplierStatusInState(supplierId, 'accepted', { acceptedAt: new Date().toISOString() });
       toast({ title: "Success", description: "Supplier has been accepted. They can now proceed to payment." });
 
       // Step 2: Send acceptance email using EmailJS (Account Setup Only)
@@ -373,7 +427,7 @@ const SupplierList = () => {
       status: 'blocked',
       blockedAt: new Date().toISOString()
     });
-    updateSupplierStatusInState(supplierId, 'blocked');
+    updateSupplierStatusInState(supplierId, 'blocked', { blockedAt: new Date().toISOString() });
     toast({ title: "Success", description: "Supplier has been blocked.", variant: "destructive" });
   };
 
@@ -409,7 +463,7 @@ const SupplierList = () => {
   };
 
   // Function to calculate expiry date (example: 1 year from acceptance)
-  const calculateExpiryDate = (supplier: any) => {
+  const calculateExpiryDate = (supplier: Supplier) => {
     if (supplier.acceptedAt && supplier.status === 'accepted') {
       const acceptedDate = new Date(supplier.acceptedAt);
       const expiryDate = new Date(acceptedDate);
@@ -515,6 +569,25 @@ const SupplierList = () => {
       });
     }
   };
+
+  // Helper function to get category display
+  const getCategoryDisplay = (supplier: Supplier) => {
+    // Handle both single category and categories array
+    const categories = [];
+    
+    if (supplier.category && typeof supplier.category === 'string') {
+      categories.push(supplier.category);
+    }
+    
+    if (supplier.categories && Array.isArray(supplier.categories)) {
+      categories.push(...supplier.categories);
+    }
+    
+    // Remove duplicates and filter empty values
+    const uniqueCategories = [...new Set(categories.filter(cat => cat && cat.trim()))];
+    
+    return uniqueCategories.length > 0 ? uniqueCategories : ['No categories'];
+  };
   
   if (isLoading) {
     return (
@@ -527,52 +600,14 @@ const SupplierList = () => {
 
   return (
     <div className="space-y-6">
-      {/* Search and Filter Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-slate-700/50 p-4 rounded-lg border border-slate-600/50">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-1">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Search by company name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-slate-500 text-slate-200 placeholder-slate-400 focus:border-blue-400 focus:ring-blue-400"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Filter className="text-slate-400 h-4 w-4" />
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px] bg-slate-800/50 border-slate-500 text-slate-200">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-600">
-                <SelectItem value="all" className="text-slate-200 hover:bg-slate-700">All Statuses</SelectItem>
-                <SelectItem value="pending" className="text-slate-200 hover:bg-slate-700">Pending</SelectItem>
-                <SelectItem value="accepted" className="text-slate-200 hover:bg-slate-700">Accepted</SelectItem>
-                <SelectItem value="rejected" className="text-slate-200 hover:bg-slate-700">Rejected</SelectItem>
-                <SelectItem value="blocked" className="text-slate-200 hover:bg-slate-700">Blocked</SelectItem>
-                <SelectItem value="approved" className="text-slate-200 hover:bg-slate-700">Approved (Legacy)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={refreshSuppliers}
-            variant="outline"
-            size="sm"
-            className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+      {/* Show filter results when using props */}
+      {propSuppliers.length > 0 && (
+        <div className="flex items-center justify-between">
           <div className="text-sm text-slate-400">
             Showing {filteredSuppliers.length} of {suppliers.length} companies
           </div>
         </div>
-      </div>
+      )}
 
       {/* Companies Table */}
       <div className="bg-slate-800/60 rounded-lg border border-slate-600/50 shadow-sm overflow-hidden backdrop-blur-sm">
@@ -615,11 +650,11 @@ const SupplierList = () => {
                 <TableCell className="text-slate-300 whitespace-nowrap max-w-52 truncate" title={supplier.email}>{supplier.email}</TableCell>
                 <TableCell className="text-slate-300 whitespace-nowrap">
                   <div className="flex flex-wrap gap-1 max-w-40">
-                    {supplier.categories?.map((category, catIndex) => (
+                    {getCategoryDisplay(supplier).map((category, catIndex) => (
                       <Badge key={catIndex} variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-400/30 text-xs">
                         {category}
                       </Badge>
-                    )) || <span className="text-slate-500 text-xs">No categories</span>}
+                    ))}
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
@@ -854,10 +889,34 @@ const SupplierList = () => {
         )}
       </div>
 
-      {/* --- PAGINATION CONTROLS --- */}
-      <div className="flex items-center justify-between mt-4">
-        {/* ... Pagination UI code ... */}
-      </div>
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-slate-400">
+            Page {currentPage} of {totalPages}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="border-slate-500 text-slate-300 hover:bg-slate-700/50"
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="border-slate-500 text-slate-300 hover:bg-slate-700/50"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Remarks Dialog */}
       <Dialog open={isRemarkDialogOpen} onOpenChange={setIsRemarkDialogOpen}>

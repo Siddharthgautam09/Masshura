@@ -10,7 +10,7 @@ import { collection } from 'firebase/firestore';
 import { db } from '../../components/firebase';
 import { populateDefaultCategories } from '../../utils/populateDefaultCategories';
 import { useAllCategories } from '../../hooks/useAdminCategories';
-import { Link } from 'react-router-dom';
+import SubscriptionSettings from './SubscriptionSettings';
 
 const AdminSettingsPage = () => {
   const { toast } = useToast();
@@ -216,23 +216,10 @@ const AdminSettingsPage = () => {
                     <p className="text-slate-300 text-sm">Manage subscription plans and renewal amounts</p>
                   </div>
                 </div>
-                <Link to="/admin/subscription-settings">
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Manage Plans
-                  </Button>
-                </Link>
+                {/* Inline SubscriptionSettings component for managing plans directly */}
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-slate-700/40 rounded-lg border border-slate-600/30">
-                  <div>
-                    <span className="text-white font-medium">Renewal Amounts</span>
-                    <p className="text-slate-400 text-xs">Different pricing for 1, 2, 3, 5+ year renewals</p>
-                  </div>
-                  <div className="text-sm text-purple-400 font-medium">
-                    Configure →
-                  </div>
-                </div>
+              <div className="mt-4">
+                <SubscriptionSettings />
               </div>
             </div>
 

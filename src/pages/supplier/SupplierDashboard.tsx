@@ -1,3 +1,4 @@
+import DocumentUploader from '@/components/DocumentUploader';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
@@ -445,7 +446,8 @@ const SupplierDashboard: React.FC = () => {
                   </div>
 
                   {/* Right Column */}
-                  <div className="space-y-6">
+                  <DocumentUploader />
+                  <div className="space-y-6 mt-6">
                     {/* Contact Person & Subscription Combined */}
                     <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl">
                       <CardHeader>

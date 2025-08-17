@@ -857,6 +857,7 @@ const SupplierList: React.FC<SupplierListProps> = ({
                       }}
                       className="border-slate-500 text-slate-300 hover:bg-slate-700/50 hover:text-slate-200 transition-all duration-200 text-xs px-2 py-1 h-auto whitespace-nowrap"
                       title="Send Login Link"
+                      disabled={supplier.status !== 'approved'}
                     >
                       <Mail className="h-3 w-3 mr-1" />
                       Login

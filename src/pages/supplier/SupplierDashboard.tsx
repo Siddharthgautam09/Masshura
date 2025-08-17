@@ -747,8 +747,9 @@ const SupplierDashboard: React.FC = () => {
                       onUpload={async (allDocs: any[]) => {
                         if (!user?.uid) return;
                         try {
-                          if (!supplier.uploadedDocuments || supplier.uploadedDocuments.length === 0) {
-                            // First time upload: save directly, no admin approval needed
+                          const prevDocs = supplier.uploadedDocuments || [];
+                          // If adding new docs (count increases), allow direct upload
+                          if (allDocs.length > prevDocs.length) {
                             await updateDoc(doc(db, 'suppliers', user.uid), {
                               uploadedDocuments: allDocs,
                               documentsUpdateRequested: false,
@@ -763,20 +764,46 @@ const SupplierDashboard: React.FC = () => {
                               status: 'approved'
                             } : prev);
                             toast.success('Documents uploaded successfully');
+                          } else if (allDocs.length === prevDocs.length) {
+                            // Check if any doc is replaced (url/name changed)
+                            const isReplaced = allDocs.some((doc, i) => {
+                              const prevDoc = prevDocs[i];
+                              return !prevDoc || doc.url !== prevDoc.url || doc.name !== prevDoc.name;
+                            });
+                            if (isReplaced) {
+                              // Replacement: require admin approval
+                              await updateDoc(doc(db, 'suppliers', user.uid), {
+                                pendingDocuments: allDocs,
+                                documentsUpdateRequested: true,
+                                status: 'pending'
+                              });
+                              setSupplier(prev => prev ? {
+                                ...prev,
+                                pendingDocuments: allDocs,
+                                documentsUpdateRequested: true,
+                                status: 'pending'
+                              } : prev);
+                              toast.success('Document replacement submitted for admin approval');
+                            } else {
+                              // No change
+                              toast.info('No changes detected.');
+                            }
                           } else {
-                            // Replacement: require admin approval
+                            // If docs are removed, treat as direct (or you can require approval if needed)
                             await updateDoc(doc(db, 'suppliers', user.uid), {
-                              pendingDocuments: allDocs,
-                              documentsUpdateRequested: true,
-                              status: 'pending'
+                              uploadedDocuments: allDocs,
+                              documentsUpdateRequested: false,
+                              pendingDocuments: [],
+                              status: 'approved'
                             });
                             setSupplier(prev => prev ? {
                               ...prev,
-                              pendingDocuments: allDocs,
-                              documentsUpdateRequested: true,
-                              status: 'pending'
+                              uploadedDocuments: allDocs,
+                              documentsUpdateRequested: false,
+                              pendingDocuments: [],
+                              status: 'approved'
                             } : prev);
-                            toast.success('Document replacement submitted for admin approval');
+                            toast.success('Documents updated successfully');
                           }
                         } catch (err) {
                           toast.error('Failed to upload documents');

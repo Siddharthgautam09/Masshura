@@ -126,13 +126,13 @@ const SubscriptionSettings = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl pt-24">
+  <div className="container mx-auto p-6 max-w-4xl pt-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="mb-8">
+  <div className="mb-4">
           <h1 className="text-3xl font-bold text-white mb-2">Renewal Settings</h1>
           <p className="text-slate-400">Manage renewal amounts for different subscription periods</p>
         </div>

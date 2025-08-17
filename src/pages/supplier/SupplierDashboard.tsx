@@ -92,6 +92,21 @@ interface SupplierData {
     url_fallback?: string;
     [key: string]: any;
   }>;
+  pendingDocuments?: Array<{
+    url: string;
+    name: string;
+    asset_id?: string;
+    public_id?: string;
+    secure_url?: string;
+    resource_type?: string;
+    format?: string;
+    uploaded_at?: string;
+    file_size?: number;
+    url_fallback?: string;
+    [key: string]: any;
+  }>;
+  documentsUpdateRequested?: boolean;
+// End of SupplierData interface
 }
 
 interface FormData {
@@ -688,22 +703,28 @@ const SupplierDashboard: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <DocumentUploader
-                      initialDocuments={supplier.uploadedDocuments || []}
+                      initialDocuments={supplier.pendingDocuments || supplier.uploadedDocuments || []}
                       onUpload={async (allDocs: any[]) => {
                         if (!user?.uid) return;
                         try {
                           await updateDoc(doc(db, 'suppliers', user.uid), {
-                            uploadedDocuments: allDocs
+                            pendingDocuments: allDocs,
+                            documentsUpdateRequested: true
                           });
                           setSupplier(prev => prev ? {
                             ...prev,
-                            uploadedDocuments: allDocs
+                            pendingDocuments: allDocs,
+                            documentsUpdateRequested: true
                           } : prev);
+                          toast.success('Documents submitted for admin approval');
                         } catch (err) {
                           toast.error('Failed to save document info to Firestore');
                         }
                       }}
                     />
+                    {supplier.documentsUpdateRequested && (
+                      <div className="mt-2 text-yellow-400 text-sm">Document changes are pending admin approval.</div>
+                    )}
                   </CardContent>
 
 

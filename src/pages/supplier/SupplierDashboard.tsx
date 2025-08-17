@@ -446,7 +446,6 @@ const SupplierDashboard: React.FC = () => {
                   </div>
 
                   {/* Right Column */}
-                  <DocumentUploader />
                   <div className="space-y-6 mt-6">
                     {/* Contact Person & Subscription Combined */}
                     <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl">
@@ -592,6 +591,15 @@ const SupplierDashboard: React.FC = () => {
                 </div>
 
                 {/* Full Width Analytics Preview */}
+                {/* Full Width Document Uploader Section */}
+                  <CardHeader>
+                    <CardTitle className="text-white text-xl font-bold flex items-center gap-3">
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DocumentUploader />
+                  </CardContent>
+
                 <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl">
                   <CardHeader>
                     <CardTitle className="text-white text-xl font-bold flex items-center gap-3">

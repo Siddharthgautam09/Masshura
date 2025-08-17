@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { FileText, X, CheckCircle, AlertCircle, Upload, RefreshCw } from 'lucide-react';
 import { Button } from './ui/button';
@@ -5,6 +6,12 @@ import { toast } from 'sonner';
 
 interface DocumentUploaderProps {
   onUpload?: (cloudinaryData: any) => void;
+  initialDocuments?: Array<{
+    url: string;
+    name: string;
+    secure_url?: string;
+    [key: string]: any;
+  }>;
 }
 
 const CLOUDINARY_UPLOAD_PRESET = 'masshura_docs';
@@ -12,7 +19,7 @@ const CLOUDINARY_CLOUD_NAME = 'domqsb9le';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_FORMATS = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'txt', 'rtf'];
 
-const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
+const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload, initialDocuments }) => {
   type Slot = {
     file: File | null;
     uploading: boolean;
@@ -24,18 +31,45 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
     originalFileName: string | null;
   };
   
-  const [slots, setSlots] = useState<Slot[]>([
-    { 
-      file: null, 
-      uploading: false, 
-      uploadedUrl: null, 
-      id: Date.now(), 
+  const [slots, setSlots] = useState<Slot[]>(() => {
+    if (initialDocuments && initialDocuments.length > 0) {
+      return initialDocuments.map((doc, idx) => ({
+        file: null,
+        uploading: false,
+        uploadedUrl: doc.secure_url || doc.url,
+        id: Date.now() + idx,
+        isReplacing: false,
+        uploadProgress: 100,
+        error: null,
+        originalFileName: doc.name || null
+      }));
+    }
+    return [{
+      file: null,
+      uploading: false,
+      uploadedUrl: null,
+      id: Date.now(),
       isReplacing: false,
       uploadProgress: 0,
       error: null,
       originalFileName: null
+    }];
+  });
+  // If initialDocuments changes (e.g. after refresh), update slots
+  React.useEffect(() => {
+    if (initialDocuments && initialDocuments.length > 0) {
+      setSlots(initialDocuments.map((doc, idx) => ({
+        file: null,
+        uploading: false,
+        uploadedUrl: doc.secure_url || doc.url,
+        id: Date.now() + idx,
+        isReplacing: false,
+        uploadProgress: 100,
+        error: null,
+        originalFileName: doc.name || null
+      })));
     }
-  ]);
+  }, [initialDocuments]);
   
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
@@ -58,63 +92,47 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       const validationError = validateFile(selectedFile);
-      
       if (validationError) {
         toast.error(validationError);
-        e.target.value = ''; // Clear the input
+        e.target.value = '';
         return;
       }
-
-      setSlots(prev => prev.map(slot => 
-        slot.id === slotId ? { 
-          ...slot, 
-          file: selectedFile, 
-          error: null,
-          uploadProgress: 0,
-          isReplacing: !!slot.uploadedUrl // Set replacing mode if there's already an uploaded file
-        } : slot
+      setSlots(prev => prev.map(slot =>
+        slot.id === slotId ? { ...slot, file: selectedFile, isReplacing: false, error: null } : slot
       ));
+    } else {
+      toast.error('Please select a file to upload.');
     }
   };
 
   const handleUpload = async (slotId: number) => {
     const slot = slots.find(s => s.id === slotId);
     if (!slot || !slot.file) {
-      toast.error('Please select a file to upload.');
+      toast.error('No file selected for upload.');
       return;
     }
-
-    setSlots(prev => prev.map(slot => 
-      slot.id === slotId ? { ...slot, uploading: true, uploadProgress: 0, error: null } : slot
+    setSlots(prev => prev.map(s =>
+      s.id === slotId ? { ...s, uploading: true, uploadProgress: 0, error: null } : s
     ));
 
     const formData = new FormData();
     formData.append('file', slot.file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    
-    // Add Cloudinary transformation parameters
     formData.append('quality', 'auto');
     formData.append('fetch_format', 'auto');
-    
-    // Add tags for better organization
     formData.append('tags', 'masshura,document,upload');
-    
-    // Add context for metadata
     formData.append('context', `original_name=${slot.file.name}|upload_time=${new Date().toISOString()}`);
 
     try {
       const xhr = new XMLHttpRequest();
-      
-      // Track upload progress
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const progress = Math.round((e.loaded / e.total) * 100);
-          setSlots(prev => prev.map(s => 
+          setSlots(prev => prev.map(s =>
             s.id === slotId ? { ...s, uploadProgress: progress } : s
           ));
         }
       });
-
       const uploadPromise = new Promise<any>((resolve, reject) => {
         xhr.onload = () => {
           if (xhr.status === 200) {
@@ -123,42 +141,46 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
             reject(new Error(`Upload failed with status ${xhr.status}`));
           }
         };
-        
         xhr.onerror = () => reject(new Error('Network error occurred'));
         xhr.ontimeout = () => reject(new Error('Upload timeout'));
       });
-
-      xhr.timeout = 60000; // 60 second timeout
+      xhr.timeout = 60000;
       xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`);
       xhr.send(formData);
-
       const data = await uploadPromise;
-      
-      console.log('Cloudinary Response:', data);
-      
       if (data.secure_url) {
-        setSlots(prev => prev.map(s => s.id === slotId ? { 
-          ...s, 
-          uploadedUrl: data.secure_url, 
-          uploading: false,
-          isReplacing: false,
-          uploadProgress: 100,
-          originalFileName: slot.file?.name || null,
-          file: null // Clear file after successful upload
-        } : s));
-        
-        onUpload?.(data);
-        toast.success(`Document "${slot.file.name}" uploaded successfully!`);
-        
-        // Add a new slot if this is the last slot and all slots are filled
+        setSlots(prev => {
+          const newSlots = prev.map(s => s.id === slotId ? {
+            ...s,
+            uploadedUrl: data.secure_url,
+            uploading: false,
+            isReplacing: false,
+            uploadProgress: 100,
+            originalFileName: slot.file?.name || null,
+            file: null
+          } : s);
+          // Call onUpload with all uploaded document metadata
+          if (onUpload) {
+            const uploadedDocs = newSlots
+              .filter(s => s.uploadedUrl)
+              .map(s => ({
+                url: s.uploadedUrl,
+                name: s.originalFileName,
+                // Add more fields if needed from Cloudinary response
+              }));
+            onUpload(uploadedDocs);
+          }
+          return newSlots;
+        });
+        toast.success(`Document \"${slot.file.name}\" uploaded successfully!`);
         setTimeout(() => {
           setSlots(prev => {
             const allUploaded = prev.every(s => s.uploadedUrl);
             if (allUploaded) {
-              return [...prev, { 
-                file: null, 
-                uploading: false, 
-                uploadedUrl: null, 
+              return [...prev, {
+                file: null,
+                uploading: false,
+                uploadedUrl: null,
                 id: Date.now() + Math.random(),
                 isReplacing: false,
                 uploadProgress: 0,
@@ -175,9 +197,9 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Upload failed';
       toast.error(`Upload failed: ${errorMessage}`);
-      setSlots(prev => prev.map(s => s.id === slotId ? { 
-        ...s, 
-        uploading: false, 
+      setSlots(prev => prev.map(s => s.id === slotId ? {
+        ...s,
+        uploading: false,
         error: errorMessage,
         uploadProgress: 0
       } : s));
@@ -192,19 +214,32 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
   };
 
   const handleRemove = (slotId: number) => {
-    setSlots(prev => prev.map(slot => 
-      slot.id === slotId ? { 
-        ...slot, 
-        file: null, 
-        uploadedUrl: null, 
-        uploading: false,
-        isReplacing: false,
-        uploadProgress: 0,
-        error: null,
-        originalFileName: null
-      } : slot
-    ));
-    
+    setSlots(prev => {
+      const newSlots = prev.map(slot =>
+        slot.id === slotId ? {
+          ...slot,
+          file: null,
+          uploadedUrl: null,
+          uploading: false,
+          isReplacing: false,
+          uploadProgress: 0,
+          error: null,
+          originalFileName: null
+        } : slot
+      );
+      // Call onUpload with all uploaded document metadata
+      if (onUpload) {
+        const uploadedDocs = newSlots
+          .filter(s => s.uploadedUrl)
+          .map(s => ({
+            url: s.uploadedUrl,
+            name: s.originalFileName,
+            // Add more fields if needed
+          }));
+        onUpload(uploadedDocs);
+      }
+      return newSlots;
+    });
     // Clear the file input
     if (fileInputRefs.current[slotId]) {
       fileInputRefs.current[slotId]!.value = '';
@@ -276,51 +311,66 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 justify-center">
-                {/* Upload Button - Only active for new files */}
-                <Button
-                  onClick={() => handleUpload(slot.id)}
-                  disabled={!slot.file || slot.uploading || slot.isReplacing}
-                  className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white font-semibold px-8 py-2 rounded-lg shadow-lg text-base transition-all duration-200 disabled:opacity-60"
-                >
-                  {slot.uploading ? (
-                    <div className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      Uploading... {slot.uploadProgress}%
-                    </div>
-                  ) : 'Upload'}
-                </Button>
-
-                {/* Resubmit Button - Active when replacing files */}
-                <Button
-                  onClick={() => slot.isReplacing ? handleUpload(slot.id) : handleReplace(slot.id)}
-                  disabled={slot.uploading || (!slot.uploadedUrl && !slot.isReplacing)}
-                  className="bg-gradient-to-r from-orange-600 to-orange-400 hover:from-orange-700 hover:to-orange-500 text-white font-semibold px-8 py-2 rounded-lg shadow-lg text-base transition-all duration-200 disabled:opacity-60"
-                >
-                  {slot.isReplacing && slot.file ? (
-                    slot.uploading ? (
+                {/* Action Buttons */}
+                <div className="flex gap-3 justify-center items-center">
+                  {/* Upload Button - Only active for new files */}
+                  <Button
+                    onClick={() => handleUpload(slot.id)}
+                    disabled={!slot.file || slot.uploading || slot.isReplacing}
+                    className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white font-semibold px-8 py-2 rounded-lg shadow-lg text-base transition-all duration-200 disabled:opacity-60"
+                  >
+                    {slot.uploading ? (
                       <div className="flex items-center gap-2">
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        Resubmitting... {slot.uploadProgress}%
+                        Uploading... {slot.uploadProgress}%
                       </div>
-                    ) : 'Resubmit'
-                  ) : 'Replace'}
-                </Button>
+                    ) : 'Upload'}
+                  </Button>
 
-                {/* View Link */}
-                {slot.uploadedUrl && !slot.isReplacing && (
-                  <a
-                    href={slot.uploadedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-green-400 hover:text-green-300 text-base font-medium px-4 py-2 border border-green-400 rounded-lg hover:border-green-300 transition-colors"
+                  {/* Resubmit/Replace Button */}
+                  <Button
+                    onClick={() => slot.isReplacing ? handleUpload(slot.id) : handleReplace(slot.id)}
+                    disabled={slot.uploading || (!slot.uploadedUrl && !slot.isReplacing)}
+                    className="bg-gradient-to-r from-orange-600 to-orange-400 hover:from-orange-700 hover:to-orange-500 text-white font-semibold px-8 py-2 rounded-lg shadow-lg text-base transition-all duration-200 disabled:opacity-60"
                   >
-                    <CheckCircle className="w-4 h-4" />
-                    View
-                  </a>
-                )}
-              </div>
+                    {slot.isReplacing && slot.file ? (
+                      slot.uploading ? (
+                        <div className="flex items-center gap-2">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Resubmitting... {slot.uploadProgress}%
+                        </div>
+                      ) : 'Resubmit'
+                    ) : 'Replace'}
+                  </Button>
+
+                  {/* View Link - always next to Replace */}
+                  {slot.uploadedUrl && !slot.isReplacing && (
+                    <>
+                      <a
+                        href={slot.uploadedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-green-400 hover:text-green-300 text-base font-medium px-4 py-2 border border-green-400 rounded-lg hover:border-green-300 transition-colors ml-2"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        View
+                      </a>
+                      <a
+                        href={slot.uploadedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-base font-medium px-4 py-2 border border-blue-400 rounded-lg hover:border-blue-300 transition-colors ml-2"
+                        title="Info"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01" />
+                        </svg>
+                        <span className="sr-only">Info</span>
+                      </a>
+                    </>
+                  )}
+                </div>
 
               {/* File Info */}
               {slot.file && (
@@ -331,6 +381,33 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onUpload }) => {
             </div>
           </div>
         ))}
+        <div className="flex justify-end mt-4">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onClick={() => {
+              setSlots(prev => ([
+                ...prev,
+                {
+                  file: null,
+                  uploading: false,
+                  uploadedUrl: null,
+                  id: Date.now() + Math.random(),
+                  isReplacing: false,
+                  uploadProgress: 0,
+                  error: null,
+                  originalFileName: null
+                }
+              ]));
+            }}
+            title="Add another document"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="sr-only">Add another document</span>
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -604,39 +604,22 @@ const SupplierDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Full Width Analytics Preview */}
-                {/* Full Width Document Uploader Section */}
                   <CardHeader>
                     <CardTitle className="text-white text-xl font-bold flex items-center gap-3">
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <DocumentUploader
-                      onUpload={async (data: any) => {
+                      initialDocuments={supplier.uploadedDocuments || []}
+                      onUpload={async (allDocs: any[]) => {
                         if (!user?.uid) return;
-                        // Extract all relevant fields from Cloudinary response
-                        const docMeta = {
-                          url: data.url || data.secure_url,
-                          name: data.original_filename || data.public_id || 'document',
-                          asset_id: data.asset_id,
-                          public_id: data.public_id,
-                          secure_url: data.secure_url,
-                          resource_type: data.resource_type,
-                          format: data.format,
-                          uploaded_at: data.created_at || data.uploaded_at || new Date().toISOString(),
-                          file_size: data.bytes,
-                          url_fallback: data.url,
-                        };
                         try {
                           await updateDoc(doc(db, 'suppliers', user.uid), {
-                            uploadedDocuments: arrayUnion(docMeta)
+                            uploadedDocuments: allDocs
                           });
                           setSupplier(prev => prev ? {
                             ...prev,
-                            uploadedDocuments: [
-                              ...(prev.uploadedDocuments || []),
-                              docMeta
-                            ]
+                            uploadedDocuments: allDocs
                           } : prev);
                         } catch (err) {
                           toast.error('Failed to save document info to Firestore');
@@ -644,6 +627,8 @@ const SupplierDashboard: React.FC = () => {
                       }}
                     />
                   </CardContent>
+
+
 
                 <Card className="bg-slate-800/70 border-slate-600/50 backdrop-blur-md shadow-2xl">
                   <CardHeader>

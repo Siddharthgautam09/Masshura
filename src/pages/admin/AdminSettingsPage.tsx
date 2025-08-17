@@ -15,7 +15,6 @@ import SubscriptionSettings from './SubscriptionSettings';
 const AdminSettingsPage = () => {
   const { toast } = useToast();
   const { countries, emirates, yearsInOperation, businessTypes, employeeCount, supplyCategories, countryCodes } = useAllCategories();
-  const [showPlans, setShowPlans] = useState(false);
   
   // Calculate total number of category types with items
   const activeCategoriesCount = [
@@ -258,7 +257,7 @@ const AdminSettingsPage = () => {
               </div>
             </div>
 
-            {/* Subscription Settings - with Manage Plans toggle */}
+            {/* Subscription Settings - always visible */}
             <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-slate-600/30 w-full mt-12">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -270,19 +269,10 @@ const AdminSettingsPage = () => {
                     <p className="text-slate-300 text-sm">Manage subscription plans and renewal amounts</p>
                   </div>
                 </div>
-                <Button
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => setShowPlans((prev) => !prev)}
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Manage Plans
-                </Button>
               </div>
-              {showPlans && (
-                <div className="mt-4">
-                  <SubscriptionSettings />
-                </div>
-              )}
+              <div className="mt-4">
+                <SubscriptionSettings />
+              </div>
             </div>
           </motion.div>
         </div>

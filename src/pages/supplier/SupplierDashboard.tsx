@@ -296,55 +296,86 @@ const SupplierDashboard: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <tbody className="divide-y divide-slate-700/50">
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400 w-2/5">Company Name</td>
-                            <td className="py-3 px-4 text-white">{supplier.companyName}</td>
-                          </tr>
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400">Email</td>
-                            <td className="py-3 px-4 text-white break-all">{supplier.email}</td>
-                          </tr>
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400">Phone</td>
-                            <td className="py-3 px-4 text-white">{supplier.countryCode} {supplier.phone}</td>
-                          </tr>
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400">Location</td>
-                            <td className="py-3 px-4 text-white">{supplier.emirate}, {supplier.country}</td>
-                          </tr>
-                          {supplier.website && (
+                    <form onSubmit={handleSaveChanges}>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <tbody className="divide-y divide-slate-700/50">
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400 w-2/5">Company Name</td>
+                              <td className="py-3 px-4 text-white">
+                                {isEditing ? (
+                                  <Input name="companyName" value={formData.companyName} onChange={handleInputChange} required />
+                                ) : supplier.companyName}
+                              </td>
+                            </tr>
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400">Email</td>
+                              <td className="py-3 px-4 text-white break-all">{supplier.email}</td>
+                            </tr>
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400">Phone</td>
+                              <td className="py-3 px-4 text-white">
+                                {isEditing ? (
+                                  <Input name="phone" value={formData.phone} onChange={handleInputChange} required />
+                                ) : `${supplier.countryCode} ${supplier.phone}`}
+                              </td>
+                            </tr>
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400">Location</td>
+                              <td className="py-3 px-4 text-white">
+                                {isEditing ? (
+                                  <>
+                                    <Input name="emirate" value={formData.emirate} onChange={handleInputChange} required className="mb-2" placeholder="Emirate" />
+                                    <Input name="country" value={formData.country} onChange={handleInputChange} required placeholder="Country" />
+                                  </>
+                                ) : `${supplier.emirate}, ${supplier.country}`}
+                              </td>
+                            </tr>
                             <tr className="hover:bg-slate-700/20 transition-colors">
                               <td className="py-3 px-4 font-medium text-slate-400">Website</td>
                               <td className="py-3 px-4">
-                                <a 
-                                  href={supplier.website} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-blue-400 hover:text-blue-300 hover:underline transition-all duration-200"
-                                >
-                                  {supplier.website}
-                                </a>
+                                {isEditing ? (
+                                  <Input name="website" value={formData.website} onChange={handleInputChange} placeholder="Website" />
+                                ) : (
+                                  supplier.website ? (
+                                    <a href={supplier.website} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline transition-all duration-200">{supplier.website}</a>
+                                  ) : 'Not provided'
+                                )}
                               </td>
                             </tr>
-                          )}
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400">Trade License</td>
-                            <td className="py-3 px-4 text-white">{supplier.tradeNumber || 'Not provided'}</td>
-                          </tr>
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400">Years in Operation</td>
-                            <td className="py-3 px-4 text-white">{supplier.yearsOperation || 'Not specified'}</td>
-                          </tr>
-                          <tr className="hover:bg-slate-700/20 transition-colors">
-                            <td className="py-3 px-4 font-medium text-slate-400">Employee Count</td>
-                            <td className="py-3 px-4 text-white">{supplier.employeeCount || 'Not specified'}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400">Trade License</td>
+                              <td className="py-3 px-4 text-white">{supplier.tradeNumber || 'Not provided'}</td>
+                            </tr>
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400">Years in Operation</td>
+                              <td className="py-3 px-4 text-white">
+                                {isEditing ? (
+                                  <Input name="yearsOfOperation" value={formData.yearsOfOperation} onChange={handleInputChange} placeholder="Years in Operation" />
+                                ) : supplier.yearsOperation || 'Not specified'}
+                              </td>
+                            </tr>
+                            <tr className="hover:bg-slate-700/20 transition-colors">
+                              <td className="py-3 px-4 font-medium text-slate-400">Employee Count</td>
+                              <td className="py-3 px-4 text-white">
+                                {isEditing ? (
+                                  <Input name="employeeCount" value={formData.employeeCount} onChange={handleInputChange} placeholder="Employee Count" />
+                                ) : supplier.employeeCount || 'Not specified'}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      {isEditing && (
+                        <div className="flex justify-end gap-2 mt-4">
+                          <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="px-6">Cancel</Button>
+                          <Button type="submit" className="px-6 bg-blue-600 hover:bg-blue-700 text-white" disabled={isSaving}>
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Save className="w-4 h-4 mr-2 inline" />}
+                            Save Changes
+                          </Button>
+                        </div>
+                      )}
+                    </form>
                   </CardContent>
                 </Card>
 

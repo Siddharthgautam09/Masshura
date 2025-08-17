@@ -236,7 +236,8 @@ const SupplierDashboard: React.FC = () => {
           ...formData,
           updatedAt: new Date()
         },
-        profileUpdateRequested: true
+        profileUpdateRequested: true,
+        status: 'pending'
       };
 
       await updateDoc(doc(db, 'suppliers', user.uid), updateData);
@@ -244,7 +245,8 @@ const SupplierDashboard: React.FC = () => {
       setSupplier(prev => prev ? {
         ...prev,
         pendingProfile: { ...formData, updatedAt: new Date() },
-        profileUpdateRequested: true
+        profileUpdateRequested: true,
+        status: 'pending'
       } : null);
       setIsEditing(false);
       toast.success('Profile update submitted for admin approval');
@@ -694,12 +696,14 @@ const SupplierDashboard: React.FC = () => {
                         try {
                           await updateDoc(doc(db, 'suppliers', user.uid), {
                             pendingDocuments: allDocs,
-                            documentsUpdateRequested: true
+                            documentsUpdateRequested: true,
+                            status: 'pending'
                           });
                           setSupplier(prev => prev ? {
                             ...prev,
                             pendingDocuments: allDocs,
-                            documentsUpdateRequested: true
+                            documentsUpdateRequested: true,
+                            status: 'pending'
                           } : prev);
                           toast.success('Document replacement submitted for admin approval');
                         } catch (err) {

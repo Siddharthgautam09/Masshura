@@ -522,7 +522,7 @@ const SupplierList: React.FC<SupplierListProps> = ({
 
     try {
       const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID = "template_h01qmqi"; // Using account setup template for login link
+      const YOUR_TEMPLATE_ID = "template_4up1wxm"; // Use welcome/set-password template only
       const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
 
       // Validate EmailJS configuration
@@ -533,38 +533,42 @@ const SupplierList: React.FC<SupplierListProps> = ({
       // Initialize EmailJS
       emailjs.init(YOUR_PUBLIC_KEY);
 
-      // Construct the login/password setup link
-      const loginLink = `${window.location.origin}/set-password?email=${encodeURIComponent(loginLinkSupplier.email)}`;
+      // Construct the set password link
+      const setPasswordLink = `${window.location.origin}/set-password?email=${encodeURIComponent(loginLinkSupplier.email)}`;
 
-      // Template parameters for login link email
+      // Template parameters for welcome/set-password email
       const templateParams = {
         supplier_name: loginLinkSupplier.contactPerson || loginLinkSupplier.companyName,
         to_email: loginLinkSupplier.email,
-        set_password_link: loginLink,
         company_name: loginLinkSupplier.companyName,
-        from_name: "Masshura Admin Team",
-        message: "Please use the link below to access your supplier portal and set up your password."
+        ref_no: loginLinkSupplier.refNo || `SUP-${loginLinkSupplier.id.slice(-6)}`,
+        acceptance_date: new Date().toLocaleDateString(),
+        portal_link: `${window.location.origin}/supplier-portal`,
+        set_password_link: setPasswordLink,
+        support_email: "support@masshura.com",
+        from_name: "Masshura Team",
+        message: "Welcome to Masshura! Your supplier application has been approved."
       };
 
-      console.log('Sending login link email with params:', templateParams);
+      console.log('Sending set password (welcome) email with params:', templateParams);
 
-      // Send login link email
+      // Send welcome/set-password email
       const emailResult = await emailjs.send(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, templateParams);
-      console.log('Login link email sent successfully:', emailResult);
+      console.log('Set password (welcome) email sent successfully:', emailResult);
 
       setIsLoginLinkDialogOpen(false);
       setLoginLinkSupplier(null);
 
       toast({ 
-        title: "Login Link Sent", 
-        description: "Login link has been sent to the supplier's email." 
+        title: "Set Password Email Sent", 
+        description: "Set password email has been sent to the supplier's email." 
       });
 
     } catch (error) {
-      console.error("Login link email sending failed:", error);
+      console.error("Set password email sending failed:", error);
       toast({
         title: "Email Failed",
-        description: `Failed to send login link: ${error.message || 'Unknown error'}`,
+        description: `Failed to send set password email: ${error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -819,7 +823,7 @@ const SupplierList: React.FC<SupplierListProps> = ({
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <div className="flex items-center justify-center gap-1">
-                    {supplier.status === 'pending' && (
+                    {supplier.status === 'pending' && !supplier.documentsUpdateRequested && (
                       <>
                         <Button 
                           size="sm" 

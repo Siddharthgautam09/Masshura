@@ -709,18 +709,34 @@ const SupplierDashboard: React.FC = () => {
                       onUpload={async (allDocs: any[]) => {
                         if (!user?.uid) return;
                         try {
+<<<<<<< HEAD
                           // If there are no uploaded documents yet, treat as initial upload (no approval needed)
                           if (!supplier.uploadedDocuments || supplier.uploadedDocuments.length === 0) {
                             await updateDoc(doc(db, 'suppliers', user.uid), {
                               uploadedDocuments: allDocs,
                               pendingDocuments: [],
                               documentsUpdateRequested: false
+=======
+                          if (!supplier.uploadedDocuments || supplier.uploadedDocuments.length === 0) {
+                            // First time upload: save directly, no admin approval needed
+                            await updateDoc(doc(db, 'suppliers', user.uid), {
+                              uploadedDocuments: allDocs,
+                              documentsUpdateRequested: false,
+                              pendingDocuments: [],
+                              status: 'approved'
+>>>>>>> 6dd180382d922be82d746f0fa5c88d654612098f
                             });
                             setSupplier(prev => prev ? {
                               ...prev,
                               uploadedDocuments: allDocs,
+<<<<<<< HEAD
                               pendingDocuments: [],
                               documentsUpdateRequested: false
+=======
+                              documentsUpdateRequested: false,
+                              pendingDocuments: [],
+                              status: 'approved'
+>>>>>>> 6dd180382d922be82d746f0fa5c88d654612098f
                             } : prev);
                             toast.success('Documents uploaded successfully');
                           } else {
@@ -739,7 +755,11 @@ const SupplierDashboard: React.FC = () => {
                             toast.success('Document replacement submitted for admin approval');
                           }
                         } catch (err) {
+<<<<<<< HEAD
                           toast.error('Failed to submit document upload');
+=======
+                          toast.error('Failed to upload documents');
+>>>>>>> 6dd180382d922be82d746f0fa5c88d654612098f
                         }
                       }}
                     />

@@ -64,6 +64,7 @@ interface SupplierData {
   status: string;
   createdAt?: any;
   updatedAt?: any;
+  remarks?: any[];
 }
 
 interface FormData {
@@ -227,6 +228,35 @@ const SupplierDashboard: React.FC = () => {
               </div>
             </div>
           </motion.div>
+
+          {/* Admin Remarks Section */}
+          {Array.isArray(supplier.remarks) && supplier.remarks.length > 0 && (
+            <motion.div
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="mb-6"
+            >
+              <div className="bg-yellow-900/70 border border-yellow-500/40 backdrop-blur-md rounded-xl p-6 shadow-xl">
+                <h2 className="text-lg font-bold text-yellow-300 mb-2 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-yellow-400" />
+                  Admin Remarks
+                </h2>
+                <ul className="space-y-2">
+                  {supplier.remarks.map((remark: any, idx: number) => (
+                    <li key={idx} className="text-yellow-100 border-l-4 border-yellow-400 pl-3 py-1">
+                      <span className="block text-sm">{remark.message || remark.text || String(remark)}</span>
+                      {remark.timestamp && (
+                        <span className="block text-xs text-yellow-400 mt-1">
+                          {new Date(remark.timestamp).toLocaleString()}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+          )}
 
           {/* Enhanced Dashboard Layout */}
           <motion.div

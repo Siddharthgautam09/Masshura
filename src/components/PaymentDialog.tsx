@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { CheckCircle, XCircle, CreditCard } from 'lucide-react';
+import RenewalPlanSelector from './RenewalPlanSelector';
 
 // Initialize Stripe with your test publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -205,35 +206,34 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
   const [errorMessage, setErrorMessage] = useState('');
   const [totalAmount, setTotalAmount] = useState(500);
   const [registrationAmount, setRegistrationAmount] = useState(0);
+  const [selectedRenewalPlan, setSelectedRenewalPlan] = useState<string>("");
+  const [selectedPlanData, setSelectedPlanData] = useState<any>(null);
 
   useEffect(() => {
     const fetchPaymentAmount = async () => {
       try {
-        // Fetch current registration settings
         const settingsDoc = await getDoc(doc(db, 'settings', 'subscriptions'));
-        let regAmount = 500; // default
-        
+        let regAmount = 500;
         if (settingsDoc.exists()) {
           regAmount = settingsDoc.data().registrationAmount || 500;
         }
-        
         setRegistrationAmount(regAmount);
-        
-        // Calculate total: registration + subscription
-        const subscriptionAmount = supplierData.subscriptionAmount || 0;
-        const total = regAmount + subscriptionAmount;
-        
-        setTotalAmount(total);
+        // If a plan is selected, find its data
+        let planData = null;
+        if (selectedRenewalPlan && settingsDoc.exists()) {
+          const plans = settingsDoc.data().renewalAmounts || [];
+          planData = plans.find((p: any) => p.id === selectedRenewalPlan);
+        }
+        setSelectedPlanData(planData);
+        const subscriptionAmount = planData ? planData.amount : 0;
+        setTotalAmount(regAmount + subscriptionAmount);
       } catch (error) {
         console.error('Error fetching payment amount:', error);
-        setTotalAmount(500); // fallback
+        setTotalAmount(500);
       }
     };
-
-    if (supplierData) {
-      fetchPaymentAmount();
-    }
-  }, [supplierData]);
+    fetchPaymentAmount();
+  }, [supplierData, selectedRenewalPlan]);
 
   const handlePaymentSuccess = () => {
     setPaymentStatus('success');
@@ -262,7 +262,11 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
             <p className="text-slate-300 text-center text-sm">
               Your account has been verified and your password has been set. To activate your Maashura Supplier Portal, please complete the one-time registration payment.
             </p>
-
+            {/* Renewal Plan Selector */}
+            <RenewalPlanSelector
+              selectedRenewalPlan={selectedRenewalPlan}
+              setSelectedRenewalPlan={setSelectedRenewalPlan}
+            />
             <div className="bg-slate-700/50 p-3 rounded-lg space-y-2">
               <h3 className="font-semibold text-white mb-2">Payment Summary</h3>
               <div className="space-y-1 text-sm">
@@ -277,7 +281,7 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Selected Plan:</span>
                   <span className="text-white">
-                    {supplierData.selectedSubscriptionPlan?.label || 'Standard Plan'}
+                    {selectedPlanData ? selectedPlanData.label : 'Select a plan'}
                   </span>
                 </div>
                 <hr className="border-slate-600 my-2" />
@@ -286,8 +290,8 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                   <span className="text-white">₹{registrationAmount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Subscription ({supplierData.subscriptionDuration} year{supplierData.subscriptionDuration > 1 ? 's' : ''}):</span>
-                  <span className="text-white">₹{supplierData.subscriptionAmount || 0}</span>
+                  <span className="text-slate-400">Subscription ({selectedPlanData ? selectedPlanData.years : '-'} year{selectedPlanData && selectedPlanData.years > 1 ? 's' : ''}):</span>
+                  <span className="text-white">₹{selectedPlanData ? selectedPlanData.amount : 0}</span>
                 </div>
                 <hr className="border-slate-600 my-2" />
                 <div className="flex justify-between font-semibold">
@@ -296,11 +300,10 @@ const PaymentDialog = ({ isOpen, onClose, supplierData }: PaymentDialogProps) =>
                 </div>
               </div>
             </div>
-
             <div>
               <Elements stripe={stripePromise}>
                 <PaymentForm
-                  supplierData={supplierData}
+                  supplierData={{ ...supplierData, selectedSubscriptionPlan: selectedPlanData, subscriptionAmount: selectedPlanData ? selectedPlanData.amount : 0, subscriptionDuration: selectedPlanData ? selectedPlanData.years : 1 }}
                   totalAmount={totalAmount}
                   onSuccess={handlePaymentSuccess}
                   onError={handlePaymentError}

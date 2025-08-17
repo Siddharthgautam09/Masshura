@@ -171,7 +171,7 @@ const Services = () => {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="w-full max-w-sm"
+                className="w-full max-w-sm mx-auto"
                 layout
               >
                 <CardContainer className="inter-var" containerClassName="py-0">
@@ -179,7 +179,7 @@ const Services = () => {
                     layout
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                   >
-                    <CardBody className="bg-slate-800/90 relative group/card hover:shadow-2xl hover:shadow-[#6AAEFF]/[0.1] border-slate-700/50 w-80 rounded-xl border backdrop-blur-sm overflow-visible flex flex-col">
+                    <CardBody className="bg-slate-800/90 relative group/card hover:shadow-2xl hover:shadow-[#6AAEFF]/[0.1] border-slate-700/50 w-full rounded-xl border backdrop-blur-sm overflow-visible flex flex-col">
                       
                       {/* Image Section */}
                       <CardItem translateZ="100" className="w-full flex-shrink-0">

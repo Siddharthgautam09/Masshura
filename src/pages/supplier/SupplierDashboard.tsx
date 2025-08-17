@@ -41,6 +41,8 @@ import {
   TrendingUp
 } from 'lucide-react';
 
+import jsPDF from 'jspdf';
+
 interface SupplierData {
   id: string;
   companyName: string;
@@ -689,6 +691,42 @@ const SupplierDashboard: React.FC = () => {
                           <Button 
                             variant="outline" 
                             className="w-full border-slate-600 text-slate-300 hover:bg-slate-700/50 transition-all duration-200"
+                            onClick={() => {
+                              if (!supplier) return;
+                              const doc = new jsPDF();
+                              let y = 10;
+                              doc.setFontSize(16);
+                              doc.text('Supplier Profile', 10, y);
+                              y += 10;
+                              doc.setFontSize(12);
+                              const addLine = (label, value) => {
+                                doc.text(`${label}: ${value ?? ''}`, 10, y);
+                                y += 8;
+                              };
+                              addLine('Company Name', supplier.companyName);
+                              addLine('Email', supplier.email);
+                              addLine('Phone', supplier.phone);
+                              addLine('Country', supplier.country);
+                              addLine('Emirate', supplier.emirate);
+                              addLine('Website', supplier.website);
+                              addLine('Trade Number', supplier.tradeNumber);
+                              addLine('Contact Person', supplier.contactPerson);
+                              addLine('Designation', supplier.designation);
+                              addLine('Business Type', supplier.businessType);
+                              addLine('Years Operation', supplier.yearsOperation);
+                              addLine('Employee Count', supplier.employeeCount);
+                              addLine('Categories', (supplier.categories || []).join(', '));
+                              if (supplier.selectedSubscriptionPlan?.label) {
+                                addLine('Subscription Plan', supplier.selectedSubscriptionPlan.label);
+                              }
+                              addLine('Subscription Duration', supplier.subscriptionDuration);
+                              addLine('Subscription Expiry', supplier.subscriptionExpiryDate ? new Date(supplier.subscriptionExpiryDate).toLocaleDateString() : '');
+                              addLine('Payment Status', supplier.paymentStatus);
+                              addLine('Status', supplier.status);
+                              addLine('Created At', supplier.createdAt ? new Date(supplier.createdAt).toLocaleDateString() : '');
+                              addLine('Updated At', supplier.updatedAt ? new Date(supplier.updatedAt).toLocaleDateString() : '');
+                              doc.save(`profile_${supplier.companyName || 'supplier'}.pdf`);
+                            }}
                           >
                             <Download className="w-4 h-4 mr-2" />
                             Download Profile

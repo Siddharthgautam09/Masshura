@@ -80,21 +80,36 @@ interface Supplier {
   subscriptionDuration?: number;
   subscriptionAmount?: number;
   registrationAmount?: number;
-  uploadedDocuments?: Array<{ 
-    url: string; 
-    name: string; 
-    asset_id: string; 
-    public_id: string;
-    secure_url?: string; // Optional secure URL for Cloudinary
-    resource_type?: string; // Resource type from Cloudinary
-    format?: string; // File format
-    uploaded_at?: string; // Upload timestamp
-    file_size?: number; // File size in bytes
-    url_fallback?: string; // Fallback URL
-  }>; // Added for file management
+  uploadedDocuments?: Array<{
+    url: string;
+    name: string;
+    asset_id?: string;
+    public_id?: string;
+    secure_url?: string;
+    resource_type?: string;
+    format?: string;
+    uploaded_at?: string;
+    file_size?: number;
+    url_fallback?: string;
+    [key: string]: any;
+  }>;
   pendingProfile?: {
     [key: string]: any;
   };
+  pendingDocuments?: Array<{
+    url: string;
+    name: string;
+    asset_id?: string;
+    public_id?: string;
+    secure_url?: string;
+    resource_type?: string;
+    format?: string;
+    uploaded_at?: string;
+    file_size?: number;
+    url_fallback?: string;
+    [key: string]: any;
+  }>;
+  documentsUpdateRequested?: boolean;
 }
 
 const SupplierDetailPage = () => {
@@ -120,6 +135,12 @@ const SupplierDetailPage = () => {
       if (supplier.pendingProfile) {
         updateData = { ...updateData, ...supplier.pendingProfile, pendingProfile: null };
       }
+      // If there are pending documents, merge them into uploadedDocuments
+      if (supplier.pendingDocuments && supplier.pendingDocuments.length > 0) {
+        updateData.uploadedDocuments = supplier.pendingDocuments;
+        updateData.pendingDocuments = null;
+        updateData.documentsUpdateRequested = false;
+      }
       await updateDoc(supplierRef, updateData as any);
       setSupplier(prev => prev ? {
         ...prev,
@@ -127,7 +148,10 @@ const SupplierDetailPage = () => {
         status: 'approved',
         profileUpdateRequested: false,
         profileReapprovedAt: new Date().toISOString(),
-        pendingProfile: null
+        pendingProfile: null,
+        uploadedDocuments: (prev.pendingDocuments && prev.pendingDocuments.length > 0) ? prev.pendingDocuments : prev.uploadedDocuments,
+        pendingDocuments: null,
+        documentsUpdateRequested: false
       } : prev);
       toast({ title: 'Changes accepted', description: 'Supplier changes have been approved.', variant: 'default' });
     } catch (err) {
@@ -1287,7 +1311,50 @@ const SupplierDetailPage = () => {
               </CardContent>
             </Card>
           )}
-          {/* Uploaded Documents Section */}
+
+          {/* Pending Document Changes Section */}
+          {supplier?.pendingDocuments && supplier.pendingDocuments.length > 0 && (
+            <Card className="bg-yellow-900/40 border-yellow-500/40 mb-6">
+              <CardHeader>
+                <CardTitle className="text-yellow-200">Pending Document Changes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-yellow-100 text-sm mb-2">The supplier has submitted new or replacement documents. Review and accept to update their official documents.</p>
+                  {supplier.pendingDocuments.map((doc, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-yellow-800/30 rounded-lg border border-yellow-600/30">
+                      <FileText className="w-5 h-5 text-yellow-300" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-yellow-100 font-medium truncate">{doc.name || 'Unknown file'}</p>
+                        <div className="flex items-center gap-2 text-yellow-200 text-xs">
+                          <span>Pending document</span>
+                          {doc.url ? (
+                            doc.url.includes('cloudinary.com') ? (
+                              <span className="text-yellow-300">• Cloudinary hosted</span>
+                            ) : (
+                              <span className="text-yellow-200">• External link</span>
+                            )
+                          ) : (
+                            <span className="text-red-300">• URL missing</span>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(doc.url, '_blank', 'noopener,noreferrer')}
+                        className="text-yellow-200 hover:text-yellow-100 hover:bg-yellow-500/10"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span className="hidden sm:inline ml-2">View</span>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-yellow-300 text-xs mt-2">These document changes are pending admin approval.</div>
+              </CardContent>
+            </Card>
+          )}
           {/* Accept Changes Button for Admin */}
           {supplier && (supplier.profileUpdateRequested || (supplier.uploadedDocuments && supplier.uploadedDocuments.length > 0)) && (
             <div className="flex justify-end mb-4">

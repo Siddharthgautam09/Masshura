@@ -693,14 +693,17 @@ const SupplierDashboard: React.FC = () => {
                         if (!user?.uid) return;
                         try {
                           await updateDoc(doc(db, 'suppliers', user.uid), {
-                            uploadedDocuments: allDocs
+                            pendingDocuments: allDocs,
+                            documentsUpdateRequested: true
                           });
                           setSupplier(prev => prev ? {
                             ...prev,
-                            uploadedDocuments: allDocs
+                            pendingDocuments: allDocs,
+                            documentsUpdateRequested: true
                           } : prev);
+                          toast.success('Document replacement submitted for admin approval');
                         } catch (err) {
-                          toast.error('Failed to save document info to Firestore');
+                          toast.error('Failed to submit document replacement for approval');
                         }
                       }}
                     />

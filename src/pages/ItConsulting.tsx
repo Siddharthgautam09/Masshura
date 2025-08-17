@@ -257,6 +257,7 @@ const ItConsulting = () => {
                   className="px-8 py-5 bg-slate-700/60 text-white hover:bg-[#6AAEFF] hover:text-white rounded-xl font-semibold text-lg transition-all duration-300 border border-slate-600/30 hover:border-[#6AAEFF]"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => window.location.href = '/contact'}
                 >
                   <Calendar className="w-5 h-5 inline mr-2" />
                   Schedule Free Consultation

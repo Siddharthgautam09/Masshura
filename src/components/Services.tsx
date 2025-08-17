@@ -93,7 +93,29 @@ const Services = () => {
       fullDescription: "Tired of disconnected systems? We offer API integration and custom data migrations to ensure your tools work together seamlessly. From payment gateways to CRMs, we make your digital tools talk to each other.",
       image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
       alt: "API integration services connecting business systems in UAE"
-    }
+    },
+        // New IT AMC – Software & Hardware card
+    {
+      id: 8,
+      icon: Cloud, // Reusing an existing icon; consider replacing with a shield/gear if available
+      title: "IT AMC – Software & Hardware",
+      subtitle: "Stay Up, Stay Secure",
+      shortDescription: "Avoid costly downtimes with our annual maintenance contracts for software and hardware.",
+      fullDescription: "Avoid costly downtimes with our annual maintenance contracts. We offer proactive support, regular updates, on-site visits, and quick hardware fixes — so your business tech stays fast, secure, and headache-free across the UAE and GCC.",
+      image: "https://media.istockphoto.com/id/1494073880/photo/a-man-holding-icon-virtual-24-7-support-services-for-worldwide-nonstop-and-full-time.jpg?s=612x612&w=0&k=20&c=4YF-otaX3n8OiPOC4L_-_pAX1ibayzdvpkK1Ih2-p50=", // Technician working on server
+      alt: "Technician maintaining server hardware, symbolizing IT AMC and proactive support."
+    },
+    // New IT Hardware Supply card
+    {
+      id: 7,
+      icon: Database, // Reusing an existing icon for hardware, or you can import a more suitable one
+      title: "IT Hardware Supply",
+      subtitle: "Reliable Tech, Ready to Deploy",
+      shortDescription: "High-quality IT hardware tailored to your business size and needs — from laptops and networking gear to servers and peripherals.",
+      fullDescription: "We supply high-quality IT hardware tailored to your business size and needs — from laptops and networking gear to servers and peripherals. Whether you’re a clinic, school, or trading firm, we deliver cost-effective solutions that keep your operations running smoothly.",
+      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80", // Flat-lay/isometric generic hardware
+      alt: "Flat-lay of generic IT hardware: laptop, router, server rack, monitor, in a professional office setting. No brand logos."
+    },
   ];
 
   const toggleExpand = (serviceId) => {

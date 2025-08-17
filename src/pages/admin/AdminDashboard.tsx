@@ -416,11 +416,11 @@ const AdminDashboard = () => {
                       <SelectTrigger className="bg-slate-700/50 border-slate-600 text-slate-200">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="pending_approval">Pending Approval</SelectItem>
-                        <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectContent className="bg-slate-800 border-white">
+                        <SelectItem value="all" className="text-white border-white">All Statuses</SelectItem>
+                        <SelectItem value="pending_approval" className="text-white border-white">Pending Approval</SelectItem>
+                        <SelectItem value="approved" className="text-white border-white">Approved</SelectItem>
+                        <SelectItem value="rejected" className="text-white border-white">Rejected</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -432,10 +432,10 @@ const AdminDashboard = () => {
                       <SelectTrigger className="bg-slate-700/50 border-slate-600 text-slate-200">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="all">All Categories</SelectItem>
+                      <SelectContent className="bg-slate-800 border-white">
+                        <SelectItem value="all" className="text-white border-white">All Categories</SelectItem>
                         {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
+                          <SelectItem key={category} value={category} className="text-white border-white">
                             {category}
                           </SelectItem>
                         ))}

@@ -83,7 +83,7 @@ const ITHardwareSupply = () => {
 
             <motion.button
               className="group inline-flex items-center space-x-3 bg-[#6AAEFF] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-[#6AAEFF] transition-all duration-300 shadow-xl hover:shadow-[#6AAEFF]/30 border border-transparent hover:border-[#6AAEFF]"
-              onClick={() => window.open('/it-hardware-supply-uae', '_blank')}
+              onClick={() => window.open('/ItHardware', '_blank')}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

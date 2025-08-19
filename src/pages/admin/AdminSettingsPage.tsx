@@ -1,6 +1,7 @@
 // src/pages/admin/AdminSettingsPage.tsx
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CategoryManager from '../../components/admin/CategoryManager';
 import { Settings, Database, Users, Globe, RefreshCw, Plus, CheckCircle, Phone, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -13,6 +14,7 @@ import { useAllCategories } from '../../hooks/useAdminCategories';
 import SubscriptionSettings from './SubscriptionSettings';
 
 const AdminSettingsPage = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { countries, emirates, yearsInOperation, businessTypes, employeeCount, supplyCategories, countryCodes } = useAllCategories();
   
@@ -48,10 +50,17 @@ const AdminSettingsPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <div className="flex items-center justify-center mb-6">
-              <div className="p-4 bg-blue-500/20 rounded-2xl border border-blue-400/30">
-                <Settings className="h-12 w-12 text-blue-400" />
-              </div>
+            <div className="flex flex-col items-center mb-6">
+                <div className="p-4 bg-blue-500/20 rounded-2xl border border-blue-400/30">
+                  <Settings className="h-12 w-12 text-blue-400" />
+                </div>
+                <button
+                  className="mt-4 ml-8 px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-800 transition"
+                  style={{ alignSelf: 'flex-start' }}
+                  onClick={() => navigate('/admin')}
+                >
+                  ← Back
+                </button>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Admin <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>

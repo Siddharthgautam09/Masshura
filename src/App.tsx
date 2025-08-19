@@ -25,9 +25,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const SupplierRegistration = lazy(
   () => import("./pages/SupplierResgistration")
 );
-const SupplierRegistrationPage = lazy(
-  () => import("./pages/SupplierRegistrationPage")
-);
 const ItConsulting = lazy(() => import("./pages/ItConsulting"));
 const Services = lazy(() => import("./components/Services"));
 const WhyUs = lazy(() => import("./components/WhyUs"));
@@ -128,10 +125,6 @@ const App = () => {
               // Add this route
               <Route path="/payment-required" element={<PaymentRequired />} />
               <Route path="*" element={<NotFound />} />
-              <Route
-                path="/supplier-registration"
-                element={<SupplierRegistrationPage />}
-              />
               <Route
                 path="/SupplierRegistration"
                 element={<SupplierRegistration />}

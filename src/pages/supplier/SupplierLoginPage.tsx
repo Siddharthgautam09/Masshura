@@ -188,7 +188,7 @@ const SupplierLoginPage = () => {
               <p className="text-slate-400 text-sm">
                 Don't have an account?{' '}
                 <button
-                  onClick={() => navigate('/supplier-registration')}
+                  onClick={() => navigate('/SupplierRegistration')}
                   className="text-blue-400 hover:text-blue-300 font-medium hover:underline"
                 >
                   Register as Supplier

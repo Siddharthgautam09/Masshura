@@ -50,6 +50,9 @@ const SubscriptionSettings = lazy(
 const PaymentDashboard = lazy(
   () => import("./pages/admin/PaymentDashboard")
 );
+const AdminContactPage = lazy(
+  () => import("./pages/admin/AdminContactPage")
+);
 // supplier -----------------------
 const SetPasswordPage = lazy(() => import("./pages/supplier/SetPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/supplier/ResetPasswordPage"));
@@ -178,6 +181,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <SubscriptionSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/contacts"
+                element={
+                  <ProtectedRoute>
+                    <AdminContactPage />
                   </ProtectedRoute>
                 }
               />

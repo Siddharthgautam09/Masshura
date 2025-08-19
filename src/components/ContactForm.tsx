@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { Send, User, Building, Briefcase, Mail, Phone, MessageCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from './firebase';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -56,12 +58,18 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setSubmitted(true);
-    setIsSubmitting(false);
+    try {
+      await addDoc(collection(db, 'contacts'), {
+        ...formData,
+        submittedAt: serverTimestamp(),
+      });
+      setSubmitted(true);
+    } catch (error) {
+      alert('Failed to submit. Please try again.');
+      console.error('Contact form error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {

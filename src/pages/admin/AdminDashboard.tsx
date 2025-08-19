@@ -242,6 +242,16 @@ const AdminDashboard = () => {
                   variant="outline" 
                   className="bg-slate-700/50 border-slate-500 text-slate-200 hover:bg-slate-600/70 hover:text-white"
                 >
+                  <Link to="/admin/contacts">
+                    <Users className="mr-2 h-4 w-4" />
+                    Contact Submissions
+                  </Link>
+                </Button>
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="bg-slate-700/50 border-slate-500 text-slate-200 hover:bg-slate-600/70 hover:text-white"
+                >
                   <Link to="/admin/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Admin Settings

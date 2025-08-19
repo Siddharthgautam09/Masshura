@@ -548,10 +548,10 @@ const PaymentDashboard = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="failed">Failed</SelectItem>
+                        <SelectItem className="text-white" value="all">All Status</SelectItem>
+                        <SelectItem className="text-white" value="completed">Completed</SelectItem>
+                        <SelectItem className="text-white" value="pending">Pending</SelectItem>
+                        <SelectItem className="text-white" value="failed">Failed</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -615,15 +615,15 @@ const PaymentDashboard = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="all">All Subscriptions</SelectItem>
-                        <SelectItem value="active">
+                        <SelectItem className='text-white' value="all">All Subscriptions</SelectItem>
+                        <SelectItem className='text-white' value="active">
                           Active (30+ days)
                         </SelectItem>
-                        <SelectItem value="expiring-soon">
+                        <SelectItem className='text-white' value="expiring-soon">
                           Expiring Soon
                         </SelectItem>
-                        <SelectItem value="expired">Expired</SelectItem>
-                        <SelectItem value="no-subscription">
+                        <SelectItem className='text-white' value="expired">Expired</SelectItem>
+                        <SelectItem className='text-white' value="no-subscription">
                           No Subscription
                         </SelectItem>
                       </SelectContent>

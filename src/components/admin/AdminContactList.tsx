@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { collection, getDocs, Timestamp } from 'firebase/firestore';
-import { db } from '../../components/firebase';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { 
-  MagnifyingGlassIcon, 
-  FunnelIcon, 
+import React, { useEffect, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
+import { db } from "../../components/firebase";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  MagnifyingGlassIcon,
+  FunnelIcon,
   EyeIcon,
   XMarkIcon,
   EnvelopeIcon,
@@ -13,9 +20,9 @@ import {
   BuildingOfficeIcon,
   ClockIcon,
   UserIcon,
-  DocumentTextIcon
-} from '@heroicons/react/24/outline';
-import { Fragment } from 'react';
+  DocumentTextIcon,
+} from "@heroicons/react/24/outline";
+import { Fragment } from "react";
 
 interface ContactEntry {
   id: string;
@@ -34,24 +41,26 @@ const AdminContactList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<ContactEntry | null>(null);
-  const [industryFilter, setIndustryFilter] = useState('');
-  const [serviceFilter, setServiceFilter] = useState('');
-  const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [industryFilter, setIndustryFilter] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("");
+  const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const snapshot = await getDocs(collection(db, 'contacts'));
-        let data = snapshot.docs.map(doc => {
+        const snapshot = await getDocs(collection(db, "contacts"));
+        let data = snapshot.docs.map((doc) => {
           const d = doc.data();
           let submittedAt = d.submittedAt;
-          if (submittedAt && typeof submittedAt.toDate === 'function') {
+          if (submittedAt && typeof submittedAt.toDate === "function") {
             submittedAt = submittedAt.toDate().toLocaleString();
-          } else if (typeof submittedAt === 'string') {
+          } else if (typeof submittedAt === "string") {
             // fallback if string
           } else {
-            submittedAt = '-';
+            submittedAt = "-";
           }
           return { id: doc.id, ...d, submittedAt };
         }) as ContactEntry[];
@@ -63,7 +72,7 @@ const AdminContactList: React.FC = () => {
         });
         setContacts(data);
       } catch (error) {
-        console.error('Error fetching contacts:', error);
+        console.error("Error fetching contacts:", error);
       } finally {
         setLoading(false);
       }
@@ -72,14 +81,20 @@ const AdminContactList: React.FC = () => {
   }, []);
 
   // Get unique industries and services for filter dropdowns
-  const allIndustries = Array.from(new Set(contacts.map(c => c.industry).filter(Boolean))).sort();
-  const allServices = Array.from(new Set(contacts.flatMap(c => c.services || [])).values()).sort();
+  const allIndustries = Array.from(
+    new Set(contacts.map((c) => c.industry).filter(Boolean))
+  ).sort();
+  const allServices = Array.from(
+    new Set(contacts.flatMap((c) => c.services || [])).values()
+  ).sort();
 
   // Filtered and searched contacts
-  const filteredContacts = contacts.filter(c => {
+  const filteredContacts = contacts.filter((c) => {
     const matchesIndustry = !industryFilter || c.industry === industryFilter;
-    const matchesService = !serviceFilter || (c.services || []).includes(serviceFilter);
-    const matchesSearch = !search ||
+    const matchesService =
+      !serviceFilter || (c.services || []).includes(serviceFilter);
+    const matchesSearch =
+      !search ||
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.company.toLowerCase().includes(search.toLowerCase()) ||
       c.email.toLowerCase().includes(search.toLowerCase());
@@ -87,9 +102,9 @@ const AdminContactList: React.FC = () => {
   });
 
   const clearFilters = () => {
-    setIndustryFilter('');
-    setServiceFilter('');
-    setSearch('');
+    setIndustryFilter("");
+    setServiceFilter("");
+    setSearch("");
   };
 
   const hasActiveFilters = industryFilter || serviceFilter || search;
@@ -106,7 +121,13 @@ const AdminContactList: React.FC = () => {
   );
 
   // Contact Card Component for Grid View
-  const ContactCard = ({ contact, index }: { contact: ContactEntry; index: number }) => (
+  const ContactCard = ({
+    contact,
+    index,
+  }: {
+    contact: ContactEntry;
+    index: number;
+  }) => (
     <div className="group bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-700 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
       <div className="p-6">
         {/* Header */}
@@ -134,13 +155,17 @@ const AdminContactList: React.FC = () => {
         <div className="space-y-3 mb-4">
           <div className="flex items-center gap-2 text-sm">
             <EnvelopeIcon className="h-4 w-4 text-slate-500 dark:text-slate-400 flex-shrink-0" />
-            <span className="text-slate-600 dark:text-slate-300 truncate">{contact.email}</span>
+            <span className="text-slate-600 dark:text-slate-300 truncate">
+              {contact.email}
+            </span>
           </div>
-          
+
           {contact.phone && (
             <div className="flex items-center gap-2 text-sm">
               <PhoneIcon className="h-4 w-4 text-slate-500 dark:text-slate-400 flex-shrink-0" />
-              <span className="text-slate-600 dark:text-slate-300">{contact.phone}</span>
+              <span className="text-slate-600 dark:text-slate-300">
+                {contact.phone}
+              </span>
             </div>
           )}
 
@@ -153,7 +178,10 @@ const AdminContactList: React.FC = () => {
           {contact.services && contact.services.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {contact.services.slice(0, 2).map((service, idx) => (
-                <span key={idx} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                <span
+                  key={idx}
+                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                >
                   {service}
                 </span>
               ))}
@@ -170,10 +198,13 @@ const AdminContactList: React.FC = () => {
         <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
             <ClockIcon className="h-3 w-3" />
-            {contact.submittedAt || 'N/A'}
+            {contact.submittedAt || "N/A"}
           </div>
           <button
-            onClick={() => { setSelected(contact); setOpen(true); }}
+            onClick={() => {
+              setSelected(contact);
+              setOpen(true);
+            }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
           >
             <EyeIcon className="h-3 w-3" />
@@ -185,11 +216,18 @@ const AdminContactList: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 mt-5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 mt-25">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <button
+              className="mt-4 ml-8 px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-800 transition"
+              style={{ alignSelf: "flex-start" }}
+              onClick={() => navigate("/admin")}
+            >
+              ← Back
+            </button>
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                 Contact Submissions
@@ -198,20 +236,24 @@ const AdminContactList: React.FC = () => {
                 Manage and review customer inquiries
               </p>
             </div>
-            
+
             {/* Stats */}
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                   {contacts.length}
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">Total</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                  Total
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {filteredContacts.length}
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">Filtered</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                  Filtered
+                </div>
               </div>
             </div>
           </div>
@@ -233,7 +275,7 @@ const AdminContactList: React.FC = () => {
                     className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                     placeholder="Search by name, company, or email..."
                     value={search}
-                    onChange={e => setSearch(e.target.value)}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
               </div>
@@ -246,11 +288,13 @@ const AdminContactList: React.FC = () => {
                 <select
                   className="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   value={industryFilter}
-                  onChange={e => setIndustryFilter(e.target.value)}
+                  onChange={(e) => setIndustryFilter(e.target.value)}
                 >
                   <option value="">All Industries</option>
-                  {allIndustries.map(ind => (
-                    <option key={ind} value={ind}>{ind}</option>
+                  {allIndustries.map((ind) => (
+                    <option key={ind} value={ind}>
+                      {ind}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -263,11 +307,13 @@ const AdminContactList: React.FC = () => {
                 <select
                   className="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   value={serviceFilter}
-                  onChange={e => setServiceFilter(e.target.value)}
+                  onChange={(e) => setServiceFilter(e.target.value)}
                 >
                   <option value="">All Services</option>
-                  {allServices.map(serv => (
-                    <option key={serv} value={serv}>{serv}</option>
+                  {allServices.map((serv) => (
+                    <option key={serv} value={serv}>
+                      {serv}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -282,26 +328,26 @@ const AdminContactList: React.FC = () => {
                     Clear Filters
                   </button>
                 )}
-                
+
                 {/* View Toggle */}
                 <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-xl p-1">
                   <button
                     className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                      viewMode === 'table'
-                        ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400'
+                      viewMode === "table"
+                        ? "bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm"
+                        : "text-slate-500 dark:text-slate-400"
                     }`}
-                    onClick={() => setViewMode('table')}
+                    onClick={() => setViewMode("table")}
                   >
                     Table
                   </button>
                   <button
                     className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                      viewMode === 'grid'
-                        ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400'
+                      viewMode === "grid"
+                        ? "bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm"
+                        : "text-slate-500 dark:text-slate-400"
                     }`}
-                    onClick={() => setViewMode('grid')}
+                    onClick={() => setViewMode("grid")}
                   >
                     Grid
                   </button>
@@ -328,14 +374,13 @@ const AdminContactList: React.FC = () => {
                 No contacts found
               </h3>
               <p className="text-slate-500 dark:text-slate-400">
-                {hasActiveFilters 
-                  ? "Try adjusting your filters to see more results." 
-                  : "No contact submissions have been received yet."
-                }
+                {hasActiveFilters
+                  ? "Try adjusting your filters to see more results."
+                  : "No contact submissions have been received yet."}
               </p>
             </CardContent>
           </Card>
-        ) : viewMode === 'grid' ? (
+        ) : viewMode === "grid" ? (
           /* Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredContacts.map((contact, idx) => (
@@ -372,7 +417,10 @@ const AdminContactList: React.FC = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                     {filteredContacts.map((contact, idx) => (
-                      <tr key={contact.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                      <tr
+                        key={contact.id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                           #{idx + 1}
                         </td>
@@ -405,24 +453,33 @@ const AdminContactList: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-1">
-                            {contact.services?.slice(0, 2).map((service, serviceIdx) => (
-                              <span key={serviceIdx} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                                {service}
-                              </span>
-                            ))}
-                            {contact.services && contact.services.length > 2 && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
-                                +{contact.services.length - 2}
-                              </span>
-                            )}
+                            {contact.services
+                              ?.slice(0, 2)
+                              .map((service, serviceIdx) => (
+                                <span
+                                  key={serviceIdx}
+                                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                >
+                                  {service}
+                                </span>
+                              ))}
+                            {contact.services &&
+                              contact.services.length > 2 && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                                  +{contact.services.length - 2}
+                                </span>
+                              )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                          {contact.submittedAt || 'N/A'}
+                          {contact.submittedAt || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
-                            onClick={() => { setSelected(contact); setOpen(true); }}
+                            onClick={() => {
+                              setSelected(contact);
+                              setOpen(true);
+                            }}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
                           >
                             <EyeIcon className="h-4 w-4" />
@@ -440,7 +497,11 @@ const AdminContactList: React.FC = () => {
 
         {/* Enhanced Modal Dialog */}
         <Transition appear show={open} as={Fragment}>
-          <Dialog as="div" className="relative z-50" onClose={() => setOpen(false)}>
+          <Dialog
+            as="div"
+            className="relative z-50"
+            onClose={() => setOpen(false)}
+          >
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -517,7 +578,7 @@ const AdminContactList: React.FC = () => {
                               Phone
                             </div>
                             <div className="text-lg font-semibold text-slate-900 dark:text-white">
-                              {selected.phone || 'Not provided'}
+                              {selected.phone || "Not provided"}
                             </div>
                           </div>
                         </div>
@@ -535,20 +596,24 @@ const AdminContactList: React.FC = () => {
                             </div>
                           )}
 
-                          {selected.services && selected.services.length > 0 && (
-                            <div>
-                              <div className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
-                                Requested Services
+                          {selected.services &&
+                            selected.services.length > 0 && (
+                              <div>
+                                <div className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+                                  Requested Services
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {selected.services.map((service, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
+                                    >
+                                      {service}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
-                              <div className="flex flex-wrap gap-2">
-                                {selected.services.map((service, idx) => (
-                                  <span key={idx} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
-                                    {service}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                            )}
                         </div>
 
                         {/* Message */}
@@ -568,7 +633,7 @@ const AdminContactList: React.FC = () => {
                         <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                           <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                             <ClockIcon className="h-4 w-4" />
-                            Submitted: {selected.submittedAt || 'Unknown'}
+                            Submitted: {selected.submittedAt || "Unknown"}
                           </div>
                           <button
                             onClick={() => setOpen(false)}

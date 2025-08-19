@@ -66,7 +66,13 @@ const SupplierList: React.FC<SupplierListProps> = ({
 
   // Update suppliers when props change
   useEffect(() => {
-    setSuppliers(propSuppliers);
+    // Sort by createdAt or submittedAt descending (latest first)
+    const sortedList = [...propSuppliers].sort((a, b) => {
+      const aTime = new Date(a.createdAt || a.submittedAt || 0).getTime();
+      const bTime = new Date(b.createdAt || b.submittedAt || 0).getTime();
+      return bTime - aTime;
+    });
+    setSuppliers(sortedList);
     setIsLoading(propIsLoading);
     
     // Extract categories from suppliers
@@ -102,7 +108,13 @@ const SupplierList: React.FC<SupplierListProps> = ({
         id: doc.id, 
         ...doc.data() 
       } as Supplier));
-      setSuppliers(supplierList);
+      // Sort by createdAt or submittedAt descending (latest first)
+      const sortedList = [...supplierList].sort((a, b) => {
+        const aTime = new Date(a.createdAt || a.submittedAt || 0).getTime();
+        const bTime = new Date(b.createdAt || b.submittedAt || 0).getTime();
+        return bTime - aTime;
+      });
+      setSuppliers(sortedList);
       
       // Extract unique categories from all suppliers
       const allCategories = new Set<string>();

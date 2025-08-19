@@ -3,9 +3,14 @@ import { Send, User, Building, Briefcase, Mail, Phone, MessageCircle, CheckCircl
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
+import { useAllCategories } from '../hooks/useAdminCategories';
 
 const ContactForm = () => {
-  const [formData, setFormData] = useState({
+
+  // Fetch business types from admin settings
+  const { businessTypes } = useAllCategories();
+
+  const initialFormState = {
     name: '',
     company: '',
     industry: '',
@@ -13,7 +18,8 @@ const ContactForm = () => {
     phone: '',
     services: [],
     message: ''
-  });
+  };
+  const [formData, setFormData] = useState(initialFormState);
 
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,18 +32,8 @@ const ContactForm = () => {
     "Other"
   ];
 
-  const industryOptions = [
-    "Healthcare & Clinics",
-    "Real Estate & Property",
-    "Trading & Commerce",
-    "Education & Training",
-    "Facilities Management",
-    "Manufacturing",
-    "Retail & E-commerce",
-    "Financial Services",
-    "Government",
-    "Other"
-  ];
+  // Use businessTypes from admin settings as industry options
+  const industryOptions = (businessTypes?.items || []).map((item) => typeof item === 'string' ? item : item.name).filter(Boolean);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -91,9 +87,7 @@ const ContactForm = () => {
           whileTap={{ scale: 0.98 }}
           onClick={() => {
             setSubmitted(false);
-            setFormData({
-              name: '', company: '', industry: '', email: '', phone: '', services: [], message: ''
-            });
+            setFormData(initialFormState);
           }}
         >
           Send Another Message
@@ -138,7 +132,7 @@ const ContactForm = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <label className="block text-slate-300 font-semibold mb-2 flex items-center">
+              <label className="text-slate-300 font-semibold mb-2 flex items-center">
               <User className="w-4 h-4 mr-2 text-[#6AAEFF]" />
               Name *
             </label>
@@ -159,7 +153,7 @@ const ContactForm = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <label className="block text-slate-300 font-semibold mb-2 flex items-center">
+              <label className="text-slate-300 font-semibold mb-2 flex items-center">
               <Building className="w-4 h-4 mr-2 text-[#6AAEFF]" />
               Company *
             </label>
@@ -182,7 +176,7 @@ const ContactForm = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <label className="block text-slate-300 font-semibold mb-2 flex items-center">
+            <label className="text-slate-300 font-semibold mb-2 flex items-center">
             <Briefcase className="w-4 h-4 mr-2 text-[#6AAEFF]" />
             Industry
           </label>
@@ -207,7 +201,7 @@ const ContactForm = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             viewport={{ once: true }}
           >
-            <label className="block text-slate-300 font-semibold mb-2 flex items-center">
+              <label className="text-slate-300 font-semibold mb-2 flex items-center">
               <Mail className="w-4 h-4 mr-2 text-[#6AAEFF]" />
               Email *
             </label>
@@ -228,7 +222,7 @@ const ContactForm = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
             viewport={{ once: true }}
           >
-            <label className="block text-slate-300 font-semibold mb-2 flex items-center">
+              <label className="text-slate-300 font-semibold mb-2 flex items-center">
               <Phone className="w-4 h-4 mr-2 text-[#6AAEFF]" />
               Phone *
             </label>
@@ -251,7 +245,7 @@ const ContactForm = () => {
           transition={{ duration: 0.5, delay: 0.6 }}
           viewport={{ once: true }}
         >
-          <label className="block text-slate-300 font-semibold mb-4 flex items-center">
+            <label className="text-slate-300 font-semibold mb-4 flex items-center">
             <CheckCircle className="w-4 h-4 mr-2 text-[#6AAEFF]" />
             Services Interested In *
           </label>
@@ -302,7 +296,7 @@ const ContactForm = () => {
           transition={{ duration: 0.5, delay: 0.8 }}
           viewport={{ once: true }}
         >
-          <label className="block text-slate-300 font-semibold mb-2 flex items-center">
+            <label className="text-slate-300 font-semibold mb-2 flex items-center">
             <MessageCircle className="w-4 h-4 mr-2 text-[#6AAEFF]" />
             Message / Requirements *
           </label>

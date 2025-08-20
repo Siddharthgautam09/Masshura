@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
+import SEO from '@/components/Seo';
 import { MapPin, Phone, Mail, ArrowRight, MessageCircle, Calendar, CheckCircle, Rocket, Building, Globe } from 'lucide-react';
 import { Link } from "react-router-dom";
+
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "IT Consulting Services Dubai"
+};
 
 const ItConsulting = () => {
   const contactInfo = [
@@ -32,7 +39,15 @@ const ItConsulting = () => {
   ];
 
   return (
-    <section className="relative bg-slate-900 overflow-hidden navbar-content-spacing">
+    <>
+      <SEO
+        title="IT Consulting Dubai - Ready ERP Solutions | Software for Real Estate UAE"
+        description="Expert IT consulting in Dubai. Ready ERP solutions, software for real estate UAE, plug-and-play MEP apps."
+        keywords="ready ERP in Dubai, software for real estate UAE, IT consulting Dubai"
+        canonical="https://www.Maashura.com/it-consultancy/"
+        schemaMarkup={serviceSchema}
+      />
+      <section className="relative bg-slate-900 overflow-hidden navbar-content-spacing">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-10 left-10 w-64 h-64 bg-[#6AAEFF]/5 rounded-full blur-3xl animate-pulse" />
@@ -311,6 +326,7 @@ const ItConsulting = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

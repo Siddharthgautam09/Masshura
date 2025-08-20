@@ -1,5 +1,12 @@
 import { motion } from 'framer-motion';
+import SEO from '@/components/Seo';
 import { Monitor, Printer, Wifi, HardDrive, Laptop, Cable, Server, Smartphone, ArrowRight, CheckCircle } from 'lucide-react';
+
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "IT Hardware Supply Dubai"
+};
 
 const ItHardware = () => {
   const hardwareCategories = [
@@ -43,7 +50,15 @@ const ItHardware = () => {
   ];
 
   return (
-    <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
+    <>
+      <SEO
+        title="IT Hardware Supply Dubai - Cheap Laptop UAE | Network Modem Office"
+        description="Premium IT hardware supply in Dubai. Cheap laptops UAE, network modems for office Dubai at competitive prices."
+        keywords="cheap laptop UAE, network modem for office Dubai, IT hardware Dubai"
+        canonical="https://www.Maashura.com/it-hardware/"
+        schemaMarkup={productSchema}
+      />
+      <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
       {/* Meta tags for SEO */}
       <meta name="title" content="Affordable IT Hardware Supply in UAE for Clinics, Schools, Retail & SMEs – Maashura" />
       <meta name="description" content="Discover reliable IT hardware supply in UAE with Maashura. We serve clinics, schools, trading companies, and SMEs with affordable networking devices, computers, printers, and IT accessories." />
@@ -264,6 +279,7 @@ const ItHardware = () => {
         </motion.div>
       </div>
     </section>
+    </>
   );
 };
 

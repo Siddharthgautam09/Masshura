@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import SEO from '@/components/Seo';
 import { Upload, FileText, Check, User, Building, Globe, Phone, Mail, Shield, ArrowRight, Paperclip, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
@@ -357,7 +358,14 @@ const SupplierRegistration = () => {
   }
 
   return (
-    <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
+    <>
+      <SEO
+        title="Supplier Registration Dubai - IT Hardware Suppliers UAE | Maashura"
+        description="Join Maashura's supplier network in Dubai for IT hardware, software distribution across UAE."
+        keywords="supplier registration Dubai, IT hardware suppliers UAE"
+        canonical="https://www.Maashura.com/supplier-registration/"
+      />
+      <section className="relative bg-slate-900 min-h-screen overflow-hidden navbar-content-spacing">
       {/* SEO Meta Tags */}
       <title>Supplier Registration – Partner with Maashura Digital Clarity & IT Consultancy in UAE & GCC</title>
       <meta name="description" content="Join Maashura as a supplier or development partner. Fill out the supplier registration form to work with clients across UAE, Saudi Arabia, and the GCC." />
@@ -921,6 +929,7 @@ const SupplierRegistration = () => {
         </motion.div>
       </div>
     </section>
+    </>
   );
 };
 

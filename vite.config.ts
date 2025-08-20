@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          vendor: ['react', 'react-dom', 'react-helmet-async'],
           ui: ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
           animation: ['framer-motion'],
           icons: ['lucide-react'],

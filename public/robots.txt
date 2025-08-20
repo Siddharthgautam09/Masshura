@@ -12,3 +12,13 @@ Allow: /
 
 User-agent: *
 Allow: /
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+
+Allow: /it-consultancy/
+Allow: /products/
+Allow: /about/
+
+Sitemap: https://www.Maashura.com/sitemap.xml
+

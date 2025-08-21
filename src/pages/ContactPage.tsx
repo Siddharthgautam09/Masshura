@@ -60,17 +60,6 @@ const ContactPage = () => {
       <title>Start Your IT Transformation | Contact Maashura Experts</title>
       <meta name="description" content="Connect with Maashura for scalable IT hardware supply, consulting, AMC, and software development in Dubai, UAE, Saudi Arabia & the GCC. Reliable support for growing businesses." />
 
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#6AAEFF]/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/3 rounded-full blur-3xl animate-pulse delay-1000" />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-[#6AAEFF]/10 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
-
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
         
         {/* Hero Section */}

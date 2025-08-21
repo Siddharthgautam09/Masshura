@@ -245,9 +245,9 @@ const SupplierRegistration = () => {
 
       // Send confirmation email to supplier
       try {
-        const YOUR_SERVICE_ID = "service_6qlid92";
-        const YOUR_TEMPLATE_ID = "template_h01qmqi";      // Account Setup template
-        const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+        const YOUR_SERVICE_ID = "service_ac06gsk";
+        const YOUR_TEMPLATE_ID = "template_6da6js9";      // Account Setup template
+        const YOUR_PUBLIC_KEY = "B_6mIRmDRtCZ1c2pY";
 
         // Initialize EmailJS
         emailjs.init(YOUR_PUBLIC_KEY);
@@ -259,7 +259,8 @@ const SupplierRegistration = () => {
           company_name: formData.companyName,
           ref_no: refNo,
           submission_date: new Date().toLocaleDateString(),
-          from_name: "Masshura Team"
+          from_name: "Masshura Team",
+          image_url: 'https://res.cloudinary.com/domqsb9le/image/upload/v1755354236/qb3gw7akfhcldpn4wtrz.png'
         };
 
         // Send confirmation email

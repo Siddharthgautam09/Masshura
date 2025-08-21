@@ -254,9 +254,9 @@ const SupplierDetailPage = () => {
 
     try {
       // EmailJS configuration
-      const YOUR_SERVICE_ID = "service_6qlid92";
-      const YOUR_TEMPLATE_ID = "template_4up1wxm";    // Welcome/Instructions template only
-      const YOUR_PUBLIC_KEY = "v5gxhy3P54twB8u7I";
+      const YOUR_SERVICE_ID = "service_ac06gsk";
+      const YOUR_TEMPLATE_ID = "template_fa1kz7v";    // Welcome/Instructions template only
+      const YOUR_PUBLIC_KEY = "B_6mIRmDRtCZ1c2pY";
 
       // Validate EmailJS configuration
       if (!YOUR_SERVICE_ID || !YOUR_TEMPLATE_ID || !YOUR_PUBLIC_KEY) {
@@ -299,7 +299,8 @@ const SupplierDetailPage = () => {
         portal_link: `${window.location.origin}/supplier-portal`,
         support_email: "support@masshura.com",
         from_name: "Masshura Team",
-        message: "Welcome to Masshura! Your supplier application has been approved."
+        message: "Welcome to Masshura! Your supplier application has been approved.",
+        image_url: 'https://res.cloudinary.com/domqsb9le/image/upload/v1755354236/qb3gw7akfhcldpn4wtrz.png'
       };
 
       console.log('Sending approval welcome email with params:', templateParams);
@@ -328,9 +329,9 @@ const SupplierDetailPage = () => {
     if (!supplier) return;
 
     try {
-      const REJECTION_SERVICE_ID = "service_gcr919g";
-      const REJECTION_TEMPLATE_ID = "template_zhrmd5l";
-      const REJECTION_PUBLIC_KEY = "_r7BfwEM87Padmulp";
+      const REJECTION_SERVICE_ID = "service_1uo46he";
+      const REJECTION_TEMPLATE_ID = "template_6wnx1sk";
+      const REJECTION_PUBLIC_KEY = "gyMzvdhDf_-zbP_vP";
 
       // Validate EmailJS configuration
       if (!REJECTION_SERVICE_ID || !REJECTION_TEMPLATE_ID || !REJECTION_PUBLIC_KEY) {
@@ -355,7 +356,8 @@ const SupplierDetailPage = () => {
         ref_no: supplier.refNo || `SUP-${supplier.id.slice(-6)}`,
         support_email: "support@masshura.com",
         from_name: "Masshura Team",
-        message: "We appreciate your interest in partnering with Masshura. After careful review, we are unable to proceed with your application at this time."
+        message: "We appreciate your interest in partnering with Masshura. After careful review, we are unable to proceed with your application at this time.",
+        image_url: 'https://res.cloudinary.com/domqsb9le/image/upload/v1755354236/qb3gw7akfhcldpn4wtrz.png'
       };
 
       console.log('Sending rejection email with params:', templateParams);

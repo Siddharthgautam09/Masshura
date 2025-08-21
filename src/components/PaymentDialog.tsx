@@ -119,14 +119,15 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
         subscription_duration: `${supplierData.subscriptionDuration || 1} year${(supplierData.subscriptionDuration > 1) ? 's' : ''}`,
         expiry_date: new Date(Date.now() + (supplierData.subscriptionDuration || 1) * 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
         dashboard_link: `${window.location.origin}/supplier-dashboard`,
+        image_url: 'https://res.cloudinary.com/domqsb9le/image/upload/v1755354236/qb3gw7akfhcldpn4wtrz.png'
       };
 
       // Use your actual service ID, template ID, and public key
       await emailjs.send(
-        'service_gcr919g', // Replace with your actual service ID
-        'template_6tej786', // Replace with the Template ID you just copied
+        'service_1uo46he', // Replace with your actual service ID
+        'template_7kbl3dl', // Replace with the Template ID you just copied
         templateParams,
-        '_r7BfwEM87Padmulp' // Replace with your actual public key
+        'gyMzvdhDf_-zbP_vP' // Replace with your actual public key
       );
       
       console.log('Payment success email sent successfully');

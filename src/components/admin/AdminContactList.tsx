@@ -54,22 +54,23 @@ const AdminContactList: React.FC = () => {
         const snapshot = await getDocs(collection(db, "contacts"));
         let data = snapshot.docs.map((doc) => {
           const d = doc.data();
-          let submittedAt = d.submittedAt;
-          if (submittedAt && typeof submittedAt.toDate === "function") {
-            submittedAt = submittedAt.toDate().toLocaleString();
-          } else if (typeof submittedAt === "string") {
-            // fallback if string
-          } else {
-            submittedAt = "-";
-          }
-          return { id: doc.id, ...d, submittedAt };
+            let submittedAt = null;
+            if (d.submittedAt && typeof d.submittedAt.toDate === "function") {
+              // Firestore Timestamp
+              submittedAt = d.submittedAt.toDate().toISOString();
+            } else if (typeof d.submittedAt === "string") {
+              // Try to parse string as date
+              const date = new Date(d.submittedAt);
+              submittedAt = isNaN(date.getTime()) ? null : date.toISOString();
+            }
+            return { id: doc.id, ...d, submittedAt };
         }) as ContactEntry[];
         // Sort by submittedAt desc if possible
-        data = data.sort((a, b) => {
-          const aTime = new Date(a.submittedAt || 0).getTime();
-          const bTime = new Date(b.submittedAt || 0).getTime();
-          return bTime - aTime;
-        });
+          data = data.sort((a, b) => {
+            const aTime = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+            const bTime = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+            return bTime - aTime;
+          });
         setContacts(data);
       } catch (error) {
         console.error("Error fetching contacts:", error);
@@ -633,7 +634,11 @@ const AdminContactList: React.FC = () => {
                         <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                           <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                             <ClockIcon className="h-4 w-4" />
-                            Submitted: {selected.submittedAt || "Unknown"}
+                            Submitted: {selected.submittedAt ? (() => {
+                              const d = new Date(selected.submittedAt);
+                              const pad = (n: number) => n.toString().padStart(2, '0');
+                              return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+                            })() : "Unknown"}
                           </div>
                           <button
                             onClick={() => setOpen(false)}

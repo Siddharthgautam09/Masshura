@@ -124,10 +124,10 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
 
       // Use your actual service ID, template ID, and public key
       await emailjs.send(
-        'service_1uo46he', // Replace with your actual service ID
-        'template_7kbl3dl', // Replace with the Template ID you just copied
+        'service_gcr919g', // Replace with your actual service ID
+        'template_6tej786', // Replace with the Template ID you just copied
         templateParams,
-        'gyMzvdhDf_-zbP_vP' // Replace with your actual public key
+        'g_r7BfwEM87Padmulp' // Replace with your actual public key
       );
       
       console.log('Payment success email sent successfully');

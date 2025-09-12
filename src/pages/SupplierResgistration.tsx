@@ -68,54 +68,34 @@ const SupplierRegistration = () => {
     setUploading(prev => ({ ...prev, [type]: true }));
     
     try {
-      // Add Safari-specific validation
-      if (!file || !(file instanceof File)) {
-        throw new Error('Invalid file selected');
-      }
-
       // For now, we'll store the file as base64 in Firestore
       // In production, you should use Cloud Storage
       const reader = new FileReader();
       
       reader.onload = () => {
-        try {
-          const result = reader.result;
-          
-          if (!result) {
-            throw new Error('Failed to read file');
+        const result = reader.result;
+        
+        // Update form data with file data
+        setFormData(prev => ({
+          ...prev,
+          [type]: {
+            data: result, // Base64 data
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            uploadedAt: new Date().toISOString()
           }
-          
-          // Update form data with file data
-          setFormData(prev => ({
-            ...prev,
-            [type]: {
-              data: result, // Base64 data
-              fileName: file.name,
-              fileSize: file.size,
-              fileType: file.type,
-              uploadedAt: new Date().toISOString()
-            }
-          }));
-          
-          toast({
-            title: "Upload Successful",
-            description: `${type === 'tradeLicense' ? 'Trade License' : 'Catalog'} uploaded successfully.`,
-          });
-          
-          setUploading(prev => ({ ...prev, [type]: false }));
-        } catch (error) {
-          console.error('FileReader onload error:', error);
-          toast({
-            title: "Upload Failed",
-            description: `Failed to process ${type === 'tradeLicense' ? 'Trade License' : 'Catalog'}. Please try again.`,
-            variant: "destructive",
-          });
-          setUploading(prev => ({ ...prev, [type]: false }));
-        }
+        }));
+        
+        toast({
+          title: "Upload Successful",
+          description: `${type === 'tradeLicense' ? 'Trade License' : 'Catalog'} uploaded successfully.`,
+        });
+        
+        setUploading(prev => ({ ...prev, [type]: false }));
       };
       
-      reader.onerror = (error) => {
-        console.error('FileReader error:', error);
+      reader.onerror = () => {
         toast({
           title: "Upload Failed",
           description: `Failed to upload ${type === 'tradeLicense' ? 'Trade License' : 'Catalog'}. Please try again.`,
@@ -124,10 +104,7 @@ const SupplierRegistration = () => {
         setUploading(prev => ({ ...prev, [type]: false }));
       };
       
-      // Safari-specific: Add a small delay before reading
-      setTimeout(() => {
-        reader.readAsDataURL(file);
-      }, 10);
+      reader.readAsDataURL(file);
       
     } catch (error) {
       console.error('Upload error:', error);
@@ -142,64 +119,23 @@ const SupplierRegistration = () => {
 
   const handleDrop = (e, type) => {
     e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      const files = e.dataTransfer?.files;
-      if (!files || files.length === 0) {
-        toast({
-          title: "No Files Dropped",
-          description: "Please try selecting a file instead.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
       const file = files[0];
       if (validateFile(file, type)) {
         handleFileUpload(file, type);
       }
-    } catch (error) {
-      console.error('Drop error:', error);
-      toast({
-        title: "Drop Failed",
-        description: "Please try selecting the file instead.",
-        variant: "destructive",
-      });
     }
   };
 
   const handleFileSelect = (e, type) => {
-    const file = e.target.files?.[0];
-    
-    // Safari-specific: Ensure file exists and is valid
-    if (!file) {
-      toast({
-        title: "No File Selected",
-        description: "Please select a file to upload.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (validateFile(file, type)) {
+    const file = e.target.files[0];
+    if (file && validateFile(file, type)) {
       handleFileUpload(file, type);
     }
-    
-    // Safari-specific: Clear the input to allow re-selection of the same file
-    e.target.value = '';
   };
 
   const validateFile = (file, type) => {
-    if (!file || !(file instanceof File)) {
-      toast({
-        title: "Invalid File",
-        description: "Please select a valid file.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
     const maxSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
     
@@ -225,15 +161,7 @@ const SupplierRegistration = () => {
   };
 
   const handleSubmit = async (e) => {
-    // Prevent default form submission behavior
     e.preventDefault();
-    e.stopPropagation();
-    
-    // Prevent double submission
-    if (isSubmitting) {
-      return;
-    }
-    
     setIsSubmitting(true);
 
     try {
@@ -244,7 +172,6 @@ const SupplierRegistration = () => {
           description: "Please fill in all required fields.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -254,7 +181,6 @@ const SupplierRegistration = () => {
           description: "Please select at least one supply category.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -264,7 +190,6 @@ const SupplierRegistration = () => {
           description: "Please upload your trade license copy.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -274,7 +199,6 @@ const SupplierRegistration = () => {
           description: "Please confirm accuracy and agree to be contacted.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -284,7 +208,6 @@ const SupplierRegistration = () => {
           description: "Please select a renewal plan.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -312,19 +235,13 @@ const SupplierRegistration = () => {
         expiryDate: null, // Will be set when accepted and payment is made
       };
 
-      // Save to Firestore with better error handling
-      let docRef;
-      try {
-        docRef = await addDoc(collection(db, 'suppliers'), supplierData);
-        
-        toast({
-          title: "Success!",
-          description: `Registration submitted successfully. Reference: ${refNo}`,
-        });
-      } catch (firestoreError) {
-        console.error('Firestore error:', firestoreError);
-        throw new Error('Failed to save registration data. Please try again.');
-      }
+      // Save to Firestore
+      const docRef = await addDoc(collection(db, 'suppliers'), supplierData);
+      
+      toast({
+        title: "Success!",
+        description: `Registration submitted successfully. Reference: ${refNo}`,
+      });
 
       // Send confirmation email to supplier
       try {
@@ -367,10 +284,9 @@ const SupplierRegistration = () => {
       setSubmitted(true);
       
     } catch (error) {
-      console.error('Form submission error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to submit registration. Please try again.",
+        description: "Failed to submit registration. Please try again.",
         variant: "destructive",
       });
     } finally {

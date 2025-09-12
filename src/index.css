@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --page-gradient: linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
+  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  --dot-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+
+html, body {
+  background: #0f172a !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-display: swap;
+}
+
+#root {
+  background: var(--page-gradient);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--dot-pattern);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Mobile navbar spacing */
+@media (max-width: 768px) {
+  /* Add top margin to content sections for mobile */
+  section:not(#home) {
+    margin-top: 20px;
+  }
+  
+  /* Ensure mobile menu has proper spacing */
+  .mobile-menu-spacing {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* Add spacing between navbar and first content */
+  .navbar-content-spacing {
+    padding-top: 6rem; /* 96px - consistent with pt-24 */
+  }
+  
+  /* For mobile devices */
+  @media (max-width: 768px) {
+    .navbar-content-spacing {
+      padding-top: 5rem; /* 80px - consistent with pt-20 */
+    }
+  }
+}
+

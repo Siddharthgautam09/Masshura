@@ -1,0 +1,24 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+
+Allow: /it-consultancy/
+Allow: /products/
+Allow: /about/
+
+Sitemap: https://www.Maashura.com/sitemap.xml
+

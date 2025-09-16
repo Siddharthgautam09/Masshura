@@ -1,10 +1,20 @@
 import { motion } from 'framer-motion';
 import { Building2, Users, Settings, FileText, CreditCard, Car, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import ProductOrderDialog from './ProductOrderDialog';
 // import { Boxes } from '@/components/ui/background-boxes';
 import { HoverEffect } from '@/components/ui/card-hover-effect';
 
 const Products = () => {
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+  const [customerData, setCustomerData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: ''
+  });
   // Transform products data to match HoverEffect component format
   const products = [
     {
@@ -13,7 +23,8 @@ const Products = () => {
       description: "Smart Facilities Management Software designed specifically for FM contractors in Dubai and UAE. Features include Maintenance Scheduling, Work Order Management, Asset Tracking, and Compliance Reporting.",
       link: "https://www.Joonms.com/cafm",
       icon: Building2,
-      price: "Customizable Pricing",
+      price: "₹15,000",
+      actualPrice: 15000,
       popular: true,
       features: ["Maintenance Scheduling", "Work Order Management", "Asset Tracking", "Compliance Reporting"]
     },
@@ -23,7 +34,8 @@ const Products = () => {
       description: "Ready to deploy, customizable, and region-friendly ERP solutions built for UAE businesses. Includes Real Estate Management, MEP Project Control, Trading Operations, and UAE Compliance.",
       link: "https://www.Joonms.com/erp",
       icon: Settings,
-      price: "Customizable pricing",
+      price: "₹25,000",
+      actualPrice: 25000,
       popular: false,
       features: ["Real Estate Management", "MEP Project Control", "Trading Operations", "UAE Compliance"]
     },
@@ -33,7 +45,8 @@ const Products = () => {
       description: "Designed for UAE compliance and simplicity with integrated business management tools. Features Inventory Control, UAE VAT Compliance, HR Management, and Payroll Processing.",
       link: "https://www.Joonms.com/inventory",
       icon: Users,
-      price: "Customizable Pricing",
+      price: "₹18,000",
+      actualPrice: 18000,
       popular: false,
       features: ["Inventory Control", "UAE VAT Compliance", "HR Management", "Payroll Processing"]
     },
@@ -43,7 +56,8 @@ const Products = () => {
       description: "Stay on top of receivables and financial reporting with automated tracking systems. Includes Cheque Tracking, Payment Reminders, Financial Reports, and Cash Flow Management.",
       link: "https://www.Joonms.com/payments",
       icon: CreditCard,
-      price: "Customizable Pricing",
+      price: "₹12,000",
+      actualPrice: 12000,
       popular: false,
       features: ["Cheque Tracking", "Payment Reminders", "Financial Reports", "Cash Flow Management"]
     },
@@ -53,7 +67,8 @@ const Products = () => {
       description: "Comprehensive fleet management solution for businesses operating vehicle fleets in the GCC. Features Vehicle Tracking, Maintenance Alerts, Driver Management, and Fuel Monitoring.",
       link: "https://www.Joonms.com/fleet",
       icon: Car,
-      price: "Customizable Pricing",
+      price: "₹20,000",
+      actualPrice: 20000,
       popular: false,
       features: ["Vehicle Tracking", "Maintenance Alerts", "Driver Management", "Fuel Monitoring"]
     },
@@ -63,7 +78,8 @@ const Products = () => {
       description: "Everything you need to automate workforce management and scheduling operations. Includes Biometric Integration, Shift Scheduling, Leave Management, and Overtime Tracking.",
       link: "https://www.Joonms.com/attendance",
       icon: Calendar,
-      price: "Customizable Pricing",
+      price: "₹8,000",
+      actualPrice: 8000,
       popular: false,
       features: ["Biometric Integration", "Shift Scheduling", "Leave Management", "Overtime Tracking"]
     }
@@ -94,6 +110,27 @@ const Products = () => {
 
     // Option 5: For external contact page
     // window.open('https://yourwebsite.com/contact', '_self');
+  };
+
+  // Order functionality
+  const handleOrderProduct = (product: any) => {
+    // Simple customer data collection (you can make this more sophisticated)
+    const name = prompt('Enter your name:');
+    const email = prompt('Enter your email:');
+    const phone = prompt('Enter your phone (optional):');
+    const company = prompt('Enter your company name (optional):');
+
+    if (name && email) {
+      setCustomerData({ name, email, phone: phone || '', company: company || '' });
+      setSelectedProducts([{
+        id: product.id,
+        title: product.title,
+        price: product.actualPrice,
+        quantity: 1,
+        description: product.description
+      }]);
+      setShowOrderDialog(true);
+    }
   };
 
   return (
@@ -195,7 +232,44 @@ const Products = () => {
             <span className="relative z-10">Get Custom Pricing Quote</span>
           </motion.button>
         </motion.div>
+
+        {/* Add Order Button */}
+        <motion.div
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <p className="text-slate-300 mb-6">Ready to purchase any of our software solutions?</p>
+          <motion.button
+            className="relative overflow-hidden group bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-xl hover:shadow-green-500/30"
+            onClick={() => {
+              // For demo, you can directly order the popular product
+              const popularProduct = products.find(p => p.popular);
+              if (popularProduct) {
+                handleOrderProduct(popularProduct);
+              }
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Order Software Products"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <span className="relative z-10">🛒 Order Our Products</span>
+          </motion.button>
+        </motion.div>
       </div>
+
+      {/* Product Order Dialog */}
+      {showOrderDialog && (
+        <ProductOrderDialog
+          isOpen={showOrderDialog}
+          onClose={() => setShowOrderDialog(false)}
+          orderItems={selectedProducts}
+          customerData={customerData}
+        />
+      )}
     </section>
   );
 };

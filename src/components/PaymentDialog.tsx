@@ -54,14 +54,29 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
     }
 
     try {
-      // Create payment method
-      const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-        billing_details: {
-          name: supplierData.companyName,
-          email: supplierData.email,
+      // Create Payment Intent via backend
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          amount: totalAmount,
+          supplier_id: supplierData.id
+        }),
+      });
+      
+      const { clientSecret } = await response.json();
+      
+      // Confirm payment with Stripe
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: supplierData.companyName,
+            email: supplierData.email,
+          },
+        }
       });
 
       if (error) {
@@ -70,42 +85,36 @@ const PaymentForm = ({ supplierData, totalAmount, onSuccess, onError }: any) => 
         return;
       }
 
-      // In a real implementation, you would send this to your backend
-      // For now, we'll simulate a successful payment
-      await simulatePayment(paymentMethod.id);
-      
-      // Calculate expiry date based on subscription duration
-      const expiryDate = new Date();
-      expiryDate.setFullYear(expiryDate.getFullYear() + (supplierData.subscriptionDuration || 1));
-      
-      // Update supplier payment status
-      await updateDoc(doc(db, 'suppliers', supplierData.id), {
-        paymentStatus: 'completed',
-        paymentDate: new Date().toISOString(),
-        paymentAmount: totalAmount,
-        paymentMethod: 'stripe',
-        paymentId: paymentMethod.id,
-        subscriptionExpiryDate: expiryDate.toISOString(),
-        status: 'active', // Activate the supplier after payment
-      });
+      if (paymentIntent.status === 'succeeded') {
+        // Calculate expiry date based on subscription duration
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + (supplierData.subscriptionDuration || 1));
+        
+        // Update supplier payment status
+        await updateDoc(doc(db, 'suppliers', supplierData.id), {
+          paymentStatus: 'completed',
+          paymentDate: new Date().toISOString(),
+          paymentAmount: totalAmount,
+          paymentMethod: 'stripe',
+          paymentId: paymentIntent.id,
+          subscriptionExpiryDate: expiryDate.toISOString(),
+          status: 'active', // Activate the supplier after payment
+        });
 
-      // Send success email
-      await sendPaymentSuccessEmail();
-      
-      onSuccess();
+        // Send success email
+        await sendPaymentSuccessEmail();
+        
+        onSuccess();
+      }
     } catch (error) {
+      console.error('Payment error:', error);
       onError('Payment processing failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const simulatePayment = async (paymentMethodId: string) => {
-    // In production, this would be handled by your backend
-    return new Promise((resolve) => {
-      setTimeout(resolve, 2000); // Simulate processing time
-    });
-  };
+  // Remove the simulate payment function as we're now using real payments
 
   const sendPaymentSuccessEmail = async () => {
     try {

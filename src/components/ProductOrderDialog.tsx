@@ -83,23 +83,55 @@ const ProductPaymentForm = ({ orderItems, customerData, totalAmount, onSuccess, 
         return;
       }
 
-      // For now, we'll use a simple approach that works with live keys
-      // In production, you should create Payment Intent via your backend
-      
-      // Simulate the payment process with proper validation
-      const paymentData = {
-        id: `pi_order_${Math.random().toString(36).substr(2, 9)}`,
-        status: 'succeeded',
-        amount: Math.round(totalAmount * 100),
-        currency: 'inr',
-        payment_method: paymentMethod.id
-      };
+      // REAL PAYMENT PROCESSING - This will actually charge the card
+      // Step 1: Create a real payment intent using Stripe's API
+      const response = await fetch('https://api.stripe.com/v1/payment_intents', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_STRIPE_SECRET_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          amount: (totalAmount * 100).toString(), // Convert to paise
+          currency: 'inr',
+          payment_method: paymentMethod.id,
+          confirmation_method: 'manual',
+          confirm: 'true',
+          return_url: window.location.href,
+        }),
+      });
 
-      // Add a small delay to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const paymentIntent = await response.json();
 
-      // Handle successful payment
-      await handleSuccessfulPayment(paymentData.id);
+      if (paymentIntent.error) {
+        onError(paymentIntent.error.message);
+        setIsProcessing(false);
+        return;
+      }
+
+      // Step 2: Handle 3D Secure or direct success
+      if (paymentIntent.status === 'requires_action') {
+        // 3D Secure authentication required
+        const { error: confirmError, paymentIntent: confirmedPayment } = await stripe.confirmCardPayment(
+          paymentIntent.client_secret
+        );
+
+        if (confirmError) {
+          onError(confirmError.message);
+          setIsProcessing(false);
+          return;
+        }
+
+        if (confirmedPayment.status === 'succeeded') {
+          await handleSuccessfulPayment(confirmedPayment.id);
+        }
+      } else if (paymentIntent.status === 'succeeded') {
+        // Payment succeeded without additional authentication
+        await handleSuccessfulPayment(paymentIntent.id);
+      } else {
+        onError('Payment failed. Please try again.');
+        setIsProcessing(false);
+      }
 
     } catch (error: any) {
       console.error('Payment error:', error);
